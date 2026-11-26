@@ -28,9 +28,10 @@
   }
   // The model in one function: the page recomputes a row from the snapshot figures and checks the
   // number board.json carries, so the page's code and the board's data are visibly the same arithmetic.
-  function impliedOf(row, model, baseline) {
-    var fit = model.regression;
+  function impliedOf(row, model, baseline, experimental) {
+    var fit = experimental ? model.experimental : model.regression;
     if (!baseline && fit && row.tvl_usd > 0) {
+      if (!experimental) return Math.max(1, Math.round(Math.exp(fit.intercept + fit.slope * Math.log(row.tvl_usd))));
       var days = (Date.parse(DATA.as_of) - Date.parse(row.listed_at || '')) / 86400000;
       var inputs = {
         tvl: Math.log(row.tvl_usd),
@@ -300,26 +301,22 @@
     return el('section', { class: 'panel model' },
       el('div', { class: 'method-copy' },
         el('h2', { text: 'Valuation methodology' }),
-        el('p', null, el('strong', { text: 'Regularized multivariate Huber regression' }),
-          ' fits market cap from TVL, seven-day growth and tracking age. DefiLlama tracking age is a proxy for age of a pre-token protocol.'),
+        el('p', null, el('strong', { text: 'V1 TVL-only Huber regression' }),
+          ' fits market cap from log TVL. Growth and DefiLlama tracking age are inputs to the experimental comparator.'),
         el('details', null, el('summary', { text: 'Formula and sensitivity' }),
-          el('div', { class: 'formula', text: fit ? 'Implied USD = exp(' + fit.intercept.toFixed(6) + ' + the centered feature terms below), rounded with a $1 floor.' : 'Original comparator fallback.' }),
-          ...(fit ? fit.terms.map(function (term) {
-            var names = { tvl: 'ln(TVL USD)', growth: 'asinh(growth % / 100)', age: 'ln(1 + tracking days)' };
-            return el('p', { text: names[term.feature] + ': coefficient ' + term.coefficient.toFixed(6) + ', training median ' + term.center.toFixed(6) + '.' });
-          }) : []),
-          el('p', { text: 'Missing growth or age uses the training median. Board estimates can use growth or age outside the observed training range.' }),
+          el('div', { class: 'formula', text: fit ? 'Implied USD = exp(' + fit.intercept.toFixed(6) + ' + ' + fit.slope.toFixed(6) + ' ? ln(TVL USD)), rounded with a $1 floor.' : 'Original comparator fallback.' }),
+          el('p', { text: 'The experimental regularized fit uses log TVL, seven-day growth and tracking age. Tracking age is a snapshot proxy and does not establish how long a protocol has been tokenless.' }),
           el('p', { text: 'Comparator = round(TVL * 0.25 * growth multiplier * age multiplier), with a $1 floor. Growth is clipped to -60% to +120% and weighted by 0.5. The age multiplier rises from 0.6 to 1 over 1,095 days. Missing growth uses zero and missing age uses 365 days.' })
         )
       ),
       el('div', { class: 'validation' },
         el('span', { class: 'sub', text: 'Sealed snapshot: 119 peers / leave-one-out mean absolute log error' }),
         el('div', { class: 'scores' },
-          el('div', null, el('strong', { text: '1.580' }), el('span', { text: 'Regularized Huber' })),
           el('div', null, el('strong', { text: '1.571' }), el('span', { text: 'V1 TVL-only Huber' })),
+          el('div', null, el('strong', { text: '1.573' }), el('span', { text: 'Experimental fit' })),
           el('div', null, el('strong', { text: '1.769' }), el('span', { text: 'Original comparator' }))
         ),
-        el('span', { class: 'sub', text: 'Held-out age cohorts: 1.579 regularized, 1.564 V1, 1.769 comparator. Both tests use one cross-sectional snapshot.' })
+        el('span', { class: 'sub', text: 'Held-out age cohorts: 1.564 V1, 1.564 experimental, 1.769 original. Both tests use one cross-sectional snapshot.' })
       )
     );
   }
@@ -402,6 +399,7 @@
         el('div', null, el('span', { text: 'Seven-day growth' }), el('b', { class: 'num', text: fmtPct(row.change_7d) })),
         el('div', null, el('span', { text: 'Tracking age' }), el('b', { class: 'num', text: fmtAge(row.age_days) })),
         el('div', null, el('span', { text: 'Huber implied value' }), el('b', { class: 'num', text: fmtUsd(row.implied_value_usd) })),
+        DATA.model.experimental && row.tvl_usd > 0 ? el('div', null, el('span', { text: 'Experimental fit' }), el('b', { class: 'num', text: fmtUsd(impliedOf(row, DATA.model, false, true)) })) : null,
         el('div', null, el('span', { text: 'Original comparator' }), el('b', { class: 'num', text: fmtUsd(impliedOf(row, DATA.model, true)) }))
       ),
       DATA.uncertainty && row.tvl_usd > 0 ? el('p', { class: 'sub',

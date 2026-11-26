@@ -1,0 +1,510 @@
+{
+  "v1": {
+    "ref": "7270dff",
+    "javascriptTypescript": {
+      "lines": {
+        "covered": 1079,
+        "total": 1096,
+        "percent": 98.44890510948905,
+        "deltaPP": null,
+        "deltaFromV1PP": 0
+      },
+      "branches": {
+        "covered": 362,
+        "total": 417,
+        "percent": 86.81055155875299,
+        "deltaPP": null,
+        "deltaFromV1PP": 0
+      },
+      "functions": {
+        "covered": 109,
+        "total": 110,
+        "percent": 99.0909090909091,
+        "deltaPP": null,
+        "deltaFromV1PP": 0
+      }
+    },
+    "python": null,
+    "files": {
+      "dashboard/app.js": {
+        "lines": {
+          "covered": 431,
+          "total": 439
+        },
+        "branches": {
+          "covered": 156,
+          "total": 198
+        },
+        "functions": {
+          "covered": 55,
+          "total": 56
+        }
+      },
+      "lib/classification.ts": {
+        "lines": {
+          "covered": 91,
+          "total": 91
+        },
+        "branches": {
+          "covered": 41,
+          "total": 42
+        },
+        "functions": {
+          "covered": 8,
+          "total": 8
+        }
+      },
+      "lib/farming.ts": {
+        "lines": {
+          "covered": 48,
+          "total": 48
+        },
+        "branches": {
+          "covered": 23,
+          "total": 23
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2
+        }
+      },
+      "lib/model.ts": {
+        "lines": {
+          "covered": 389,
+          "total": 389
+        },
+        "branches": {
+          "covered": 114,
+          "total": 119
+        },
+        "functions": {
+          "covered": 33,
+          "total": 33
+        }
+      },
+      "lib/valuation.ts": {
+        "lines": {
+          "covered": 37,
+          "total": 37
+        },
+        "branches": {
+          "covered": 22,
+          "total": 22
+        },
+        "functions": {
+          "covered": 8,
+          "total": 8
+        }
+      },
+      "main.ts": {
+        "lines": {
+          "covered": 83,
+          "total": 92
+        },
+        "branches": {
+          "covered": 6,
+          "total": 13
+        },
+        "functions": {
+          "covered": 3,
+          "total": 3
+        }
+      }
+    }
+  },
+  "m7": {
+    "ref": "2f97395",
+    "javascriptTypescript": {
+      "lines": {
+        "covered": 1176,
+        "total": 1193,
+        "percent": 98.57502095557419,
+        "deltaPP": 0.12611584608514192,
+        "deltaFromV1PP": 0.12611584608514192
+      },
+      "branches": {
+        "covered": 426,
+        "total": 489,
+        "percent": 87.11656441717791,
+        "deltaPP": 0.3060128584249213,
+        "deltaFromV1PP": 0.3060128584249213
+      },
+      "functions": {
+        "covered": 138,
+        "total": 139,
+        "percent": 99.28057553956835,
+        "deltaPP": 0.18966644865925275,
+        "deltaFromV1PP": 0.18966644865925275
+      }
+    },
+    "python": null,
+    "files": {
+      "dashboard/app.js": {
+        "lines": {
+          "covered": 445,
+          "total": 453
+        },
+        "branches": {
+          "covered": 158,
+          "total": 205
+        },
+        "functions": {
+          "covered": 57,
+          "total": 58
+        }
+      },
+      "lib/classification.ts": {
+        "lines": {
+          "covered": 91,
+          "total": 91
+        },
+        "branches": {
+          "covered": 41,
+          "total": 42
+        },
+        "functions": {
+          "covered": 8,
+          "total": 8
+        }
+      },
+      "lib/farming.ts": {
+        "lines": {
+          "covered": 48,
+          "total": 48
+        },
+        "branches": {
+          "covered": 23,
+          "total": 23
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2
+        }
+      },
+      "lib/model.ts": {
+        "lines": {
+          "covered": 394,
+          "total": 394
+        },
+        "branches": {
+          "covered": 115,
+          "total": 120
+        },
+        "functions": {
+          "covered": 33,
+          "total": 33
+        }
+      },
+      "lib/valuation.ts": {
+        "lines": {
+          "covered": 115,
+          "total": 115
+        },
+        "branches": {
+          "covered": 83,
+          "total": 86
+        },
+        "functions": {
+          "covered": 35,
+          "total": 35
+        }
+      },
+      "main.ts": {
+        "lines": {
+          "covered": 83,
+          "total": 92
+        },
+        "branches": {
+          "covered": 6,
+          "total": 13
+        },
+        "functions": {
+          "covered": 3,
+          "total": 3
+        }
+      }
+    }
+  },
+  "m8": {
+    "ref": "6e2f8de",
+    "javascriptTypescript": {
+      "lines": {
+        "covered": 1258,
+        "total": 1276,
+        "percent": 98.58934169278997,
+        "deltaPP": 0.014320737215783197,
+        "deltaFromV1PP": 0.14043658330092512
+      },
+      "branches": {
+        "covered": 466,
+        "total": 537,
+        "percent": 86.77839851024208,
+        "deltaPP": -0.3381659069358278,
+        "deltaFromV1PP": -0.0321530485109065
+      },
+      "functions": {
+        "covered": 160,
+        "total": 161,
+        "percent": 99.37888198757764,
+        "deltaPP": 0.09830644800929633,
+        "deltaFromV1PP": 0.2879728966685491
+      }
+    },
+    "python": null,
+    "files": {
+      "dashboard/app.js": {
+        "lines": {
+          "covered": 450,
+          "total": 458
+        },
+        "branches": {
+          "covered": 159,
+          "total": 207
+        },
+        "functions": {
+          "covered": 57,
+          "total": 58
+        }
+      },
+      "lib/classification.ts": {
+        "lines": {
+          "covered": 92,
+          "total": 92
+        },
+        "branches": {
+          "covered": 41,
+          "total": 42
+        },
+        "functions": {
+          "covered": 8,
+          "total": 8
+        }
+      },
+      "lib/farming.ts": {
+        "lines": {
+          "covered": 48,
+          "total": 48
+        },
+        "branches": {
+          "covered": 23,
+          "total": 23
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2
+        }
+      },
+      "lib/ledger.ts": {
+        "lines": {
+          "covered": 30,
+          "total": 31
+        },
+        "branches": {
+          "covered": 22,
+          "total": 24
+        },
+        "functions": {
+          "covered": 10,
+          "total": 10
+        }
+      },
+      "lib/model.ts": {
+        "lines": {
+          "covered": 408,
+          "total": 408
+        },
+        "branches": {
+          "covered": 119,
+          "total": 126
+        },
+        "functions": {
+          "covered": 38,
+          "total": 38
+        }
+      },
+      "lib/regularization.ts": {
+        "lines": {
+          "covered": 26,
+          "total": 26
+        },
+        "branches": {
+          "covered": 10,
+          "total": 13
+        },
+        "functions": {
+          "covered": 6,
+          "total": 6
+        }
+      },
+      "lib/valuation.ts": {
+        "lines": {
+          "covered": 119,
+          "total": 119
+        },
+        "branches": {
+          "covered": 86,
+          "total": 89
+        },
+        "functions": {
+          "covered": 36,
+          "total": 36
+        }
+      },
+      "main.ts": {
+        "lines": {
+          "covered": 85,
+          "total": 94
+        },
+        "branches": {
+          "covered": 6,
+          "total": 13
+        },
+        "functions": {
+          "covered": 3,
+          "total": 3
+        }
+      }
+    }
+  },
+  "m9": {
+    "ref": "m9-model-selection",
+    "javascriptTypescript": {
+      "lines": {
+        "covered": 1263,
+        "total": 1281,
+        "percent": 98.59484777517564,
+        "deltaPP": 0.005506082385664968,
+        "deltaFromV1PP": 0.1459426656865901
+      },
+      "branches": {
+        "covered": 472,
+        "total": 543,
+        "percent": 86.92449355432781,
+        "deltaPP": 0.14609504408572604,
+        "deltaFromV1PP": 0.11394199557481954
+      },
+      "functions": {
+        "covered": 158,
+        "total": 159,
+        "percent": 99.37106918238993,
+        "deltaPP": -0.007812805187711547,
+        "deltaFromV1PP": 0.28016009148083754
+      }
+    },
+    "python": null,
+    "files": {
+      "dashboard/app.js": {
+        "lines": {
+          "covered": 448,
+          "total": 456
+        },
+        "branches": {
+          "covered": 164,
+          "total": 212
+        },
+        "functions": {
+          "covered": 56,
+          "total": 57
+        }
+      },
+      "lib/classification.ts": {
+        "lines": {
+          "covered": 92,
+          "total": 92
+        },
+        "branches": {
+          "covered": 41,
+          "total": 42
+        },
+        "functions": {
+          "covered": 8,
+          "total": 8
+        }
+      },
+      "lib/farming.ts": {
+        "lines": {
+          "covered": 48,
+          "total": 48
+        },
+        "branches": {
+          "covered": 23,
+          "total": 23
+        },
+        "functions": {
+          "covered": 2,
+          "total": 2
+        }
+      },
+      "lib/ledger.ts": {
+        "lines": {
+          "covered": 30,
+          "total": 31
+        },
+        "branches": {
+          "covered": 22,
+          "total": 24
+        },
+        "functions": {
+          "covered": 10,
+          "total": 10
+        }
+      },
+      "lib/model.ts": {
+        "lines": {
+          "covered": 415,
+          "total": 415
+        },
+        "branches": {
+          "covered": 120,
+          "total": 127
+        },
+        "functions": {
+          "covered": 37,
+          "total": 37
+        }
+      },
+      "lib/regularization.ts": {
+        "lines": {
+          "covered": 26,
+          "total": 26
+        },
+        "branches": {
+          "covered": 10,
+          "total": 13
+        },
+        "functions": {
+          "covered": 6,
+          "total": 6
+        }
+      },
+      "lib/valuation.ts": {
+        "lines": {
+          "covered": 119,
+          "total": 119
+        },
+        "branches": {
+          "covered": 86,
+          "total": 89
+        },
+        "functions": {
+          "covered": 36,
+          "total": 36
+        }
+      },
+      "main.ts": {
+        "lines": {
+          "covered": 85,
+          "total": 94
+        },
+        "branches": {
+          "covered": 6,
+          "total": 13
+        },
+        "functions": {
+          "covered": 3,
+          "total": 3
+        }
+      }
+    }
+  }
+}

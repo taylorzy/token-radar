@@ -1,11 +1,12 @@
-import { PENALTIES, predictLog, selectPenalty } from './lib/regularization.ts';
+import { predictLog, selectPenalty } from './lib/regularization.ts';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildRadar, impliedValue, MODEL, parseSnapshot } from './lib/model.ts';
+import { buildBoard, impliedValue, MODEL, parseSnapshot } from './lib/model.ts';
 import { FEATURES, featureValue, fitMultivariate, fitValuation, isComparable, valuationParts } from './lib/valuation.ts';
 
 const snapshot = parseSnapshot(readFileSync(process.argv[2]!, 'utf8'));
 const { as_of: asOf } = snapshot;
+const PENALTIES = [0, 0.1, 1];
 const peers = snapshot.protocols.filter(isComparable);
 const unknownAge = peers.filter(row => featureValue(row, asOf, 'age') === null);
 const knownAge = peers.filter(row => featureValue(row, asOf, 'age') !== null)
@@ -36,7 +37,7 @@ function evaluate(folds: typeof bands) {
       assert.ok(fit, name);
       return [name, fit] as const;
     });
-    const { penalty } = selectPenalty(train, asOf);
+    const { penalty } = selectPenalty(train, asOf, PENALTIES);
     selected[penalty] = (selected[penalty] ?? 0) + heldOut.length;
     const regularized = PENALTIES.slice(1).map(value => {
       const fit = fitMultivariate(train, asOf, FEATURES, value);
@@ -68,7 +69,9 @@ function evaluate(folds: typeof bands) {
 
 const loo = evaluate(peers.map(row => [row]));
 const ageBands = evaluate(bands);
-const { board, radar } = buildRadar(snapshot);
+const fit = fitMultivariate(peers, asOf, FEATURES, selectPenalty(peers, asOf, PENALTIES).penalty);
+assert.ok(fit);
+const board = buildBoard(snapshot, MODEL, fit);
 const previous = new Map<string, (typeof board)[number]>(
   JSON.parse(readFileSync(process.argv[4]!, 'utf8')).rows.map((row: (typeof board)[number]) => [row.slug, row]));
 const currentSlugs = new Set(board.map(row => row.slug));
@@ -79,8 +82,6 @@ for (const row of board) {
 }
 const added = board.filter(row => !previous.has(row.slug));
 const removed = [...previous.keys()].filter(slug => !currentSlugs.has(slug));
-const fit = radar.model.regression;
-assert.ok(fit);
 const current = new Map(snapshot.protocols.map(row => [row.slug, row]));
 const v1 = JSON.parse(readFileSync(process.argv[3]!, 'utf8')).rows;
 const baseline = new Map<string, (typeof board)[number]>(v1.map((row: (typeof board)[number]) => [row.slug, row]));
@@ -100,7 +101,7 @@ console.log(JSON.stringify({
   peers: peers.length, board: board.length, watchlist: snapshot.watchlist.length,
   additions: { belowFloor: added.filter(row => row.tvl_usd < snapshot.floor_usd).length,
     atOrAboveFloor: added.filter(row => row.tvl_usd >= snapshot.floor_usd).length, slugs: added.map(row => row.slug) },
-  removed, uncertainty: radar.uncertainty, bandSizes: bands.map(band => band.length),
+  removed, bandSizes: bands.map(band => band.length),
   bandCutDays: cuts.map(cut => Math.round(Math.expm1(cut))),
   missingPeers: Object.fromEntries(FEATURES.map(feature => [
     feature, peers.filter(row => featureValue(row, asOf, feature) === null).length,
@@ -111,5 +112,5 @@ console.log(JSON.stringify({
       return value !== null && (value < min || value > max);
     }).length,
   ])),
-  loo, ageBands, fullSampleSelection: selectPenalty(peers, asOf), fit, changes: [...moved.slice(0, 2), ...moved.slice(-2)],
+  loo, ageBands, fullSampleSelection: selectPenalty(peers, asOf, PENALTIES), fit, changes: [...moved.slice(0, 2), ...moved.slice(-2)],
 }, null, 2));

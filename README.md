@@ -14,7 +14,33 @@ Open `out/dashboard/index.html` directly from disk. To repeat the determinism ch
 
 The official dev kit supplies the frozen input, starter, and dossier builder. The M8 board includes the full watchlist and all optional records that pass the candidate screen.
 
-## M7.1 regularization and M8 coverage
+## M9 primary model and reproduction
+
+M9 restores the V1 TVL-only Huber model for the primary rank, retaining the M8 accounting and candidate universe. The expanded-grid regularized fit and the starter remain detail comparators. V1 has the lowest mean held-out valuation error, and the expanded-grid model does not consistently improve ranking. The empirical V1 peer-error range is approximately ?12.49 to ?12.49. Coverage for pre-token protocols and future launches is unknown.
+
+[Model evaluation and selection](reports/m9-model-selection.md) ? [Candidate-ranking comparison](reports/m9-candidate-ranking.md) ? [Machine-readable results](reports/m9-evaluation.json)
+
+From this worktree, with Node 26 and the official kit input directory:
+
+```powershell
+node evaluate-m9.ts <kit-input/snapshot.json>
+node --permission --allow-fs-read=* --allow-fs-write=* main.ts --input <kit-input> --output out
+node test-m9.mjs out ../token-radar-m8-review ../token-radar-m6/node22-output
+node test-dashboard.mjs <Edge-or-Chromium-executable> out
+```
+
+The browser test runs offline and can also capture the three screenshots by passing `screenshots` as a third argument. Build again after capturing screenshots so the dossier contains the new images. The two build output directories should match byte for byte. The accounting ledger is written as `out/protocol-accounting.json`.
+
+### Authored coverage
+
+[Coverage comparison, inventory, and remaining gaps](reports/coverage/README.md) and [machine-readable counts](reports/coverage/summary.json) cover the same offline workload on V1, M7, M8, and M9. To reproduce on Windows from this worktree:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File measure-coverage.ps1 -Git <git.exe> -InputDir <kit-input> -Edge <msedge.exe> -OutputDir reports/coverage
+node summarize-coverage.mjs
+```
+
+## Historical M7.1 regularization and M8 coverage
 
 The primary model uses the M7 transforms and a Huber loss with selective L2 regularization on the standardized growth and tracking-age slopes. The intercept and TVL slope are unpenalized. The bounded penalty grid was 0, 0.1, and 1, on average Huber loss plus half the penalty times the squared standardized slopes. Selection used four deterministic, slug-interleaved inner folds within each outer training set. Every inner and outer fit estimated preprocessing from its own training rows. Penalty 1 was selected in every outer fold and on the full sample. The fixed-penalty rows below are diagnostics; the nested row measures the selection procedure.
 
@@ -33,12 +59,6 @@ The ledger `protocol-accounting.json` reconciles every input slug. It preserves 
 The kit permits additions on either side of the TVL floor. The board keeps all 40 required rows, including the one related product on the official watchlist. It ranks all 142 optional candidates supported by the snapshot screens, up from 106. It adds 16 below-floor and 20 at-or-above-floor protocols and excludes 54 formerly ranked related or uncertain rows from the optional pool. Their evidence remains in the ledger. This yields 182 ranked rows and 576 excluded records. A snapshot candidate means no recorded token and no disqualifying evidence from these screens. It does not establish current token status. All nine documented farming routes remain on the board.
 
 The detail drawer shows a peer-error range based on the 80th percentile of 119 absolute log residuals from nested leave-one-out predictions. Divide and multiply the point estimate by 12.471. This is a descriptive range from held-out traded peers. Coverage on pre-token protocols or future launches is unknown. The width reflects the dispersion observed in the validation sample.
-
-Reproduce the combined review from the worktree:
-
-```powershell
-node validate-valuation.ts <kit-input/snapshot.json> ../token-radar-m6/node22-output/board.json ../token-radar-m7-review/board.json
-```
 
 ## Previous M7 baseline
 
@@ -78,7 +98,7 @@ Rank 1 is highest. Multipliers show the fitted contribution relative to the trai
 | Origami Finance | 69 ? 117 | $8.60M ? $8.00M | 0.930 | 1.012 |
 | Anemoy Capital | 74 ? 145 | $8.47M ? $6.98M | 0.792 | 1.053 |
 
-The screenshots in this review worktree are carried over from V1 and do not depict the updated rankings.
+The M7 review commit predates the M9 screenshots.
 
 ## Historical V1 classification and candidate selection
 
