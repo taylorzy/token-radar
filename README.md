@@ -14,28 +14,51 @@ Open `out/dashboard/index.html` directly from disk. To repeat the determinism ch
 
 The official dev kit supplies the frozen input, starter, and dossier builder. The board includes the full watchlist plus up to 160 eligible below-floor protocols by TVL.
 
-## Valuation
+## M7 valuation
 
-The estimate is the rounded value of `exp(intercept + slope * ln(TVL in USD))`, with a $1 minimum. The sealed snapshot supplies 119 non-CEX comparables with positive TVL and recorded market cap. The fit uses Huber loss with a threshold of 1.5 natural-log units and iteratively reweighted least squares. The full-sample intercept is 7.994604 and the slope is 0.464114. The original 25%-of-TVL formula with growth and listing-age modifiers remains in `impliedValue()` for comparison and fallback. Board rows keep the existing keys. For regression rows, `base_multiple` is the effective value-to-TVL ratio and both modifiers are 1.
+The primary board uses a Huber fit of natural-log recorded market cap on three centered features. The fit uses the same 119 non-CEX peers with positive TVL and market cap as V1, and the same Huber threshold of 1.5 log units. It estimates all coefficients from the data. Each term is the coefficient times the transformed input minus its training median, with the subtraction performed before multiplication. Add the terms to the intercept, exponentiate, and round to the nearest dollar with a $1 floor.
 
-Each leave-one-out fold excludes the evaluated slug before fitting or computing medians. The score is the mean absolute difference between predicted and observed natural-log market cap.
+| Input | Transform | Training median | Coefficient |
+| --- | --- | ---: | ---: |
+| TVL | ln(TVL in USD) | 17.120825 | +0.460296 |
+| Seven-day growth | asinh(growth percent / 100) | -0.093047 | +0.401868 |
+| Protocol age | ln(1 + tracking days) | 6.898715 | -0.151665 |
 
-| Model | All 119 | Screened 106 | Screened training, all 119 evaluated |
-| --- | ---: | ---: | ---: |
-| Original baseline | 1.769 | 1.740 | 1.769 |
-| Global median market-cap-to-TVL | 1.772 | 1.753 | 1.788 |
-| Category median, global fallback for empty groups | 1.889 | 1.875 | 1.904 |
-| Category median shrunk toward global median in log space, weight n/(n+10) | 1.786 | 1.785 | 1.821 |
-| Huber log-log regression | 1.571 | 1.545 | 1.573 |
+The centered intercept is 15.929800. Missing inputs use their training medians, giving a neutral contribution. Age is days since DefiLlama began tracking the protocol. For pre-token candidates this is a proxy for tokenless age. The snapshot supplies neither a verified protocol inception date nor historical token status. Of the comparable rows, 32 lack tracking age and all have growth. On the 200-row board, 28 have growth and 20 have age outside the corresponding observed training range. The fitted negative age coefficient is a conditional association in these data.
 
-The sensitivity screen required a CoinGecko ID and ticker, excluded version suffixes in names, and excluded name or category matches for wrapped, bridged, staked, liquid staking, liquid restaking, or stablecoin. This screen is a proxy for questionable comparables. It moves the fitted slope from 0.464 to 0.447. Category results depend on the fallback and shrinkage definitions used above.
+### Validation
 
-This is cross-sectional validation on recorded market caps. It does not measure historical launch prediction or account for launch timing, token supply design, or differences between already traded and pre-token protocols. Estimates outside the comparable TVL range extrapolate the fitted relationship.
+Mean absolute log error on the same 119 observations in each column. Lower is better. Each fold fits the models and estimates preprocessing exclusively on training rows. Every peer is evaluated once per method. The second method holds out one complete cohort at a time: 32 with unknown age and three known-age cohorts of 29, divided at 660 and 1,249 tracking days. Both methods measure cross-sectional market-cap error on traded peers. The age-cohort test measures generalization across tracking-age groups on one snapshot.
 
+| Model | Leave-one-out | Held-out age cohorts |
+| --- | ---: | ---: |
+| Original starter | 1.768855 | 1.768855 |
+| V1 TVL-only Huber | **1.571354** | **1.563690** |
+| M7 full Huber | 1.604269 | 1.634246 |
+| M7 without TVL | 1.750824 | 1.821946 |
+| M7 without growth | 1.583751 | 1.623075 |
+| M7 without age | 1.584287 | 1.565634 |
 
-The submission screenshots capture the generated ranked board, USDD's sourced detail with an illustrative cost scenario, and the board filtered to documented farming routes.
+Removing TVL increases error by 0.147 and 0.188 respectively. Removing growth reduces error by 0.021 and 0.011. Removing age reduces error by 0.020 and 0.069. The full model improves over the starter but is worse than V1 by 0.033 and 0.071 log units. This snapshot supports retaining V1 as the better validated baseline. M7 remains the three-input candidate for review.
 
-The original implementation session stays in the Codex session store. Keep it outside the source tree for later bundling with the official CLI.
+### Example board changes
+
+Rank 1 is highest. Multipliers show the fitted contribution relative to the training median while holding the other terms fixed.
+
+| Protocol | Rank V1 ? M7 | Implied value V1 ? M7 | Growth factor | Age factor |
+| --- | ---: | ---: | ---: | ---: |
+| Monolith Market | 195 ? 80 | $4.50M ? $9.90M | 1.725 | 1.283 |
+| Nuva | 129 ? 35 | $6.51M ? $15.08M | 1.718 | 1.359 |
+| Origami Finance | 69 ? 117 | $8.60M ? $8.00M | 0.930 | 1.012 |
+| Anemoy Capital | 74 ? 145 | $8.47M ? $6.98M | 0.792 | 1.053 |
+
+Rerun from the M7 worktree with the official snapshot and accepted V1 board:
+
+```powershell
+node validate-valuation.ts <kit-input/snapshot.json> ../token-radar-m6/node22-output/board.json
+```
+
+The screenshots in this review worktree are carried over from V1 and do not depict the updated rankings.
 
 ## Token classification and candidate selection
 

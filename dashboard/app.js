@@ -31,7 +31,17 @@
   function impliedOf(row, model, baseline) {
     var fit = model.regression;
     if (!baseline && fit && row.tvl_usd > 0) {
-      return Math.max(1, Math.round(Math.exp(fit.intercept + fit.slope * Math.log(row.tvl_usd))));
+      var days = (Date.parse(DATA.as_of) - Date.parse(row.listed_at || '')) / 86400000;
+      var inputs = {
+        tvl: Math.log(row.tvl_usd),
+        growth: row.change_7d == null ? null : Math.asinh(row.change_7d / 100),
+        age: Number.isFinite(days) && days >= 0 ? Math.log1p(days) : null
+      };
+      var parts = {};
+      fit.terms.forEach(function (term) {
+        parts[term.feature] = ((inputs[term.feature] == null ? term.center : inputs[term.feature]) - term.center) * term.coefficient;
+      });
+      return Math.max(1, Math.round(Math.exp(fit.intercept + parts.tvl) * Math.exp(parts.growth) * Math.exp(parts.age)));
     }
     var growth = Math.min(model.growth_cap, Math.max(model.growth_floor, row.change_7d === null || row.change_7d === undefined ? 0 : row.change_7d));
     var growthMult = 1 + (growth / 100) * model.growth_weight;
@@ -290,22 +300,26 @@
     return el('section', { class: 'panel model' },
       el('div', { class: 'method-copy' },
         el('h2', { text: 'Valuation methodology' }),
-        el('p', null, el('strong', { text: 'Huber log-log regression' }),
-          ' estimates market cap from TVL and downweights large residuals. The original comparator starts at 25% of TVL and adjusts for seven-day growth and listing age.'),
+        el('p', null, el('strong', { text: 'Multivariate Huber regression' }),
+          ' fits market cap from TVL, seven-day growth and tracking age. DefiLlama tracking age is a proxy for age of a pre-token protocol.'),
         el('details', null, el('summary', { text: 'Formula and sensitivity' }),
-          el('div', { class: 'formula', text: 'Implied USD = exp(' + fit.intercept.toFixed(6) + ' + ' + fit.slope.toFixed(6) + ' * ln(TVL USD)), rounded with a $1 floor.' }),
-          el('p', { text: 'Comparator = round(TVL * 0.25 * growth multiplier * age multiplier), with a $1 floor. Growth is clipped to -60% to +120% and weighted by 0.5. The age multiplier rises from 0.6 to 1 over 1,095 days. Missing growth uses zero and missing age uses 365 days.' }),
-          el('p', { text: 'Other 119-peer results: global median 1.772, category median 1.889, category shrinkage 1.786.' }),
-          el('p', { text: 'Screening 13 peers out of training yielded 1.573 on the same 119 evaluation rows. The pooled model trades explicit growth and age inputs for lower cross-sectional error on this snapshot.' })
+          el('div', { class: 'formula', text: fit ? 'Implied USD = exp(' + fit.intercept.toFixed(6) + ' + the centered feature terms below), rounded with a $1 floor.' : 'Original comparator fallback.' }),
+          ...(fit ? fit.terms.map(function (term) {
+            var names = { tvl: 'ln(TVL USD)', growth: 'asinh(growth % / 100)', age: 'ln(1 + tracking days)' };
+            return el('p', { text: names[term.feature] + ': coefficient ' + term.coefficient.toFixed(6) + ', training median ' + term.center.toFixed(6) + '.' });
+          }) : []),
+          el('p', { text: 'Missing growth or age uses the training median. Board estimates can use growth or age outside the observed training range.' }),
+          el('p', { text: 'Comparator = round(TVL * 0.25 * growth multiplier * age multiplier), with a $1 floor. Growth is clipped to -60% to +120% and weighted by 0.5. The age multiplier rises from 0.6 to 1 over 1,095 days. Missing growth uses zero and missing age uses 365 days.' })
         )
       ),
       el('div', { class: 'validation' },
-        el('span', { class: 'sub', text: fit.comparables + ' peers / leave-one-out mean absolute log error' }),
+        el('span', { class: 'sub', text: 'Sealed snapshot: 119 peers / leave-one-out mean absolute log error' }),
         el('div', { class: 'scores' },
-          el('div', null, el('strong', { text: '1.571' }), el('span', { text: 'Huber anchor' })),
+          el('div', null, el('strong', { text: '1.604' }), el('span', { text: 'Multivariate Huber' })),
+          el('div', null, el('strong', { text: '1.571' }), el('span', { text: 'V1 TVL-only Huber' })),
           el('div', null, el('strong', { text: '1.769' }), el('span', { text: 'Original comparator' }))
         ),
-        el('span', { class: 'sub', text: 'Cross-sectional market-cap validation only.' })
+        el('span', { class: 'sub', text: 'Held-out age cohorts: 1.634 multivariate, 1.564 V1, 1.769 comparator. Both tests use one cross-sectional snapshot.' })
       )
     );
   }

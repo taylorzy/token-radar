@@ -8,10 +8,10 @@ import { classifyProtocols, VERSIONED, type Classification } from './classificat
 // snapshot's live-token protocols are kept apart and shown as the market's own values, never mixed into
 // the ranked board.
 //
-// Fit log market cap against log TVL using the snapshot's live-token comparables.
+// Fit log market cap against TVL, seven-day growth and protocol age using the snapshot's live-token comparables.
 // The starter formula remains available for comparison and as a fallback for a degenerate fit.
 
-import { fitValuation, isComparable } from './valuation.ts';
+import { fitMultivariate, isComparable, valuationParts } from './valuation.ts';
 
 /** The snapshot's protocol entry: exactly the ten fields the sealed input carries. */
 export interface SnapshotProtocol {
@@ -60,7 +60,7 @@ export const MODEL: ModelConstants = {
 };
 
 /** The model's version label: the dashboard names it and the rules quote it. */
-export const MODEL_VERSION = 'huber-log-tvl-1';
+export const MODEL_VERSION = 'huber-tvl-growth-age-1';
 
 /** How many pre-token protocols below the watchlist floor the early radar carries, by TVL. */
 export const EARLY_ROWS = 160;
@@ -128,7 +128,7 @@ export interface RadarData {
   as_of: string;
   source: string;
   floor_usd: number;
-  model: ModelConstants & { regression: ReturnType<typeof fitValuation> };
+  model: ModelConstants & { regression: ReturnType<typeof fitMultivariate> };
   model_version: string;
   analyzed_size: number;
   watchlist_covered: number;
@@ -202,7 +202,7 @@ export interface BoardSummary {
 }
 
 /** The protocols the board ranks, strongest first, with ranks 1..n. */
-export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, regression = fitValuation(snapshot.protocols.filter(isComparable)), classification = classifyProtocols(snapshot.protocols)): BoardRow[] {
+export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, regression = fitMultivariate(snapshot.protocols.filter(isComparable), snapshot.as_of), classification = classifyProtocols(snapshot.protocols)): BoardRow[] {
   const index = bySlug(snapshot.protocols);
   const chosen = new Map<string, SnapshotProtocol>();
   // The watchlist is the floor: every slug, even one the snapshot no longer carries (it cannot, but the
@@ -225,8 +225,13 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, re
     if (!regression || p.tvl_usd <= 0) {
       return { p, implied, growthPct, growthMult, maturityMult, age, multiple: model.base_multiple };
     }
-    const value = Math.exp(regression.intercept + regression.slope * Math.log(p.tvl_usd));
-    return { p, implied: Math.max(1, Math.round(value)), growthPct, growthMult: 1, maturityMult: 1, age, multiple: value / p.tvl_usd };
+    const parts = valuationParts(regression, p, snapshot.as_of);
+    const anchor = Math.exp(regression.intercept + parts.tvl!);
+    const growthFactor = Math.exp(parts.growth!);
+    const ageFactor = Math.exp(parts.age!);
+    const value = anchor * growthFactor * ageFactor;
+    return { p, implied: Math.max(1, Math.round(value)), growthPct: p.change_7d ?? 0,
+      growthMult: growthFactor, maturityMult: ageFactor, age, multiple: anchor / p.tvl_usd };
   });
   scored.sort((a, b) => b.implied - a.implied || (a.p.slug < b.p.slug ? -1 : a.p.slug > b.p.slug ? 1 : 0));
   return scored.map((s, i) => ({
@@ -296,7 +301,7 @@ export function radarRow(row: BoardRow): RadarRow {
 
 /** Everything the dashboard renders, from the snapshot. */
 export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): { board: BoardRow[]; radar: RadarData } {
-  const regression = fitValuation(snapshot.protocols.filter(isComparable));
+  const regression = fitMultivariate(snapshot.protocols.filter(isComparable), snapshot.as_of);
   const classification = classifyProtocols(snapshot.protocols);
   const board = buildBoard(snapshot, model, regression, classification);
   const live = liveRows(snapshot);
