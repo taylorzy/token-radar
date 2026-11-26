@@ -85,12 +85,18 @@ try {
   assert.ok(await evalPage("[...document.querySelectorAll('dialog button')].some(b => b.textContent.includes('Load example assumptions'))"));
   await evalPage("[...document.querySelectorAll('dialog button')].find(b => b.textContent.includes('Load example assumptions')).click()");
   assert.ok(await evalPage("document.querySelector('.scenario-result').textContent.includes('Break-even reward $')"));
+  if (await evalPage('!!window.RADAR_FARM_ECONOMICS')) {
+    assert.ok(await evalPage("document.querySelector('.scenario-result').textContent.includes('Required reward per labor hour')"));
+    assert.ok(await evalPage("(() => { const x = [...document.querySelectorAll('.farm-calculator input')].at(-1); x.value = 100; x.dispatchEvent(new Event('input', {bubbles:true})); return document.querySelector('.scenario-result').textContent.includes('covers modeled costs'); })()"));
+  }
   await shot('2-detail.png');
   assert.ok(await evalPage("(() => { const x = document.querySelector('.farm-calculator input'); x.value = '-1'; x.dispatchEvent(new Event('input', {bubbles:true})); return document.querySelector('.scenario-result').textContent.includes('non-negative'); })()"));
   await evalPage("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}))");
   assert.ok(await evalPage("!document.querySelector('dialog').open"));
   await evalPage("(() => {const s = [...document.querySelectorAll('select')].find(s => [...s.options].some(o => o.value === 'Documented route')); s.value = 'Documented route'; s.dispatchEvent(new Event('change'));})()");
-  assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), 9);
+  const documented = await evalPage("window.RADAR.rows.filter(r => r.farm_steps[0].startsWith('Documented route.')).length");
+  assert.ok(documented >= 9);
+  assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), documented);
   await shot('3-filtered.png');
   await evalPage("[...document.querySelectorAll('button')].find(b => b.textContent === 'Clear filters').click()");
   assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), expected);
@@ -116,7 +122,7 @@ try {
     writeFileSync(process.env.RADAR_BROWSER_COVERAGE, JSON.stringify({ result: dashboard }));
   }
   assert.deepEqual(jsErrors, []);
-  console.log(`Offline browser: ${expected} rows, filters, sorting, USDD detail and calculator, 9 documented routes, zero JavaScript errors`);
+  console.log(`Offline browser: ${expected} rows, filters, sorting, USDD detail and calculator, ${documented} documented routes, zero JavaScript errors`);
 } finally {
   socket?.close();
   browser.kill();

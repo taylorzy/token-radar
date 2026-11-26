@@ -1,5 +1,5 @@
-﻿import type { BoardRow, Snapshot } from './model.ts';
-import { classifyProtocols, VERSIONED } from './classification.ts';
+import type { BoardRow, Snapshot } from './model.ts';
+import { classifyProtocols, externalEvidence, VERSIONED } from './classification.ts';
 
 /** One disposition and one evidence-backed classification per input slug. */
 export function buildLedger(snapshot: Snapshot, board: BoardRow[]) {
@@ -14,7 +14,7 @@ export function buildLedger(snapshot: Snapshot, board: BoardRow[]) {
     const candidate = status === 'Pre-token candidate' && category !== 'CEX' && !VERSIONED.test(name)
       && mcap_usd === null && gecko_id === null && symbol === null;
     if ((rank !== null) !== (required || candidate)) throw new Error(`Board/ledger mismatch: ${slug}`);
-    return { slug, name, category, tvl_usd, mcap_usd, gecko_id, symbol, status, evidence,
+    return { slug, name, category, tvl_usd, mcap_usd, gecko_id, symbol, status, evidence, external_evidence: externalEvidence(slug),
       watchlist: required, below_tvl_floor: tvl_usd < snapshot.floor_usd, rank,
       disposition: required ? 'mandatory_watchlist' : candidate ? 'optional_candidate' : 'excluded' };
   });

@@ -14,6 +14,28 @@ Open `out/dashboard/index.html` directly from disk. To repeat the determinism ch
 
 The official dev kit supplies the frozen input, starter, and dossier builder. The M8 board includes the full watchlist and all optional records that pass the candidate screen.
 
+## M10 evidence and farming economics
+
+M10 uses the frozen M9 valuation. The accounting ledger keeps the 2026-11-14 snapshot fields and adds separately dated external evidence for ten rows. The 182 ranked protocols and all 40 mandatory rows remain. The board has 14 documented participation routes. Documentation of a product or its points does not establish airdrop eligibility. See the [review report](reports/m10-evidence-and-economics.md).
+
+A normal build writes `farming-economics.json` for all ranked protocols. Missing user assumptions and calculations are null. To populate comparable per-protocol scenarios, pass `--farm-assumptions scenarios.json` to `main.ts`. An illustrative input:
+
+```json
+{
+  "nuva": {
+    "capitalUSD": 1000,
+    "feesUSD": 12,
+    "holdingDays": 73,
+    "annualPercent": 5,
+    "laborHours": 2,
+    "hourlyUSD": 15,
+    "scenarioRewardUSD": 52
+  }
+}
+```
+
+Use your own fee quotes and holding assumptions for each route. In this example, fees ($12), opportunity cost ($10), and labor ($30) give a break-even reward of $52, or $26 per labor hour. Principal is recorded separately. The optional hypothetical reward supports a conditional cost-coverage verdict. Omitting it still computes costs; zero labor leaves reward per labor hour undefined. The model does not include taxes, asset gains or losses, or a probability of receiving rewards. Entries supplied at build time also prefill the offline detail calculator.
+
 ## M9 primary model and reproduction
 
 M9 restores the V1 TVL-only Huber model for the primary rank, retaining the M8 accounting and candidate universe. The expanded-grid regularized fit and the starter remain detail comparators. V1 has the lowest mean held-out valuation error, and the expanded-grid model does not consistently improve ranking. The empirical V1 peer-error range is approximately ?12.49 to ?12.49. Coverage for pre-token protocols and future launches is unknown.

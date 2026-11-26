@@ -1,0 +1,88 @@
+{
+  "usdd": {
+    "reviewed_at": "2026-11-26",
+    "status": "Likely existing-token product",
+    "finding": "USDD issuer documentation identifies a deployed USDD stablecoin and its contract addresses; the null token fields in this snapshot row do not reflect that asset.",
+    "sources": [
+      "https://docs.usdd.io/developers/deployment-addresses"
+    ]
+  },
+  "lightning-network": {
+    "reviewed_at": "2026-11-26",
+    "status": "Related product",
+    "finding": "The Lightning Network is a Bitcoin payment-channel network. Its channel balance is denominated in BTC; this review found no separate Lightning token in the cited specification.",
+    "sources": [
+      "https://lightning.network/",
+      "https://docs.lightning.engineering/the-lightning-network/payment-channels/lifecycle-of-a-payment-channel"
+    ]
+  },
+  "bittensor-dtao": {
+    "reviewed_at": "2026-11-26",
+    "status": "Likely existing-token product",
+    "finding": "Dynamic TAO is a Bittensor network mechanism. Subnet staking exchanges TAO for subnet-specific alpha assets; the aggregate row does not identify one new valuation target.",
+    "sources": [
+      "https://www.bittensor.com/docs/concepts/staking-pools"
+    ]
+  },
+  "plume-vaults": {
+    "reviewed_at": "2026-11-26",
+    "status": "Related product",
+    "finding": "Plume identifies these vaults as its former Nest product. Vault tokens represent investment positions; the Plume product relationship does not establish a distinct vault governance token.",
+    "sources": [
+      "https://www.plume.org/vaults",
+      "https://docs.nest.credit/about/liquidity-and-redemptions"
+    ]
+  },
+  "mezo-earn": {
+    "reviewed_at": "2026-11-26",
+    "status": "Related product",
+    "finding": "Mezo confirms Earn is its incentive framework, using locked BTC and MEZO for governance. MUSD is a separate BTC-backed stablecoin. The snapshot bridge peer is not the identification basis for Earn.",
+    "sources": [
+      "https://mezo.org/docs/users/mezo-earn/overview/",
+      "https://mezo.org/docs/MEZO_Disclosure.pdf"
+    ]
+  },
+  "sentora-curator": {
+    "reviewed_at": "2026-11-26",
+    "status": null,
+    "finding": "Sentora confirms it curates named Morpho vaults, including a Tempo pathUSD vault and an Ethereum PRIME market vault. These relationships identify a curator and its deployments, not a DefiLlama parent field or independent token status.",
+    "sources": [
+      "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo",
+      "https://sentora.com/research/articles/sentora-launches-prime-vault-on-morpho"
+    ]
+  },
+  "polymarket-international": {
+    "reviewed_at": "2026-11-26",
+    "status": null,
+    "finding": "Polymarket identifies pUSD as venue collateral. That does not establish a governance token for this row. The help article is a dated statement; current campaign status was not independently established.",
+    "sources": [
+      "https://help.polymarket.com/en/articles/13364250-does-polymarket-have-a-token"
+    ]
+  },
+  "nuva": {
+    "reviewed_at": "2026-11-26",
+    "status": null,
+    "finding": "NUVA identifies nvYLDS as a vault receipt with exposure to Figure-issued YLDS. Neither is evidence of a NUVA governance token. The cited materials do not establish the cause of the snapshot growth figure.",
+    "sources": [
+      "https://nuva.finance/docs/nvylds-deep-dive",
+      "https://nuva.finance/docs/technical-deep-dive"
+    ]
+  },
+  "cian-yield-layer": {
+    "reviewed_at": "2026-11-26",
+    "status": null,
+    "finding": "CIAN identifies Yield Layer as its vault product and issued vault shares as receipts. The sources do not establish a distinct governance token for this snapshot row.",
+    "sources": [
+      "https://docs.cian.app/yieldlayer/for-users-quick-start/core-concepts-and-yield-layer-page-overview"
+    ]
+  },
+  "lagoon": {
+    "reviewed_at": "2026-11-26",
+    "status": null,
+    "finding": "Lagoon documents vault shares and separately configured vault assets and fees. Those shares do not establish a protocol-level token for this record.",
+    "sources": [
+      "https://docs.lagoon.finance/vault/deposit-and-withdraw-flows",
+      "https://docs.lagoon.finance/vault/fees"
+    ]
+  }
+}

@@ -321,7 +321,7 @@
     );
   }
 
-  function farmingCalculator() {
+  function farmingCalculator(slug) {
     var fields = [
       ['Capital committed (USD)', '1000'],
       ['Total entry and exit fees (USD)', '10'],
@@ -333,35 +333,49 @@
     var inputs = fields.map(function (field) {
       return el('input', { type: 'number', min: '0', step: 'any', placeholder: field[1] });
     });
+    var reward = el('input', { type: 'number', min: '0', step: 'any' });
+    var planning = window.RADAR_FARM_SUMMARIES[slug];
     var result = el('p', { class: 'scenario-result', 'aria-live': 'polite' });
     function update() {
       var values = inputs.map(function (input) { return input.valueAsNumber; });
-      if (values.some(function (v) { return !Number.isFinite(v) || v < 0; })) {
-        result.textContent = 'Enter six non-negative scenario inputs. Enter zero where it applies.';
-        return;
-      }
-      var opportunity = values[0] * values[3] / 100 * values[2] / 365;
-      var labor = values[4] * values[5];
-      var total = values[1] + opportunity + labor;
-      if (!Number.isFinite(total)) {
-        result.textContent = 'Use smaller scenario inputs.';
+      var summary = window.RADAR_FARM_ECONOMICS({
+        capitalUSD: values[0], feesUSD: values[1], holdingDays: values[2], annualPercent: values[3],
+        laborHours: values[4], hourlyUSD: values[5], scenarioRewardUSD: reward.value === '' ? null : reward.valueAsNumber
+      });
+      if (summary.error) {
+        result.textContent = summary.error;
         return;
       }
       function money(value) { return '$' + value.toFixed(2); }
-      result.textContent = 'Break-even reward ' + money(total) + '. Capital committed ' + money(values[0])
-        + '. Cash fees ' + money(values[1]) + ', foregone return ' + money(opportunity)
-        + ', and labor value ' + money(labor) + '.';
+      result.textContent = 'Break-even reward ' + money(summary.requiredRewardUSD) +
+        '. Capital committed ' + money(summary.capitalUSD) + '. Estimated fees ' + money(summary.feesUSD) +
+        ', foregone return ' + money(summary.opportunityUSD) + ', and labor value ' + money(summary.laborUSD) +
+        '. Required reward per labor hour ' + (summary.rewardPerHourUSD === null ? 'n/a' : money(summary.rewardPerHourUSD)) +
+        '. Conditional verdict: ' + summary.verdict + '.';
+
     }
     var labels = inputs.map(function (input, i) {
       return el('label', null, fields[i][0], input);
     });
+    if (planning.assumptions) {
+      var a = planning.assumptions;
+      [a.capitalUSD, a.feesUSD, a.holdingDays, a.annualPercent, a.laborHours, a.hourlyUSD].forEach(function (value, i) {
+        inputs[i].value = value;
+      });
+      if (a.scenarioRewardUSD != null) reward.value = a.scenarioRewardUSD;
+    }
     update();
     return el('section', { class: 'detail-section' },
       el('h3', { text: 'Illustrative farming costs' }),
       el('p', { class: 'sub', text: 'Example values are illustrative assumptions. Enter your own fee quotes and time estimates.' }),
-      el('div', { class: 'farm-calculator', oninput: update }, labels),
+      planning.route && planning.route.capital ? el('p', { class: 'sub', text:
+        'Capital: ' + planning.route.capital + ' Fees: ' + planning.route.fees +
+        ' Settlement: ' + planning.route.settlement + ' Risks: ' + planning.route.risks }) : null,
+      el('div', { class: 'farm-calculator', oninput: update }, labels,
+        el('label', null, 'Hypothetical reward (USD, optional)', reward)),
       el('button', { type: 'button', class: 'button', text: 'Load example assumptions', onclick: function () {
         inputs.forEach(function (input, i) { input.value = fields[i][1]; });
+        reward.value = '';
         update();
       } }),
       result,
@@ -418,7 +432,7 @@
         return el('li', null, el('b', { text: action }), el('span', { class: 'cost', text: tail }));
       }))
     ));
-    dialog.appendChild(farmingCalculator());
+    dialog.appendChild(farmingCalculator(slug));
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
     } else {

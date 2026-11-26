@@ -1,6 +1,18 @@
+import evidenceFile from './protocol-evidence.json' with { type: 'json' };
 import type { SnapshotProtocol } from './model.ts';
 
 type Status = 'Recorded token' | 'Likely existing-token product' | 'Related product' | 'Uncertain' | 'Pre-token candidate';
+
+export interface ExternalEvidence {
+  reviewed_at: string;
+  status: Status | null;
+  finding: string;
+  sources: string[];
+}
+
+const external = evidenceFile as Record<string, ExternalEvidence>;
+export const externalEvidence = (slug: string): ExternalEvidence | null =>
+  Object.hasOwn(external, slug) ? external[slug]! : null;
 
 export interface Classification {
   status: Status;
@@ -43,6 +55,11 @@ export function classifyProtocols(protocols: SnapshotProtocol[]): Map<string, Cl
     if (evidence.length) return [p.slug, { status: 'Recorded token', evidence }];
 
     evidence.push('Snapshot ticker, CoinGecko ID, and market cap are all null.');
+    const finding = externalEvidence(p.slug);
+    if (finding) {
+      evidence.push(`External review, ${finding.reviewed_at}: ${finding.finding} Sources: ${finding.sources.join(' ')}`);
+      if (finding.status) return [p.slug, { status: finding.status, evidence }];
+    }
     const relation = Object.hasOwn(reviewed, p.slug) ? reviewed[p.slug] : undefined;
     const peer = relation && bySlug.get(relation.peer);
     if (relation && peer && tokenEvidence(peer).length) {

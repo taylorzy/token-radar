@@ -17,6 +17,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSyn
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
+import { farmEconomics, farmingSummaries } from './lib/economics.ts';
 import { buildLedger } from './lib/ledger.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
@@ -53,7 +54,19 @@ if (issue !== null) {
 
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'board.json'), `${JSON.stringify({ rows: board })}\n`);
-writeFileSync(join(out, 'data.js'), dataScript(radar));
+const assumptionsFile = arg('farm-assumptions', '');
+const assumptions = assumptionsFile ? JSON.parse(readFileSync(assumptionsFile, 'utf8')) : {};
+if (!assumptions || typeof assumptions !== 'object' || Array.isArray(assumptions)) {
+  throw new Error('Farming assumptions must be a JSON object keyed by ranked protocol slug');
+}
+const farming = farmingSummaries(board, assumptions);
+const dashboardFarming = Object.fromEntries(farming.map(row => [row.slug, {
+  route: row.route, assumptions: row.assumptions,
+}]));
+writeFileSync(join(out, 'data.js'), dataScript(radar) +
+  `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString()};\n` +
+  `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n`);
+writeFileSync(join(out, 'farming-economics.json'), JSON.stringify(farming, null, 2) + '\n');
 writeFileSync(join(out, 'protocol-accounting.json'), JSON.stringify(buildLedger(snapshot, board), null, 2) + '\n');
 
 /** Copy one directory's regular files into `to`, skipping names that start with a dot. */

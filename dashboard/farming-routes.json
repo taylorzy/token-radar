@@ -1,56 +1,145 @@
 {
   "steakhouse-financial": {
-    "sources": ["https://www.steakhouse.financial/docs/products/stablecoin-products/vaults"],
+    "sources": [
+      "https://www.steakhouse.financial/docs/products/stablecoin-products/vaults"
+    ],
     "entry": "Steakhouse documents vaults on Morpho and Kamino. Identify the specific Steakhouse vault and verify its network, deposit asset, cap, available liquidity and curator permissions.",
     "action": "If the vault terms fit your risk budget, deposit the accepted asset into that vault and record the shares received. Review collateral and operator exposure.",
     "exit": "Check redeemable shares and available liquidity, redeem via the same vault when available, and reconcile assets received."
   },
   "gauntlet": {
-    "sources": ["https://morpho.org/stories/gauntlet"],
+    "sources": [
+      "https://morpho.org/stories/gauntlet"
+    ],
     "entry": "Identify a Gauntlet-curated Morpho vault. Compare its market allocations, collateral exposure, accepted asset, cap and withdrawable liquidity.",
     "action": "If the vault is open and the exposure fits your budget, supply the accepted asset and record your share balance. Monitor allocation and borrower collateral risk.",
     "exit": "Preview redemption from the same Morpho vault, check available liquidity, redeem when supported and reconcile proceeds."
   },
   "veda": {
-    "sources": ["https://docs.veda.tech/architecture-and-flow-of-funds"],
+    "sources": [
+      "https://docs.veda.tech/architecture-and-flow-of-funds"
+    ],
     "entry": "Identify the specific Veda BoringVault product. Verify its Teller configuration, supported asset and share terms in the product documentation.",
     "action": "Use the product's verified deposit interface only after reviewing its share pricing, strategist permissions and downstream strategy risks. Record shares received.",
     "exit": "Check the product's share lock and withdrawal route before funding. If it uses the documented BoringQueue, submit a withdrawal request and wait for fulfillment."
   },
   "usdd": {
-    "sources": ["https://docs.usdd.io/user-guide/open-a-vault"],
+    "sources": [
+      "https://docs.usdd.io/user-guide/open-a-vault"
+    ],
     "entry": "The guide covers TRON. Check the collateral type, debt terms and liquidation threshold. Use TronLink with sufficient TRX for transaction costs.",
     "action": "Open the chosen vault, deposit approved collateral and mint USDD only if you intend to manage the debt. Keep a collateral buffer and monitor liquidation risk.",
     "exit": "Check outstanding debt and charges, repay the required USDD and recover collateral subject to the vault's close conditions."
   },
   "upshift": {
-    "sources": ["https://docs.upshift.finance/introduction/how-it-works"],
+    "sources": [
+      "https://docs.upshift.finance/introduction/how-it-works"
+    ],
     "entry": "Select an Upshift vault and verify its input asset, curator, fees and withdrawal conditions. Review strategy and NAV risk.",
     "action": "Deposit the vault's accepted asset if terms are suitable. Record the receipt tokens and compare reported NAV with the underlying strategy exposure.",
     "exit": "Follow that vault's withdrawal process, confirm any waiting period and reconcile the underlying assets received."
   },
   "onre": {
-    "sources": ["https://docs.onre.finance/technical-resources/frequently-asked-questions"],
+    "sources": [
+      "https://docs.onre.finance/technical-resources/frequently-asked-questions"
+    ],
     "entry": "Check access terms and redemption conditions. The FAQ describes ONyc minting with supported USDC or USDG through a compatible Solana wallet.",
     "action": "If eligible and willing to accept reinsurance underwriting and NAV risk, place a mint order and confirm settlement before counting the ONyc balance.",
     "exit": "Check the current redemption window, applicable holding restrictions and liquidity. Compare primary redemption with a secondary quote before exiting."
   },
   "symbiotic": {
-    "sources": ["https://docs.symbiotic.fi/learn/core-concepts/vault", "https://docs.symbiotic.fi/learn/mechanics/epochs-and-delays"],
+    "sources": [
+      "https://docs.symbiotic.fi/learn/core-concepts/vault",
+      "https://docs.symbiotic.fi/learn/mechanics/epochs-and-delays"
+    ],
     "entry": "Verify the specific vault's single collateral token, deposit access, operator and network exposure, slashing policy and epoch duration.",
     "action": "If access is open and the slashing exposure fits your budget, deposit the verified collateral and record the position.",
     "exit": "Request withdrawal, check the claimable epoch and remaining slashing exposure, then claim when the vault permits it."
   },
   "lofty": {
-    "sources": ["https://www.lofty.ai/how-it-works"],
+    "sources": [
+      "https://www.lofty.ai/how-it-works"
+    ],
     "entry": "Confirm marketplace account requirements and review the chosen property's share terms, expenses, vacancy exposure and recent order activity.",
     "action": "If the property exposure is suitable, use the marketplace to place a share order and record its fill price and fees.",
     "exit": "Check bids and selling costs before listing shares. Treat the exit as complete when an order fills and proceeds settle."
   },
   "lightning-network": {
-    "sources": ["https://docs.lightning.engineering/the-lightning-network/payment-channels/lifecycle-of-a-payment-channel"],
+    "sources": [
+      "https://docs.lightning.engineering/the-lightning-network/payment-channels/lifecycle-of-a-payment-channel"
+    ],
     "entry": "Prepare a compatible Lightning node or wallet with bitcoin, on-chain fee budget and a suitable peer. Check channel backup and monitoring requirements.",
     "action": "If you need a payment channel, open and fund it, wait for the required confirmation and check outbound and inbound liquidity before using it.",
     "exit": "Prefer a cooperative close when both peers are available. Account for on-chain fees and possible force-close delays before treating funds as spendable."
+  },
+  "sentora-curator": {
+    "sources": [
+      "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo",
+      "https://docs.morpho.org/get-started/resources/apps/vault/"
+    ],
+    "entry": "For the Sentora Tempo Morpho route, verify the exact vault, pathUSD supply asset, gas asset, cap and access before funding.",
+    "action": "If the live vault accepts deposits, preview supplying pathUSD and record the shares. Review the isolated cbBTC collateral, oracle and utilization exposure.",
+    "exit": "Check the Morpho vault withdrawal quote and available liquidity, redeem shares for pathUSD when available, and reconcile the amount received.",
+    "capital": "pathUSD plus gas on Tempo; vault cap and any minimum require a live quote.",
+    "fees": "Quote network, vault and exit costs in the interface; no universal fee is assumed.",
+    "settlement": "Dependent on confirmations and withdrawal liquidity.",
+    "risks": "cbBTC collateral, oracle pricing, collateral liquidation and isolated-market liquidity.",
+    "reviewed_at": "2026-11-26"
+  },
+  "cian-yield-layer": {
+    "sources": [
+      "https://docs.cian.app/yieldlayer/for-users-quick-start/core-concepts-and-yield-layer-page-overview",
+      "https://docs.cian.app/yieldlayer/for-users-quick-start/fees"
+    ],
+    "entry": "Select a CIAN stETH Yield Layer deployment. Verify supported inputs, caps, gas and exact withdrawal terms for that vault.",
+    "action": "If the vault is open and terms fit, preview approval and deposit and record the receipt token. Review downstream strategy and leverage exposure.",
+    "exit": "Request withdrawal against the receipt token and track settlement. The general guide estimates about five days; the selected vault can differ.",
+    "capital": "A supported asset for the selected layer plus gas; verify vault minimum, cap and access.",
+    "fees": "CIAN documents 8% of profits and 0.02% of exit NAV for applicable active strategies. Verify actual settings and gas.",
+    "settlement": "General user guide estimates about five days for withdrawal; confirm per vault.",
+    "risks": "Leverage, receipt-token pricing, downstream contracts and delayed redemption.",
+    "reviewed_at": "2026-11-26"
+  },
+  "plume-vaults": {
+    "sources": [
+      "https://www.plume.org/vaults",
+      "https://docs.nest.credit/about/liquidity-and-redemptions"
+    ],
+    "entry": "Select a Plume vault and verify which of USDC, USDT or pUSD it accepts, the supported network and any access requirements.",
+    "action": "Review the underlying assets and preview a deposit. Record the vault shares and check the liquidity schedule.",
+    "exit": "Compare instant redemption if liquid with the vault-specific queue. Check fees, minimum wait and actual liquidity before requesting redemption.",
+    "capital": "A supported stablecoin plus gas; minimum and access vary by vault.",
+    "fees": "Instant or queued redemption fees vary by vault and asset; use the current quote.",
+    "settlement": "Instant only with liquidity; queued settlement can exceed the minimum wait.",
+    "risks": "Underlying RWA liquidity, stablecoin depeg, redemption queues and operator risk.",
+    "reviewed_at": "2026-11-26"
+  },
+  "lagoon": {
+    "sources": [
+      "https://docs.lagoon.finance/vault/deposit-and-withdraw-flows",
+      "https://docs.lagoon.finance/vault/fees"
+    ],
+    "entry": "Identify an asynchronous Lagoon vault, the accepted asset, curator, fee settings and deposit permissions.",
+    "action": "Preview a deposit request, wait for the applicable settlement, then check and claim vault shares through the supported interface.",
+    "exit": "Submit a redemption request if terms fit. Check valuation and settlement status before claiming the underlying asset.",
+    "capital": "Vault-specific underlying asset plus gas; verify minimum, cap and access.",
+    "fees": "Vault management and high-water-mark performance fees can apply. Verify configured rates and gas.",
+    "settlement": "Curator and oracle settlement cadence controls claimability; quote the selected vault.",
+    "risks": "Curator allocation, oracle valuation, asset liquidity and delayed or unavailable settlement.",
+    "reviewed_at": "2026-11-26"
+  },
+  "nuva": {
+    "sources": [
+      "https://nuva.finance/docs/nvylds-deep-dive",
+      "https://nuva.finance/terms-policies/terms-of-service"
+    ],
+    "entry": "For nvYLDS, verify Ethereum USDC, gas, deposit minimum and current location and screening terms before funding.",
+    "action": "Preview depositing USDC and record nvYLDS shares. Review exposure to Figure-issued YLDS and cross-chain settlement.",
+    "exit": "Check current screening and liquidity, preview the USDC withdrawal and track settlement. The terms describe up to two U.S. business days for the nvYLDS redemption period.",
+    "capital": "Ethereum USDC plus gas; the guide lists a 1 USDC minimum. Verify the live quote and access terms.",
+    "fees": "Quote gas and applicable protocol or conversion fees in the interface. No rate assumed.",
+    "settlement": "Official terms list two U.S. business days for nvYLDS; confirm live conditions.",
+    "risks": "Issuer and bridge dependencies, screening restrictions, depeg and withdrawal liquidity.",
+    "reviewed_at": "2026-11-26"
   }
 }

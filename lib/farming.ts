@@ -1,7 +1,15 @@
 import routes from '../dashboard/farming-routes.json' with { type: 'json' };
 import type { SnapshotProtocol } from './model.ts';
 
-type Route = { sources: string[]; entry: string; action: string; exit: string };
+type Route = {
+  sources: string[]; entry: string; action: string; exit: string;
+  capital?: string; fees?: string; settlement?: string; risks?: string;
+  reviewed_at?: string;
+};
+
+export function documentedRoute(slug: string): Route | null {
+  return Object.hasOwn(routes, slug) ? (routes as Record<string, Route>)[slug]! : null;
+}
 
 function categoryRoute(category: string) {
   if (/lend|cdp|collateral/.test(category)) return [
@@ -28,7 +36,7 @@ function categoryRoute(category: string) {
 }
 
 export function farmPlan(p: SnapshotProtocol): string[] {
-  const documented = Object.hasOwn(routes, p.slug) ? (routes as Record<string, Route>)[p.slug] : undefined;
+  const documented = documentedRoute(p.slug);
   const category = categoryRoute((p.category ?? '').toLowerCase());
   if (!documented && !category) return [
     `Research only. Find ${p.name}'s official user guide and verify whether a user-facing route exists. Risks and entry requirements are unknown. Cost: $0 transaction budget for research. Time: allow 20 minutes as a planning estimate.`,
