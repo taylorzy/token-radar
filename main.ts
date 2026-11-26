@@ -75,7 +75,7 @@ const accounting = ledger.rows.map(row => ({
   watchlist: row.watchlist, disposition: row.disposition, evidence: row.evidence,
 }));
 writeFileSync(join(out, 'data.js'), dataScript(radar) +
-  `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString()};\n` +
+  `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString().replace(/\r\n/g, '\n')};\n` +
   `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n` +
   `window.RADAR_ACCOUNTING = ${JSON.stringify(accounting)};\n` +
   `window.RADAR_RESEARCH = ${JSON.stringify(research)};\n`);
