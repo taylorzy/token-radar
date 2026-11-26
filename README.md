@@ -20,6 +20,8 @@ The ranked view shows the frozen primary valuation, peer-error range, route cove
 
 To capture screenshots from an offline preview build, run `node test-dashboard.mjs <browser-executable> <preview-output> <capture-directory>`. The capture directory must exist. Copy the four images into `screenshots/` and rebuild to package them in the dossier. The views show the ranked board, model research and sandbox, USDD details and calculator, and accounting with a pinned comparison.
 
+The release source carries a compact projection of frozen validation results in `lib/frozen-model-review.json`. The full M9 data remains in accepted commit `e05586a` and the release QA archive. The archive also contains generated LCOV and machine-readable coverage summaries. Run the historical M9 reproduction and coverage commands from that baseline commit.
+
 ## M10 evidence and farming economics
 
 M10 uses the frozen M9 valuation. The accounting ledger keeps the 2026-11-14 snapshot fields and adds separately dated external evidence for ten rows. The 182 ranked protocols and all 40 mandatory rows remain. The board has 14 documented participation routes. Documentation of a product or its points does not establish airdrop eligibility. See the [review report](reports/m10-evidence-and-economics.md).
@@ -46,7 +48,7 @@ Use your own fee quotes and holding assumptions for each route. In this example,
 
 M9 restores the V1 TVL-only Huber model for the primary rank, retaining the M8 accounting and candidate universe. The expanded-grid regularized fit and the starter remain detail comparators. V1 has the lowest mean held-out valuation error, and the expanded-grid model does not consistently improve ranking. The empirical V1 peer-error range is approximately ?12.49 to ?12.49. Coverage for pre-token protocols and future launches is unknown.
 
-[Model evaluation and selection](reports/m9-model-selection.md) ? [Candidate-ranking comparison](reports/m9-candidate-ranking.md) ? [Machine-readable results](reports/m9-evaluation.json)
+[Model evaluation and selection](reports/m9-model-selection.md) ? [Candidate-ranking comparison](reports/m9-candidate-ranking.md)
 
 From this worktree, with Node 26 and the official kit input directory:
 
@@ -61,7 +63,7 @@ The browser test runs offline and can also capture the three screenshots by pass
 
 ### Authored coverage
 
-[Coverage comparison, inventory, and remaining gaps](reports/coverage/README.md) and [machine-readable counts](reports/coverage/summary.json) cover the same offline workload on V1, M7, M8, and M9. To reproduce on Windows from this worktree:
+[Coverage comparison, inventory, and remaining gaps](reports/coverage/README.md) cover the same offline workload on V1, M7, M8, and M9. To reproduce on Windows from this worktree:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File measure-coverage.ps1 -Git <git.exe> -InputDir <kit-input> -Edge <msedge.exe> -OutputDir reports/coverage

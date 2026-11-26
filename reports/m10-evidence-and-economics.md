@@ -1,4 +1,4 @@
-﻿# M10 evidence and farming review
+# M10 evidence and farming review
 
 M10 starts from accepted M9 commit `e05586a4d130524a7cb210961c9560aff67b42e4`. The sealed snapshot is dated 2026-11-14. The targeted external review is dated 2026-11-26. The ledger preserves the raw token fields and keeps the external findings and links in a separate object. `Recorded token` retains its snapshot-specific meaning.
 
@@ -40,4 +40,4 @@ Five regression tests passed, including valid and invalid scenario input, zero l
 
 The sealed dataset omits DefiLlama's parent field. External product relationships establish what the official documents describe and may not resolve DefiLlama's parent assignment or historical product status. The review did not find an authoritative explanation for the extreme Shift DeFi or Nuva growth readings, and their snapshot figures were retained. The remaining 137 uncertain rows were not reclassified without direct evidence. Live quote, access, location and settlement terms remain product and account dependent. No route was transacted. Screenshots, transcript checks and the official submission check are reserved for M11.
 
-See [machine-readable results](m10-results.json), [coverage](coverage/m10.lcov), and the [evidence registry](../lib/protocol-evidence.json).
+Machine-readable results and LCOV remain in commit `a0deaac` and the release QA archive. See the [evidence registry](../lib/protocol-evidence.json).

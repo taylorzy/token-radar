@@ -129,4 +129,4 @@ The full peer set also selected 100. It remains a boundary result, consistent wi
 
 The final extended slopes were 0.464104 (TVL), 0.004209 (growth), and ?0.000593 (age). Growth changes sign in both schemes, and age changes sign in the cohort scheme. The primary V1 model has an empirical multiplicative range of ?12.4886 to ?12.4886, recalibrated using the nearest-rank 80th percentile of 119 V1 leave-one-out absolute log residuals. This descriptive peer-error range has unknown coverage for pre-token valuations or future launches.
 
-Machine-readable predictions, cohort metrics, paired differences, coefficient summaries, and candidate rows are in [m9-evaluation.json](m9-evaluation.json).
+Machine-readable predictions, cohort metrics, paired differences, coefficient summaries, and candidate rows are in `reports/m9-evaluation.json` in accepted M9 commit `e05586a` and the release QA archive.

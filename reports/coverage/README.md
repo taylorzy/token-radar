@@ -26,4 +26,4 @@ The denominator contains the authored executable radar code: main.ts, lib/*.ts, 
 
 The aggregate 90% line and 80% branch targets were met. Individual files with lower branch coverage include the dashboard, regularization selection, and the CLI. Tests cover rank and snapshot rejection, missing feature values, degenerate fits, token and family classification, farming route classes, positive and invalid calculator inputs, filtering, sorting, and detail deep links. Remaining gaps include calculator overflow, dialog fallback on older browsers, degenerate inner selection or convergence failures, ledger corruption rejection, and failing screenshot packaging or CLI deck generation. Those paths lack direct end-to-end exercise here. No source lines were removed or marked ignored for coverage.
 
-Raw per-version LCOV and machine-readable counts are in this directory. Reproduce with measure-coverage.ps1 and then node summarize-coverage.mjs.
+Raw per-version LCOV and machine-readable counts are in the baseline commits and release QA archive. Reproduce with measure-coverage.ps1 and then node summarize-coverage.mjs.

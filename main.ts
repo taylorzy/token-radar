@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
 import { farmEconomics, farmingSummaries } from './lib/economics.ts';
 import { buildLedger } from './lib/ledger.ts';
+import frozenModelReview from './lib/frozen-model-review.json' with { type: 'json' };
 import { isComparable } from './lib/valuation.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
@@ -65,12 +66,8 @@ const dashboardFarming = Object.fromEntries(farming.map(row => [row.slug, {
   route: row.route, assumptions: row.assumptions, economics: row.economics,
 }]));
 const ledger = buildLedger(snapshot, board);
-const review = JSON.parse(readFileSync(join(here, 'reports/m9-evaluation.json'), 'utf8').replace(/^\uFEFF/, ''));
 const research = {
-  comparisons: Object.fromEntries(['loo', 'age'].map(key => [key,
-    Object.fromEntries(Object.entries(review[key].pooled).map(([name, scores]) => [name, scores]))])),
-  sensitivity: review.full.fits.m71,
-  penalty: review.full.extended,
+  ...frozenModelReview,
   peers: snapshot.protocols.filter(isComparable).map(p => [p.name, p.tvl_usd, p.mcap_usd]),
 };
 const accounting = ledger.rows.map(row => ({
