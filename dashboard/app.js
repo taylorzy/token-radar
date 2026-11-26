@@ -300,7 +300,7 @@
     return el('section', { class: 'panel model' },
       el('div', { class: 'method-copy' },
         el('h2', { text: 'Valuation methodology' }),
-        el('p', null, el('strong', { text: 'Multivariate Huber regression' }),
+        el('p', null, el('strong', { text: 'Regularized multivariate Huber regression' }),
           ' fits market cap from TVL, seven-day growth and tracking age. DefiLlama tracking age is a proxy for age of a pre-token protocol.'),
         el('details', null, el('summary', { text: 'Formula and sensitivity' }),
           el('div', { class: 'formula', text: fit ? 'Implied USD = exp(' + fit.intercept.toFixed(6) + ' + the centered feature terms below), rounded with a $1 floor.' : 'Original comparator fallback.' }),
@@ -315,11 +315,11 @@
       el('div', { class: 'validation' },
         el('span', { class: 'sub', text: 'Sealed snapshot: 119 peers / leave-one-out mean absolute log error' }),
         el('div', { class: 'scores' },
-          el('div', null, el('strong', { text: '1.604' }), el('span', { text: 'Multivariate Huber' })),
+          el('div', null, el('strong', { text: '1.580' }), el('span', { text: 'Regularized Huber' })),
           el('div', null, el('strong', { text: '1.571' }), el('span', { text: 'V1 TVL-only Huber' })),
           el('div', null, el('strong', { text: '1.769' }), el('span', { text: 'Original comparator' }))
         ),
-        el('span', { class: 'sub', text: 'Held-out age cohorts: 1.634 multivariate, 1.564 V1, 1.769 comparator. Both tests use one cross-sectional snapshot.' })
+        el('span', { class: 'sub', text: 'Held-out age cohorts: 1.579 regularized, 1.564 V1, 1.769 comparator. Both tests use one cross-sectional snapshot.' })
       )
     );
   }
@@ -400,10 +400,15 @@
       el('div', { class: 'equation' },
         el('div', null, el('span', { text: 'TVL' }), el('b', { class: 'num', text: fmtUsd(row.tvl_usd) })),
         el('div', null, el('span', { text: 'Seven-day growth' }), el('b', { class: 'num', text: fmtPct(row.change_7d) })),
-        el('div', null, el('span', { text: 'Listing age' }), el('b', { class: 'num', text: fmtAge(row.age_days) })),
+        el('div', null, el('span', { text: 'Tracking age' }), el('b', { class: 'num', text: fmtAge(row.age_days) })),
         el('div', null, el('span', { text: 'Huber implied value' }), el('b', { class: 'num', text: fmtUsd(row.implied_value_usd) })),
         el('div', null, el('span', { text: 'Original comparator' }), el('b', { class: 'num', text: fmtUsd(impliedOf(row, DATA.model, true)) }))
       ),
+      DATA.uncertainty && row.tvl_usd > 0 ? el('p', { class: 'sub',
+        text: 'Empirical 80% peer-error range: ' +
+          fmtUsd(Math.max(1, Math.round(row.implied_value_usd / DATA.uncertainty.factor))) + ' to ' +
+          fmtUsd(Math.round(row.implied_value_usd * DATA.uncertainty.factor)) +
+          '. Based on held-out traded peers; launch coverage is unknown.' }) : null,
       impliedOf(row, DATA.model) === row.implied_value_usd ? null : el('p', { role: 'alert', text: 'Recomputed valuation differs from the board.' })
     ));
     dialog.appendChild(el('section', { class: 'detail-section' },

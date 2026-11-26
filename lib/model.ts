@@ -11,7 +11,8 @@ import { classifyProtocols, VERSIONED, type Classification } from './classificat
 // Fit log market cap against TVL, seven-day growth and protocol age using the snapshot's live-token comparables.
 // The starter formula remains available for comparison and as a fallback for a degenerate fit.
 
-import { fitMultivariate, isComparable, valuationParts } from './valuation.ts';
+import { FEATURES, fitMultivariate, isComparable, valuationParts } from './valuation.ts';
+import { predictLog, selectPenalty } from './regularization.ts';
 
 /** The snapshot's protocol entry: exactly the ten fields the sealed input carries. */
 export interface SnapshotProtocol {
@@ -60,10 +61,7 @@ export const MODEL: ModelConstants = {
 };
 
 /** The model's version label: the dashboard names it and the rules quote it. */
-export const MODEL_VERSION = 'huber-tvl-growth-age-1';
-
-/** How many pre-token protocols below the watchlist floor the early radar carries, by TVL. */
-export const EARLY_ROWS = 160;
+export const MODEL_VERSION = 'huber-tvl-growth-age-ridge';
 
 /** How many live-token protocols the Live token view carries, by market cap. */
 export const LIVE_ROWS = 24;
@@ -130,6 +128,7 @@ export interface RadarData {
   floor_usd: number;
   model: ModelConstants & { regression: ReturnType<typeof fitMultivariate> };
   model_version: string;
+  uncertainty: { level: number; residuals: number; factor: number } | null;
   analyzed_size: number;
   watchlist_covered: number;
   watchlist_size: number;
@@ -201,8 +200,26 @@ export interface BoardSummary {
   live_size: number;
 }
 
+function primaryFit(snapshot: Snapshot) {
+  const peers = snapshot.protocols.filter(isComparable);
+  return fitMultivariate(peers, snapshot.as_of, FEATURES, selectPenalty(peers, snapshot.as_of).penalty);
+}
+
+/** Empirical log-error envelope from nested leave-one-out predictions on traded peers. */
+function valuationUncertainty(snapshot: Snapshot): RadarData['uncertainty'] {
+  const peers = snapshot.protocols.filter(isComparable);
+  const level = 0.8;
+  const residuals = peers.map((row, i) => {
+    const train = peers.filter((_, j) => i !== j);
+    const fit = fitMultivariate(train, snapshot.as_of, FEATURES, selectPenalty(train, snapshot.as_of).penalty);
+    return fit ? Math.abs(Math.log(row.mcap_usd!) - predictLog(fit, row, snapshot.as_of)) : null;
+  }).filter(x => x !== null).sort((a, b) => a - b);
+  if (!residuals.length || residuals.length !== peers.length) return null;
+  return { level, residuals: residuals.length, factor: Math.exp(residuals[Math.ceil(level * residuals.length) - 1]!) };
+}
+
 /** The protocols the board ranks, strongest first, with ranks 1..n. */
-export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, regression = fitMultivariate(snapshot.protocols.filter(isComparable), snapshot.as_of), classification = classifyProtocols(snapshot.protocols)): BoardRow[] {
+export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, regression = primaryFit(snapshot), classification = classifyProtocols(snapshot.protocols)): BoardRow[] {
   const index = bySlug(snapshot.protocols);
   const chosen = new Map<string, SnapshotProtocol>();
   // The watchlist is the floor: every slug, even one the snapshot no longer carries (it cannot, but the
@@ -211,13 +228,9 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, re
     const p = index.get(slug);
     if (p !== undefined) chosen.set(slug, p);
   }
-  // The early radar: pre-token protocols below the watchlist floor, by TVL, capped. Never a replacement
-  // for a watchlist row: a chosen protocol stays chosen.
-  const early = snapshot.protocols
-    .filter((p) => !chosen.has(p.slug) && isRankable(p) && p.tvl_usd < snapshot.floor_usd
-      && classification.get(p.slug)?.status !== 'Likely existing-token product')
-    .sort((a, b) => b.tvl_usd - a.tvl_usd || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0))
-    .slice(0, EARLY_ROWS);
+  // Expand beyond the watchlist only when the snapshot audit supports candidate status.
+  const early = snapshot.protocols.filter(p => !chosen.has(p.slug) && isRankable(p)
+    && classification.get(p.slug)?.status === 'Pre-token candidate');
   for (const p of early) chosen.set(p.slug, p);
 
   const scored = [...chosen.values()].map((p) => {
@@ -301,7 +314,7 @@ export function radarRow(row: BoardRow): RadarRow {
 
 /** Everything the dashboard renders, from the snapshot. */
 export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): { board: BoardRow[]; radar: RadarData } {
-  const regression = fitMultivariate(snapshot.protocols.filter(isComparable), snapshot.as_of);
+  const regression = primaryFit(snapshot);
   const classification = classifyProtocols(snapshot.protocols);
   const board = buildBoard(snapshot, model, regression, classification);
   const live = liveRows(snapshot);
@@ -312,6 +325,7 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     floor_usd: snapshot.floor_usd,
     model: { ...model, regression },
     model_version: regression ? MODEL_VERSION : 'radar-1',
+    uncertainty: regression ? valuationUncertainty(snapshot) : null,
     analyzed_size: snapshot.protocols.length,
     watchlist_covered: board.length - early,
     watchlist_size: snapshot.watchlist.length,

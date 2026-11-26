@@ -74,7 +74,7 @@ function solve(matrix: number[][]): number[] | null {
 }
 
 /** Huber IRLS with preprocessing estimated exclusively on the training rows. */
-export function fitMultivariate(rows: SnapshotProtocol[], asOf: string, features = FEATURES) {
+export function fitMultivariate(rows: SnapshotProtocol[], asOf: string, features = FEATURES, penalty = 0) {
   if (rows.length <= features.length) return null;
   const inputs = features.map(feature => {
     const values = rows.map(row => featureValue(row, asOf, feature)).filter(v => v !== null);
@@ -93,6 +93,10 @@ export function fitMultivariate(rows: SnapshotProtocol[], asOf: string, features
   for (let iteration = 0; iteration < 200; iteration++) {
     const system = beta.map((_, i) => [...beta, 0].map((_, j) =>
       design.reduce((sum, x, k) => sum + weights[k]! * x[i]! * (j === beta.length ? targets[k]! : x[j]!), 0)));
+    // Penalize standardized growth and age slopes; leave TVL and the intercept free.
+    columns.forEach(({ feature }, i) => {
+      if (feature !== 'tvl') system[i + 1]![i + 1]! += rows.length * penalty;
+    });
     const next = solve(system);
     if (!next) return null;
     const converged = next.every((value, i) => Math.abs(value - beta[i]!) < 1e-10);

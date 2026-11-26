@@ -19,6 +19,7 @@ function tokenEvidence(p: SnapshotProtocol): string[] {
 
 const wrapperCategories = new Set(['Bridge', 'Canonical Bridge', 'Liquid Staking', 'Liquid Restaking', 'Restaked BTC']);
 const documentedWrappers = new Map([
+  ['usdt0', 'The official kit identifies USDT0 as a product of an already traded token.'],
   ['wbtc', 'The kit input guide identifies WBTC as Bitcoin on Ethereum.'],
   ['binance-staked-eth', 'The kit input guide identifies this record as ETH in the Binance staking product.'],
 ]);

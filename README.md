@@ -12,11 +12,37 @@ node main.ts --input path/to/token-radar-01-kit/input --output out
 
 Open `out/dashboard/index.html` directly from disk. To repeat the determinism check on Node 26, run twice with `--permission --allow-fs-read=* --allow-fs-write=*` before `main.ts`, leaving network permission disabled. Compare relative filenames and SHA-256 hashes.
 
-The official dev kit supplies the frozen input, starter, and dossier builder. The board includes the full watchlist plus up to 160 eligible below-floor protocols by TVL.
+The official dev kit supplies the frozen input, starter, and dossier builder. The M8 board includes the full watchlist and all optional records that pass the candidate screen.
 
-## M7 valuation
+## M7.1 regularization and M8 coverage
 
-The primary board uses a Huber fit of natural-log recorded market cap on three centered features. The fit uses the same 119 non-CEX peers with positive TVL and market cap as V1, and the same Huber threshold of 1.5 log units. It estimates all coefficients from the data. Each term is the coefficient times the transformed input minus its training median, with the subtraction performed before multiplication. Add the terms to the intercept, exponentiate, and round to the nearest dollar with a $1 floor.
+The primary model uses the M7 transforms and a Huber loss with selective L2 regularization on the standardized growth and tracking-age slopes. The intercept and TVL slope are unpenalized. The bounded penalty grid was 0, 0.1, and 1, on average Huber loss plus half the penalty times the squared standardized slopes. Selection used four deterministic, slug-interleaved inner folds within each outer training set. Every inner and outer fit estimated preprocessing from its own training rows. Penalty 1 was selected in every outer fold and on the full sample. The fixed-penalty rows below are diagnostics; the nested row measures the selection procedure.
+
+| Model | Leave-one-out | Held-out age cohorts |
+| --- | ---: | ---: |
+| Original starter | 1.768855 | 1.768855 |
+| V1 TVL Huber | 1.571354 | 1.563690 |
+| M7 unregularized | 1.604269 | 1.634246 |
+| Penalty 0.1 | 1.596637 | 1.613466 |
+| Penalty 1 / nested selection | 1.579726 | 1.579451 |
+
+The regularized fit improves on M7 in both tests and still trails V1. Its centered intercept is 15.937034 and its TVL, growth and age coefficients are +0.463313, +0.237691 and ?0.041556. For Nuva, growth and age multiply the fitted TVL component by 1.377 and 1.088. All three inputs contribute to the primary ranking.
+
+The ledger `protocol-accounting.json` reconciles every input slug. It preserves the classification evidence, board rank or null, mandatory watchlist flag, and disposition. Counts are 416 recorded tokens, 5 likely existing-token products, 19 related products, 137 uncertain records, and 181 candidate records. The kit explicitly identifies USDT0 as a product of an already traded token. We use that evidence to move it from uncertain to likely existing-token product.
+
+The kit permits additions on either side of the TVL floor. The board keeps all 40 required rows, including the one related product on the official watchlist. It ranks all 142 optional candidates supported by the snapshot screens, up from 106. It adds 16 below-floor and 20 at-or-above-floor protocols and excludes 54 formerly ranked related or uncertain rows from the optional pool. Their evidence remains in the ledger. This yields 182 ranked rows and 576 excluded records. A snapshot candidate means no recorded token and no disqualifying evidence from these screens. It does not establish current token status. All nine documented farming routes remain on the board.
+
+The detail drawer shows a peer-error range based on the 80th percentile of 119 absolute log residuals from nested leave-one-out predictions. Divide and multiply the point estimate by 12.471. This is a descriptive range from held-out traded peers. Coverage on pre-token protocols or future launches is unknown. The width reflects the dispersion observed in the validation sample.
+
+Reproduce the combined review from the worktree:
+
+```powershell
+node validate-valuation.ts <kit-input/snapshot.json> ../token-radar-m6/node22-output/board.json ../token-radar-m7-review/board.json
+```
+
+## Previous M7 baseline
+
+The M7 baseline board uses a Huber fit of natural-log recorded market cap on three centered features. The fit uses the same 119 non-CEX peers with positive TVL and market cap as V1, and the same Huber threshold of 1.5 log units. It estimates all coefficients from the data. Each term is the coefficient times the transformed input minus its training median, with the subtraction performed before multiplication. Add the terms to the intercept, exponentiate, and round to the nearest dollar with a $1 floor.
 
 | Input | Transform | Training median | Coefficient |
 | --- | --- | ---: | ---: |
@@ -52,15 +78,9 @@ Rank 1 is highest. Multipliers show the fitted contribution relative to the trai
 | Origami Finance | 69 ? 117 | $8.60M ? $8.00M | 0.930 | 1.012 |
 | Anemoy Capital | 74 ? 145 | $8.47M ? $6.98M | 0.792 | 1.053 |
 
-Rerun from the M7 worktree with the official snapshot and accepted V1 board:
-
-```powershell
-node validate-valuation.ts <kit-input/snapshot.json> ../token-radar-m6/node22-output/board.json
-```
-
 The screenshots in this review worktree are carried over from V1 and do not depict the updated rankings.
 
-## Token classification and candidate selection
+## Historical V1 classification and candidate selection
 
 All 758 sealed records are classified. Any populated token field is recorded-token evidence. Empty fields establish only that the snapshot lacks a token record. The classification uses named record pairs for reviewed cases, the kit guide for two documented wrappers, and conservative name, category, and chain signals. The seven investigated family prefixes require another record with the same prefix and a shared deployment chain. A family link is a lead for review and does not establish a common issuer or underlying asset. Version-stripped matches are also treated as evidence for review.
 
