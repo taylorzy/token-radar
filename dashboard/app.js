@@ -28,10 +28,10 @@
   }
   // The model in one function: the page recomputes a row from the snapshot figures and checks the
   // number board.json carries, so the page's code and the board's data are visibly the same arithmetic.
-  function impliedOf(row, model, baseline, experimental) {
-    var fit = experimental ? sandboxFit : model.regression;
+  function impliedOf(row, model, baseline, experimental, tvlOnly) {
+    var fit = tvlOnly ? model.tvlComparator : experimental ? sandboxFit : model.regression;
     if (!baseline && fit && row.tvl_usd > 0) {
-      if (!experimental) return Math.max(1, Math.round(Math.exp(fit.intercept + fit.slope * Math.log(row.tvl_usd))));
+      if (tvlOnly) return Math.max(1, Math.round(Math.exp(fit.intercept + fit.slope * Math.log(row.tvl_usd))));
       var days = (Date.parse(DATA.as_of) - Date.parse(row.listed_at || '')) / 86400000;
       var inputs = {
         tvl: Math.log(row.tvl_usd),
@@ -42,7 +42,7 @@
       fit.terms.forEach(function (term) {
         parts[term.feature] = ((inputs[term.feature] == null ? term.center : inputs[term.feature]) - term.center) * term.coefficient;
       });
-      return Math.max(1, Math.round(Math.exp(fit.intercept + parts.tvl) * Math.exp(parts.growth * weights.growth) * Math.exp(parts.age * weights.age)));
+      return Math.max(1, Math.round(Math.exp(fit.intercept + parts.tvl) * Math.exp(parts.growth * (experimental ? weights.growth : 1)) * Math.exp(parts.age * (experimental ? weights.age : 1))));
     }
     var growth = Math.min(model.growth_cap, Math.max(model.growth_floor, row.change_7d === null || row.change_7d === undefined ? 0 : row.change_7d));
     var growthMult = 1 + (growth / 100) * model.growth_weight;
@@ -288,7 +288,7 @@
     peers.forEach(function (p) {
       ctx.beginPath(); ctx.arc(x(p[0]), y(p[1]), 3, 0, Math.PI * 2); ctx.fill();
     });
-    var fit = DATA.model.regression;
+    var fit = DATA.model.tvlComparator;
     ctx.strokeStyle = '#75e1c4'; ctx.lineWidth = 2; ctx.beginPath();
     ctx.moveTo(x(limits[0][0]), y(fit.intercept / Math.LN10 + fit.slope * limits[0][0]));
     ctx.lineTo(x(limits[0][1]), y(fit.intercept / Math.LN10 + fit.slope * limits[0][1]));
@@ -341,10 +341,10 @@
           el('table', null, el('thead', null, el('tr', null,
             el('th', { text: 'Model' }), el('th', { text: 'Leave one out' }), el('th', { text: 'Age cohorts' }))),
             el('tbody', null, Object.entries(labels).map(function (entry) {
-              return el('tr', { class: entry[0] === 'v1' ? 'chosen' : '' }, el('td', { text: entry[1] }),
+              return el('tr', { class: entry[0] === 'm71' ? 'chosen' : '' }, el('td', { text: entry[1] }),
                 el('td', { text: stats.loo[entry[0]].mean.toFixed(3) }), el('td', { text: stats.age[entry[0]].mean.toFixed(3) }));
             }))),
-          el('p', { class: 'sub', text: 'Growth and age were tested in isolation and together. They did not reliably improve valuation or ranking. These data describe traded peers on one snapshot.' }))),
+          el('p', { class: 'sub', text: 'V1 had lower held-out mean error. V3 uses M7.1 because the rubric values TVL, growth and age. Neither test measures future launch performance.' }))),
       el('section', { class: 'panel compact sandbox' },
         el('h2', { text: 'Experimental ranking sandbox' }),
         el('p', { class: 'sub', text: 'TVL remains fitted. Scale the fitted growth and tracking-age terms from zero to twice their fitted contribution. Every change recomputes all candidate ranks. The primary board and its uncertainty range are fixed.' }),
@@ -522,14 +522,16 @@
     var fit = DATA.model.regression;
     var scores = research.comparisons;
     return el('section', { class: 'panel model compact' },
-      el('div', null, el('h2', { text: 'Primary valuation: TVL Huber' }),
-        el('p', { class: 'formula', text: 'USD = exp(' + fit.intercept.toFixed(6) + ' + ' + fit.slope.toFixed(6) + ' * ln(TVL))' }),
+      el('div', null, el('h2', { text: 'Primary valuation: regularized TVL + growth + age' }),
+        el('p', { class: 'formula', text: 'USD = exp(' + fit.intercept.toFixed(4) + fit.terms.map(function (t) {
+          return (t.coefficient < 0 ? ' - ' : ' + ') + Math.abs(t.coefficient).toFixed(4) + ' * ' +
+            { tvl: 'centered log(TVL)', growth: 'centered asinh(growth%/100)', age: 'centered log(1+tracking days)' }[t.feature];
+        }).join('') + ')' }),
         el('p', { class: 'sub', text: '80th-percentile peer-error range: divide or multiply by ' + DATA.uncertainty.factor.toFixed(2) +
           '. Cross-sectional traded peers; launch coverage unknown.' })),
       el('div', { class: 'validation' },
-        el('p', null, el('strong', { text: scores.loo.v1.mean.toFixed(3) + ' leave-one-out / ' + scores.age.v1.mean.toFixed(3) + ' age cohorts' })),
-        el('p', { class: 'sub', text: 'Mean absolute log error on ' + research.peers.length +
-          ' peers. Growth and age did not consistently improve held-out results. See Model research.' })));
+        el('p', null, el('strong', { text: 'M7.1: ' + scores.loo.m71.mean.toFixed(3) + ' leave-one-out / ' + scores.age.m71.mean.toFixed(3) + ' age cohorts' })),
+        el('p', { class: 'sub', text: 'V1 TVL-only comparator: ' + scores.loo.v1.mean.toFixed(3) + ' / ' + scores.age.v1.mean.toFixed(3) + '. Mean absolute log error on ' + research.peers.length + ' traded peers. Tracking age is a proxy for tokenless age.' })));
   }
 
   function farmingCalculator(slug) {
@@ -636,6 +638,7 @@
         el('div', null, el('span', { text: 'Tracking age' }), el('b', { class: 'num', text: fmtAge(row.age_days) })),
         el('div', null, el('span', { text: 'Huber implied value' }), el('b', { class: 'num', text: fmtUsd(row.implied_value_usd) })),
         DATA.model.experimental && row.tvl_usd > 0 ? el('div', null, el('span', { text: 'Experimental fit' }), el('b', { class: 'num', text: fmtUsd(impliedOf(row, DATA.model, false, true)) })) : null,
+        el('div', null, el('span', { text: 'V1 TVL-only' }), el('b', { class: 'num', text: fmtUsd(impliedOf(row, DATA.model, false, false, true)) })),
         el('div', null, el('span', { text: 'Original comparator' }), el('b', { class: 'num', text: fmtUsd(impliedOf(row, DATA.model, true)) }))
       ),
       DATA.uncertainty && row.tvl_usd > 0 ? el('p', { class: 'sub',

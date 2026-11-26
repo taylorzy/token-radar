@@ -8,11 +8,11 @@ import { classifyProtocols, VERSIONED, type Classification } from './classificat
 // snapshot's live-token protocols are kept apart and shown as the market's own values, never mixed into
 // the ranked board.
 //
-// Fit log market cap against log TVL for the primary board using the snapshot's live-token comparables.
+// Fit log market cap against TVL, growth and tracking age for the primary board using the snapshot's live-token comparables.
 // The starter formula remains available for comparison and as a fallback for a degenerate fit.
 
 import { FEATURES, fitMultivariate, fitValuation, isComparable, valuationParts } from './valuation.ts';
-import { selectPenalty } from './regularization.ts';
+import frozenReview from './frozen-model-review.json' with { type: 'json' };
 
 /** The snapshot's protocol entry: exactly the ten fields the sealed input carries. */
 export interface SnapshotProtocol {
@@ -61,7 +61,7 @@ export const MODEL: ModelConstants = {
 };
 
 /** The model's version label: the dashboard names it and the rules quote it. */
-export const MODEL_VERSION = 'huber-log-tvl-1';
+export const MODEL_VERSION = 'huber-tvl-growth-age-ridge-1';
 
 /** How many live-token protocols the Live token view carries, by market cap. */
 export const LIVE_ROWS = 24;
@@ -127,7 +127,8 @@ export interface RadarData {
   source: string;
   floor_usd: number;
   model: ModelConstants & {
-    regression: ReturnType<typeof fitValuation>;
+    regression: ReturnType<typeof fitMultivariate>;
+    tvlComparator: ReturnType<typeof fitValuation>;
     experimental: ReturnType<typeof fitMultivariate>;
   };
   model_version: string;
@@ -205,21 +206,13 @@ export interface BoardSummary {
 
 type RankingFit = NonNullable<ReturnType<typeof fitValuation> | ReturnType<typeof fitMultivariate>>;
 
-/** Empirical log-error envelope from held-out V1 predictions on traded peers. */
-function valuationUncertainty(peers: SnapshotProtocol[]): RadarData['uncertainty'] {
-  const level = 0.8;
-  const residuals = peers.map((row, i) => {
-    const fit = fitValuation(peers.filter((_, j) => i !== j));
-    if (!fit) return null;
-    const value = Math.max(1, Math.round(Math.exp(fit.intercept + fit.slope * Math.log(row.tvl_usd))));
-    return Math.abs(Math.log(row.mcap_usd!) - Math.log(value));
-  }).filter(x => x !== null).sort((a, b) => a - b);
-  if (!residuals.length || residuals.length !== peers.length) return null;
-  return { level, residuals: residuals.length, factor: Math.exp(residuals[Math.ceil(level * residuals.length) - 1]!) };
+/** Reuse the M7.1 penalty selected in the archived review without tuning it again. */
+function primaryFit(snapshot: Snapshot) {
+  return fitMultivariate(snapshot.protocols.filter(isComparable), snapshot.as_of, FEATURES, 1);
 }
 
 /** The protocols the board ranks, strongest first, with ranks 1..n. */
-export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, regression: RankingFit | null = fitValuation(snapshot.protocols.filter(isComparable)), classification = classifyProtocols(snapshot.protocols)): BoardRow[] {
+export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, regression: RankingFit | null = primaryFit(snapshot), classification = classifyProtocols(snapshot.protocols)): BoardRow[] {
   const index = bySlug(snapshot.protocols);
   const chosen = new Map<string, SnapshotProtocol>();
   // The watchlist is the floor: every slug, even one the snapshot no longer carries (it cannot, but the
@@ -320,8 +313,9 @@ export function radarRow(row: BoardRow): RadarRow {
 /** Everything the dashboard renders, from the snapshot. */
 export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): { board: BoardRow[]; radar: RadarData } {
   const peers = snapshot.protocols.filter(isComparable);
-  const regression = fitValuation(peers);
-  const experimental = fitMultivariate(peers, snapshot.as_of, FEATURES, selectPenalty(peers, snapshot.as_of).penalty);
+  const regression = primaryFit(snapshot);
+  const tvlComparator = fitValuation(peers);
+  const experimental = fitMultivariate(peers, snapshot.as_of, FEATURES, 100);
   const classification = classifyProtocols(snapshot.protocols);
   const board = buildBoard(snapshot, model, regression, classification);
   const live = liveRows(snapshot);
@@ -330,9 +324,9 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     as_of: snapshot.as_of,
     source: snapshot.source,
     floor_usd: snapshot.floor_usd,
-    model: { ...model, regression, experimental },
+    model: { ...model, regression, tvlComparator, experimental },
     model_version: regression ? MODEL_VERSION : 'radar-1',
-    uncertainty: regression ? valuationUncertainty(peers) : null,
+    uncertainty: regression ? frozenReview.m71Uncertainty : null,
     analyzed_size: snapshot.protocols.length,
     watchlist_covered: board.length - early,
     watchlist_size: snapshot.watchlist.length,
