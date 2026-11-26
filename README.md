@@ -14,6 +14,12 @@ Open `out/dashboard/index.html` directly from disk. To repeat the determinism ch
 
 The official dev kit supplies the frozen input, starter, and dossier builder. The M8 board includes the full watchlist and all optional records that pass the candidate screen.
 
+## M11 release dashboard
+
+The ranked view shows the frozen primary valuation, peer-error range, route coverage, and mandatory exceptions. Chain, search, classification, and route filters apply to CSV export. Pins are local to the open dashboard. The accounting view paginates all 758 records and checks slug uniqueness, ranks, and watchlist coverage. The model view plots all 119 traded peers and displays the archived M9 results. Its experimental sandbox reranks the same candidates while the official board stays fixed. Hypothetical farming scenarios can be added to the current board from protocol details.
+
+To capture screenshots from an offline preview build, run `node test-dashboard.mjs <browser-executable> <preview-output> <capture-directory>`. The capture directory must exist. Copy the four images into `screenshots/` and rebuild to package them in the dossier. The views show the ranked board, model research and sandbox, USDD details and calculator, and accounting with a pinned comparison.
+
 ## M10 evidence and farming economics
 
 M10 uses the frozen M9 valuation. The accounting ledger keeps the 2026-11-14 snapshot fields and adds separately dated external evidence for ten rows. The 182 ranked protocols and all 40 mandatory rows remain. The board has 14 documented participation routes. Documentation of a product or its points does not establish airdrop eligibility. See the [review report](reports/m10-evidence-and-economics.md).

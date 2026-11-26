@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
 import { farmEconomics, farmingSummaries } from './lib/economics.ts';
 import { buildLedger } from './lib/ledger.ts';
+import { isComparable } from './lib/valuation.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
@@ -61,13 +62,28 @@ if (!assumptions || typeof assumptions !== 'object' || Array.isArray(assumptions
 }
 const farming = farmingSummaries(board, assumptions);
 const dashboardFarming = Object.fromEntries(farming.map(row => [row.slug, {
-  route: row.route, assumptions: row.assumptions,
+  route: row.route, assumptions: row.assumptions, economics: row.economics,
 }]));
+const ledger = buildLedger(snapshot, board);
+const review = JSON.parse(readFileSync(join(here, 'reports/m9-evaluation.json'), 'utf8').replace(/^\uFEFF/, ''));
+const research = {
+  comparisons: Object.fromEntries(['loo', 'age'].map(key => [key,
+    Object.fromEntries(Object.entries(review[key].pooled).map(([name, scores]) => [name, scores]))])),
+  sensitivity: review.full.fits.m71,
+  penalty: review.full.extended,
+  peers: snapshot.protocols.filter(isComparable).map(p => [p.name, p.tvl_usd, p.mcap_usd]),
+};
+const accounting = ledger.rows.map(row => ({
+  slug: row.slug, name: row.name, category: row.category, status: row.status, rank: row.rank,
+  watchlist: row.watchlist, disposition: row.disposition, evidence: row.evidence,
+}));
 writeFileSync(join(out, 'data.js'), dataScript(radar) +
   `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString()};\n` +
-  `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n`);
+  `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n` +
+  `window.RADAR_ACCOUNTING = ${JSON.stringify(accounting)};\n` +
+  `window.RADAR_RESEARCH = ${JSON.stringify(research)};\n`);
 writeFileSync(join(out, 'farming-economics.json'), JSON.stringify(farming, null, 2) + '\n');
-writeFileSync(join(out, 'protocol-accounting.json'), JSON.stringify(buildLedger(snapshot, board), null, 2) + '\n');
+writeFileSync(join(out, 'protocol-accounting.json'), JSON.stringify(ledger, null, 2) + '\n');
 
 /** Copy one directory's regular files into `to`, skipping names that start with a dot. */
 function copyFiles(from: string, to: string): string[] {
@@ -88,7 +104,7 @@ function copyFiles(from: string, to: string): string[] {
 const dashboardFiles = copyFiles(join(here, 'dashboard'), join(out, 'dashboard'));
 const shots = copyFiles(join(here, 'screenshots'), join(out, 'screenshots'));
 if (shots.length < 3) {
-  process.stderr.write(`token radar: screenshots/ holds ${shots.length} image${shots.length === 1 ? '' : 's'}: hand in 3, the board, a detail view and a filtered view\n`);
+  process.stderr.write(`token radar: screenshots/ holds ${shots.length} image${shots.length === 1 ? '' : 's'}: include the ranked board, model research, protocol detail and accounting\n`);
   process.exit(1);
 }
 for (const name of shots) {

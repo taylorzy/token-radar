@@ -44,7 +44,7 @@ try {
     });
   }
   async function evalPage(expression) {
-    const result = await command('Runtime.evaluate', { expression, returnByValue: true });
+    const result = await command('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
     assert.ok(!result.exceptionDetails, JSON.stringify(result.exceptionDetails));
     return result.result.value;
   }
@@ -73,7 +73,10 @@ try {
   await evalPage("document.querySelector('dialog').close()");
   const expected = await evalPage('window.RADAR.rows.length');
   assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), expected);
-  if (!process.env.RADAR_BROWSER_COVERAGE || expected === 182 && await evalPage('!!window.RADAR.model.experimental')) {
+  const m11 = await evalPage('!!window.RADAR_ACCOUNTING');
+  if (m11) {
+    assert.ok(await evalPage("document.body.innerText.includes('Primary valuation') && document.body.innerText.includes('Ledger reconciled')"));
+  } else if (!process.env.RADAR_BROWSER_COVERAGE || expected === 182 && await evalPage('!!window.RADAR.model.experimental')) {
     assert.ok(await evalPage("document.body.innerText.includes('V1 TVL-only Huber')"));
   }
   await shot('1-board.png');
@@ -89,7 +92,15 @@ try {
     assert.ok(await evalPage("document.querySelector('.scenario-result').textContent.includes('Required reward per labor hour')"));
     assert.ok(await evalPage("(() => { const x = [...document.querySelectorAll('.farm-calculator input')].at(-1); x.value = 100; x.dispatchEvent(new Event('input', {bubbles:true})); return document.querySelector('.scenario-result').textContent.includes('covers modeled costs'); })()"));
   }
-  await shot('2-detail.png');
+  if (m11 && shots) await command('Emulation.setDeviceMetricsOverride',
+    { width: 1440, height: 1080, deviceScaleFactor: 1, mobile: false });
+  await shot(m11 ? '3-detail.png' : '2-detail.png');
+  if (m11 && shots) await command('Emulation.setDeviceMetricsOverride',
+    { width: 1440, height: 960, deviceScaleFactor: 1, mobile: false });
+  if(m11) {
+    await evalPage("[...document.querySelectorAll('dialog button')].find(b => b.textContent === 'Use scenario on board').click()");
+    assert.ok(await evalPage("document.querySelector('tr[data-slug=usdd]').innerText.includes('Scenario:')"));
+  }
   assert.ok(await evalPage("(() => { const x = document.querySelector('.farm-calculator input'); x.value = '-1'; x.dispatchEvent(new Event('input', {bubbles:true})); return document.querySelector('.scenario-result').textContent.includes('non-negative'); })()"));
   await evalPage("window.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape'}))");
   assert.ok(await evalPage("!document.querySelector('dialog').open"));
@@ -97,7 +108,7 @@ try {
   const documented = await evalPage("window.RADAR.rows.filter(r => r.farm_steps[0].startsWith('Documented route.')).length");
   assert.ok(documented >= 9);
   assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), documented);
-  await shot('3-filtered.png');
+  if (!m11) await shot('3-filtered.png');
   await evalPage("[...document.querySelectorAll('button')].find(b => b.textContent === 'Clear filters').click()");
   assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), expected);
   await evalPage("(() => {const s = document.querySelector('input[type=search]'); s.value='zzzz_no_match'; s.dispatchEvent(new Event('input'));})()");
@@ -114,6 +125,53 @@ try {
   assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), await evalPage('window.RADAR.live.length'));
   await evalPage("document.querySelector('[data-sort=cap]').click()");
   assert.ok(await evalPage("window.location.hash.includes('tab=live')"));
+  if (m11) {
+    const button = label => `[...document.querySelectorAll('button')].find(b => b.textContent === ${JSON.stringify(label)}).click()`;
+    await evalPage(button('Ranked board'));
+    const chainCount = await evalPage(`(() => {
+      const select = document.querySelector('#chain'); select.value = 'Ethereum';
+      select.dispatchEvent(new Event('change')); return window.RADAR.rows.filter(r => r.chains.includes('Ethereum')).length;
+    })()`);
+    assert.ok(chainCount > 0 && chainCount < expected);
+    assert.equal(await evalPage("document.querySelectorAll('.protocol-link').length"), chainCount);
+    const csv = await evalPage(`(async () => {
+      const oldURL = URL.createObjectURL, oldClick = HTMLAnchorElement.prototype.click;
+      let text, name;
+      URL.createObjectURL = b => { text = b.text(); return oldURL.call(URL, b); };
+      HTMLAnchorElement.prototype.click = function () { name = this.download; };
+      try { ${button('Export filtered CSV')}; } finally { URL.createObjectURL = oldURL; HTMLAnchorElement.prototype.click = oldClick; }
+      return { text: await text, name };
+    })()`);
+    assert.equal(csv.name, 'token-radar-filtered.csv');
+    assert.equal(csv.text.trim().split('\r\n').length, chainCount + 1);
+    assert.ok(csv.text.includes('"primary_value_usd"') && csv.text.includes('"experimental_rank"'));
+    await evalPage(button('Clear filters'));
+    await evalPage("document.querySelector('[data-pin=nuva]').click(); document.querySelector('[data-pin=usdd]').click()");
+    assert.equal(await evalPage("document.querySelector('[data-pin=nuva]').getAttribute('aria-pressed')"), 'true');
+    await evalPage(button('Model research'));
+    assert.equal(await evalPage("document.querySelector('canvas').width"), 650);
+    assert.ok(await evalPage("document.querySelector('canvas').getContext('2d').getImageData(0, 0, 650, 280).data.some(v => v > 0)"));
+    const first = await evalPage("document.querySelector('#sandbox-result').textContent");
+    await evalPage("(() => { const x = document.querySelector('#sandbox-fit'); x.value='m71'; x.dispatchEvent(new Event('change')); })()");
+    await evalPage("(() => { const x = document.querySelector('#weight-growth'); x.value='2'; x.dispatchEvent(new Event('input')); })()");
+    await evalPage("(() => { const x = document.querySelector('#weight-age'); x.value='0'; x.dispatchEvent(new Event('input')); })()");
+    assert.notEqual(await evalPage("document.querySelector('#sandbox-result').textContent"), first);
+    await shot('2-model.png');
+    await evalPage(button('Show experiment on board'));
+    assert.ok(await evalPage("document.querySelector('[data-sort=experiment]') !== null"));
+    await evalPage("document.querySelector('[data-sort=experiment]').click()");
+    assert.ok(await evalPage("document.querySelector('tbody td:nth-child(7)').textContent.startsWith('#1 ' )"));
+    await evalPage(button('Accounting & comparison'));
+    assert.equal(await evalPage("document.querySelectorAll('#comparison tbody tr').length"), 2);
+    assert.ok(await evalPage("document.querySelector('#accounting').innerText.includes('758 unique slugs')"));
+    await shot('4-accounting.png');
+    await evalPage(button('Next'));
+    assert.ok(await evalPage("document.querySelector('.ledger-pager').textContent.includes('page 2')"));
+    await evalPage(button('Previous'));
+    assert.ok(await evalPage("document.querySelector('.ledger-pager').textContent.includes('page 1')"));
+    await evalPage("document.querySelector('#comparison [data-pin=nuva]').click()");
+    assert.equal(await evalPage("document.querySelectorAll('#comparison tbody tr').length"), 1);
+  }
   if (process.env.RADAR_BROWSER_COVERAGE) {
     const { result } = await command('Profiler.takePreciseCoverage');
     const dashboard = result.filter(entry => entry.url.endsWith('/dashboard/app.js'));
