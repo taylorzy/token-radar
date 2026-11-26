@@ -1,0 +1,56 @@
+{
+  "steakhouse-financial": {
+    "sources": ["https://www.steakhouse.financial/docs/products/stablecoin-products/vaults"],
+    "entry": "Steakhouse documents vaults on Morpho and Kamino. Identify the specific Steakhouse vault and verify its network, deposit asset, cap, available liquidity and curator permissions.",
+    "action": "If the vault terms fit your risk budget, deposit the accepted asset into that vault and record the shares received. Review collateral and operator exposure.",
+    "exit": "Check redeemable shares and available liquidity, redeem via the same vault when available, and reconcile assets received."
+  },
+  "gauntlet": {
+    "sources": ["https://morpho.org/stories/gauntlet"],
+    "entry": "Identify a Gauntlet-curated Morpho vault. Compare its market allocations, collateral exposure, accepted asset, cap and withdrawable liquidity.",
+    "action": "If the vault is open and the exposure fits your budget, supply the accepted asset and record your share balance. Monitor allocation and borrower collateral risk.",
+    "exit": "Preview redemption from the same Morpho vault, check available liquidity, redeem when supported and reconcile proceeds."
+  },
+  "veda": {
+    "sources": ["https://docs.veda.tech/architecture-and-flow-of-funds"],
+    "entry": "Identify the specific Veda BoringVault product. Verify its Teller configuration, supported asset and share terms in the product documentation.",
+    "action": "Use the product's verified deposit interface only after reviewing its share pricing, strategist permissions and downstream strategy risks. Record shares received.",
+    "exit": "Check the product's share lock and withdrawal route before funding. If it uses the documented BoringQueue, submit a withdrawal request and wait for fulfillment."
+  },
+  "usdd": {
+    "sources": ["https://docs.usdd.io/user-guide/open-a-vault"],
+    "entry": "The guide covers TRON. Check the collateral type, debt terms and liquidation threshold. Use TronLink with sufficient TRX for transaction costs.",
+    "action": "Open the chosen vault, deposit approved collateral and mint USDD only if you intend to manage the debt. Keep a collateral buffer and monitor liquidation risk.",
+    "exit": "Check outstanding debt and charges, repay the required USDD and recover collateral subject to the vault's close conditions."
+  },
+  "upshift": {
+    "sources": ["https://docs.upshift.finance/introduction/how-it-works"],
+    "entry": "Select an Upshift vault and verify its input asset, curator, fees and withdrawal conditions. Review strategy and NAV risk.",
+    "action": "Deposit the vault's accepted asset if terms are suitable. Record the receipt tokens and compare reported NAV with the underlying strategy exposure.",
+    "exit": "Follow that vault's withdrawal process, confirm any waiting period and reconcile the underlying assets received."
+  },
+  "onre": {
+    "sources": ["https://docs.onre.finance/technical-resources/frequently-asked-questions"],
+    "entry": "Check access terms and redemption conditions. The FAQ describes ONyc minting with supported USDC or USDG through a compatible Solana wallet.",
+    "action": "If eligible and willing to accept reinsurance underwriting and NAV risk, place a mint order and confirm settlement before counting the ONyc balance.",
+    "exit": "Check the current redemption window, applicable holding restrictions and liquidity. Compare primary redemption with a secondary quote before exiting."
+  },
+  "symbiotic": {
+    "sources": ["https://docs.symbiotic.fi/learn/core-concepts/vault", "https://docs.symbiotic.fi/learn/mechanics/epochs-and-delays"],
+    "entry": "Verify the specific vault's single collateral token, deposit access, operator and network exposure, slashing policy and epoch duration.",
+    "action": "If access is open and the slashing exposure fits your budget, deposit the verified collateral and record the position.",
+    "exit": "Request withdrawal, check the claimable epoch and remaining slashing exposure, then claim when the vault permits it."
+  },
+  "lofty": {
+    "sources": ["https://www.lofty.ai/how-it-works"],
+    "entry": "Confirm marketplace account requirements and review the chosen property's share terms, expenses, vacancy exposure and recent order activity.",
+    "action": "If the property exposure is suitable, use the marketplace to place a share order and record its fill price and fees.",
+    "exit": "Check bids and selling costs before listing shares. Treat the exit as complete when an order fills and proceeds settle."
+  },
+  "lightning-network": {
+    "sources": ["https://docs.lightning.engineering/the-lightning-network/payment-channels/lifecycle-of-a-payment-channel"],
+    "entry": "Prepare a compatible Lightning node or wallet with bitcoin, on-chain fee budget and a suitable peer. Check channel backup and monitoring requirements.",
+    "action": "If you need a payment channel, open and fund it, wait for the required confirmation and check outbound and inbound liquidity before using it.",
+    "exit": "Prefer a cooperative close when both peers are available. Account for on-chain fees and possible force-close delays before treating funds as spendable."
+  }
+}
