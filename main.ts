@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
 import { farmEconomics, farmingSummaries } from './lib/economics.ts';
+import { modelIntelligence } from './lib/model-intelligence.ts';
 import { buildLedger } from './lib/ledger.ts';
 import frozenModelReview from './lib/frozen-model-review.json' with { type: 'json' };
 import { isComparable } from './lib/valuation.ts';
@@ -66,6 +67,8 @@ const dashboardFarming = Object.fromEntries(farming.map(row => [row.slug, {
   route: row.route, assumptions: row.assumptions, economics: row.economics,
 }]));
 const ledger = buildLedger(snapshot, board);
+const intelligence = modelIntelligence(snapshot, board);
+writeFileSync(join(out, 'model-intelligence.json'), JSON.stringify(intelligence, null, 2) + '\n');
 const research = {
   ...frozenModelReview,
   peers: snapshot.protocols.filter(isComparable).map(p => [p.name, p.tvl_usd, p.mcap_usd]),
@@ -78,7 +81,8 @@ writeFileSync(join(out, 'data.js'), dataScript(radar) +
   `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString().replace(/\r\n/g, '\n')};\n` +
   `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n` +
   `window.RADAR_ACCOUNTING = ${JSON.stringify(accounting)};\n` +
-  `window.RADAR_RESEARCH = ${JSON.stringify(research)};\n`);
+  `window.RADAR_RESEARCH = ${JSON.stringify(research)};\n` +
+  `window.RADAR_INTELLIGENCE = ${JSON.stringify(intelligence)};\n`);
 writeFileSync(join(out, 'farming-economics.json'), JSON.stringify(farming, null, 2) + '\n');
 writeFileSync(join(out, 'protocol-accounting.json'), JSON.stringify(ledger, null, 2) + '\n');
 

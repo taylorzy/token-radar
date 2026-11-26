@@ -132,3 +132,5 @@ tbody tr:hover, tbody tr:focus-within { background: var(--raised); }
 .ledger-pager button:disabled { opacity: .45; cursor: default; }
 .status[data-status="Likely existing-token product"] { color: var(--amber); }
 @media (max-width: 850px) { .research-grid { grid-template-columns: 1fr; } }
+
+#intelligence{padding:20px;margin-top:16px}#intelligence h3{margin:18px 0 6px}#intelligence p{margin:6px 0}#intelligence details{margin:8px 0}

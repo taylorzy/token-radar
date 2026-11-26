@@ -296,6 +296,63 @@
     return plot;
   }
 
+  var intel = window.RADAR_INTELLIGENCE;
+  var insights = new Map(intel.rows.map(r => [r.slug, r]));
+  function grid(headers, records) {
+    return el('table', null, el('thead', null, el('tr', null, headers.map(h => el('th', {text:h})))),
+      el('tbody', null, records.map(row => el('tr', null, row.map(cell => cell instanceof Node ? el('td',null,cell) : el('td', {text:String(cell)}))))));
+  }
+  function intelligenceDetail(r) {
+    var names = {starter:'Starter heuristic', tvl:'TVL only', growth:'TVL + growth', age:'TVL + age',
+      m7:'Full unpenalized', expanded:'Strong shrinkage', m71:'V3 primary'};
+    var u = r.uncertainty;
+    return el('section', {class:'detail-section'}, el('h3', {id:'valuation-sensitivity',text:'Valuation sensitivity'}),
+      el('p', {text:'Seven-model median ' + fmtUsd(r.consensus) + ' | rank ' + r.rankRange.join(' to ') +
+        ' | ' + r.span.ratio.toFixed(1) + 'x high/low. Related models share the same snapshot.'}),
+      grid(['Assumption','Value','Rank'], Object.entries(r.models).map(([k,v]) => [names[k],fmtUsd(v.value),v.rank])),
+      el('h3',{text:'Counterfactuals'}), grid(['Scenario across the board','Value','Rank'],intel.features.stress.map(([k,label]) =>
+        [label,fmtUsd(r.stress[k].value),r.stress[k].rank])),
+      el('p',{text:'Peer support ' + (u.weak ? 'weak' : 'within reference') + '. Nearby peers: ' +
+        u.nearestPeers.join(', ') + '. Local mean absolute log error ' + u.localLogError.toFixed(2) + ' (fit residual diagnostic).'}),
+      el('h3',{text:'Token presence and evidence'}),el('p',{text:r.propensity ?
+        'Family-held-out propensity ' + (100*r.propensity.propensity).toFixed(1) + '% | category comparator ' +
+        (100*r.propensity.categoryBase).toFixed(1) + '% (' + r.propensity.categoryN + ' training rows). Opportunity rank #' +
+        r.rankings.opportunity + '. Documented participation screen: ' + (r.documented ? 'qualifies, rank #' + r.rankings.documented : 'no qualifying route') :
+        'Opportunity screen abstains under the token-status classification.'}),
+      r.flags.map(f => el('p',{text:f.kind + ' | ' + f.label + ' | ' + f.reason})));
+  }
+  function intelligencePanel() {
+    var mode = el('select',{id:'opportunity-mode','aria-label':'Opportunity ranking'},
+      Object.keys(intel.features.metrics).map(k => el('option',{value:k,text:k})));
+    var results = el('div');
+    function update() {
+      var k = mode.value;
+      var sorted = intel.rows.filter(r => r.rankings[k]).sort((a,b) => a.rankings[k]-b.rankings[k]);
+      results.replaceChildren(el('p',{text:intel.features.metrics[k] + '. ' + sorted.length + ' eligible.'}),
+        grid(['Rank','Protocol','Score','Model rank range'],sorted.map(r => [r.rankings[k],el('button',{class:'protocol-link',type:'button',text:r.slug,onclick:()=>openDetail(r.slug)}),fmtUsd(r[k]),r.rankRange.join(' to ')])));
+    }
+    mode.onchange = update; update();
+    var interval = intel.interval.overall, presence = intel.presence;
+    return el('section',{class:'panel',id:'intelligence'},el('h2',{text:'Model intelligence'}),
+      el('p',{text:'Shift DeFi | growth sensitivity'}), intelligenceSummary('shift-defi'),
+      el('h3',{text:'80% interval calibration | 119 traded peers'}),
+      grid(['Method','Coverage','Mean log width','Interval score (lower)'],Object.entries(interval).map(([k,v]) =>
+        [({global:'Global split',adaptive:'Nearby residuals',size:'TVL strata'})[k],(100*v.coverage).toFixed(1)+'%',v.logWidth.toFixed(2),v.intervalScore.toFixed(2)])),
+      el('p',{text:'Five family-held-out folds with separate calibration. Both adaptive methods missed one more peer than global. The V3 empirical envelope remains primary. Future launch coverage is unknown.'}),
+      el('h3',{text:'Token presence | 579 screened records'}),
+      grid(['Family-held-out model','Brier (lower)','Log loss (lower)','AUC (higher)'],Object.entries(presence.scores).map(([k,v]) =>
+        [k,v.brier.toFixed(3),v.logLoss.toFixed(3),v.auc.toFixed(3)])),
+      el('details',null,el('summary',{text:'Inspect ridge calibration'}),grid(['Count','Mean prediction','Observed presence'],
+        presence.scores.ridge.calibration.filter(b=>b.n).map(b=>[b.n,b.predicted.toFixed(2),b.observed.toFixed(2)]))),
+      el('p',{text:'Presence in the sealed snapshot is the outcome. No verified issuance dates or complete follow-up cohort. Family-held-out scores also informed model selection.'}),
+      el('h3',{text:'Opportunity rankings'}), mode, results);
+  }
+  function intelligenceSummary(slug) {
+    var r = insights.get(slug);
+    return el('p',{text:'Primary ' + fmtUsd(r.models.m71.value) + ' (#' + r.models.m71.rank +
+      ') falls to ' + fmtUsd(r.stress.reference.value) + ' (#' + r.stress.reference.rank +
+      ') at peer median growth. Across seven specifications its rank spans ' + r.rankRange.join(' to ') + '.'});
+  }
   function researchPanel() {
     var labels = { starter: 'Starter', v1: 'V1 TVL Huber', growth: 'TVL + growth', age: 'TVL + age',
       m7: 'M7 full', m71: 'M7.1 regularized', extended: 'M9 expanded' };
@@ -463,7 +520,7 @@
         el('td', { class: 'num ' + growthClass, text: growth }),
         el('td', { class: 'num', text: fmtAge(r.age_days) }),
         el('td', null, el('strong', { class: 'num pos', text: fmtUsd(r.implied_value_usd) }),
-          el('span', { class: 'sub block', text: fmtUsd(low) + ' to ' + fmtUsd(high) })),
+          el('span', { class: 'sub block', text: fmtUsd(low) + ' to ' + fmtUsd(high) + ' | model ranks ' + insights.get(r.slug).rankRange.join(' to ') })),
         state.showExperiment ? el('td', { class: 'num', text: '#' + alternative.rank + ' / ' + fmtUsd(alternative.value) }) : null,
         el('td', null, el('span', { class: 'status', 'data-status': ledger.status, text: ledger.status }),
           el('span', { class: 'sub block', text: ledger.watchlist ?
@@ -623,6 +680,7 @@
       ),
       el('button', { class: 'close', type: 'button', 'aria-label': 'Close details', text: 'Close', onclick: function () { dialog.close(); } })
     ));
+    dialog.appendChild(el('button',{type:'button',text:'Inspect model ranks, stress and token evidence',onclick:()=>document.getElementById('valuation-sensitivity').scrollIntoView()}));
     var classification = DATA.classification[row.slug];
     dialog.appendChild(el('section', { class: 'detail-section' },
       el('h3', { text: classification.status }),
@@ -649,6 +707,7 @@
       impliedOf(row, DATA.model) === row.implied_value_usd ? null : el('p', { role: 'alert', text: 'Recomputed valuation differs from the board.' })
     ));
     dialog.appendChild(farmingCalculator(slug));
+    dialog.appendChild(intelligenceDetail(insights.get(slug)));
     dialog.appendChild(el('section', { class: 'detail-section' },
       el('h3', { text: 'Farm plan' }),
       el('ol', { class: 'steps' }, steps.map(function (s) {
@@ -676,7 +735,7 @@
   function refreshResults() {
     count.hidden = state.tab === 'accounting' || state.tab === 'research';
     if (state.tab === 'research' || state.tab === 'accounting') {
-      resultHost.replaceChildren(state.tab === 'research' ? researchPanel() : accountingPanel());
+      resultHost.replaceChildren(...(state.tab === 'research' ? [el('button',{type:'button',text:'Inspect uncertainty and opportunity rankings',onclick:()=>document.querySelector('#intelligence').scrollIntoView()}),researchPanel(), intelligencePanel()] : [accountingPanel()]));
       writeHash(); return;
     }
     var matches = rows().length;

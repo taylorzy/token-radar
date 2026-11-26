@@ -68,11 +68,11 @@ try {
   await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 960, deviceScaleFactor: 1, mobile: false });
   const url = pathToFileURL(resolve(output, 'dashboard/index.html')).href;
   await command('Page.navigate', { url: url + '#p=usdd' });
-  for (let i = 0; i < 100 && !await evalPage("document.querySelectorAll('tbody tr').length"); i++) await sleep(100);
+  for (let i = 0; i < 100 && !await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"); i++) await sleep(100);
   assert.ok(await evalPage("document.querySelector('dialog').open && document.querySelector('dialog').innerText.includes('USDD')"));
   await evalPage("document.querySelector('dialog').close()");
   const expected = await evalPage('window.RADAR.rows.length');
-  assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), expected);
+  assert.equal(await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"), expected);
   const m11 = await evalPage('!!window.RADAR_ACCOUNTING');
   if (m11) {
     assert.ok(await evalPage("document.body.innerText.includes('Primary valuation') && document.body.innerText.includes('Ledger reconciled')"));
@@ -107,10 +107,10 @@ try {
   await evalPage("(() => {const s = [...document.querySelectorAll('select')].find(s => [...s.options].some(o => o.value === 'Documented route')); s.value = 'Documented route'; s.dispatchEvent(new Event('change'));})()");
   const documented = await evalPage("window.RADAR.rows.filter(r => r.farm_steps[0].startsWith('Documented route.')).length");
   assert.ok(documented >= 9);
-  assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), documented);
+  assert.equal(await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"), documented);
   if (!m11) await shot('3-filtered.png');
   await evalPage("[...document.querySelectorAll('button')].find(b => b.textContent === 'Clear filters').click()");
-  assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), expected);
+  assert.equal(await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"), expected);
   await evalPage("(() => {const s = document.querySelector('input[type=search]'); s.value='zzzz_no_match'; s.dispatchEvent(new Event('input'));})()");
   assert.equal(await evalPage("document.querySelectorAll('.protocol-link').length"), 0);
   await evalPage("(() => {const s = document.querySelector('input[type=search]'); s.value='Nuva'; s.dispatchEvent(new Event('input'));})()");
@@ -122,7 +122,7 @@ try {
     await evalPage(`document.querySelector('[data-sort=${key}]').click()`);
   }
   await evalPage("[...document.querySelectorAll('button')].find(b => /live-token/i.test(b.textContent)).click()");
-  assert.equal(await evalPage("document.querySelectorAll('tbody tr').length"), await evalPage('window.RADAR.live.length'));
+  assert.equal(await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"), await evalPage('window.RADAR.live.length'));
   await evalPage("document.querySelector('[data-sort=cap]').click()");
   assert.ok(await evalPage("window.location.hash.includes('tab=live')"));
   if (m11) {
@@ -156,6 +156,11 @@ try {
     await evalPage("(() => { const x = document.querySelector('#weight-growth'); x.value='2'; x.dispatchEvent(new Event('input')); })()");
     await evalPage("(() => { const x = document.querySelector('#weight-age'); x.value='0'; x.dispatchEvent(new Event('input')); })()");
     assert.notEqual(await evalPage("document.querySelector('#sandbox-result').textContent"), first);
+    if (await evalPage('!!window.RADAR_INTELLIGENCE')) {
+      await evalPage("document.querySelector('#intelligence').scrollIntoView()");
+      await evalPage("const mode = document.querySelector('#opportunity-mode'); mode.value='documented'; mode.dispatchEvent(new Event('change'))");
+      assert.ok(await evalPage("document.querySelector('#intelligence').textContent.includes('11 eligible')"));
+    }
     await shot('2-model.png');
     await evalPage(button('Show experiment on board'));
     assert.ok(await evalPage("document.querySelector('[data-sort=experiment]') !== null"));

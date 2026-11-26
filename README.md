@@ -14,6 +14,10 @@ Open `out/dashboard/index.html` directly from disk. To repeat the determinism ch
 
 The official dev kit supplies the frozen input, starter, and dossier builder. The M8 board includes the full watchlist and all optional records that pass the candidate screen.
 
+## V4 model intelligence
+
+Open Model research and choose **Inspect uncertainty and opportunity rankings** for interval validation, token-presence calibration and alternative rankings. Open any ranked protocol for seven valuations, five whole-board stress scenarios and its evidence screen. The V3 board, full ledger and farming economics retain their accepted values. [Research record](reports/v4-research.md)
+
 ## M11 release dashboard
 
 The ranked view shows the frozen primary valuation, peer-error range, route coverage, and mandatory exceptions. Chain, search, classification, and route filters apply to CSV export. Pins are local to the open dashboard. The accounting view paginates all 758 records and checks slug uniqueness, ranks, and watchlist coverage. The model view plots all 119 traded peers and displays the archived M9 results. Its experimental sandbox reranks the same candidates while the official board stays fixed. Hypothetical farming scenarios can be added to the current board from protocol details.
