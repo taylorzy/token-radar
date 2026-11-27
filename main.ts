@@ -20,6 +20,8 @@ import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.t
 import { farmEconomics, farmingSummaries } from './lib/economics.ts';
 import { modelIntelligence } from './lib/model-intelligence.ts';
 import engine from './dashboard/00-decision.js';
+import catalog from './dashboard/01-farming-routes.json' with { type:'json' };
+import comparison from './lib/v6-comparison.json' with { type:'json' };
 import validation from './dashboard/00-validation.json' with { type:'json' };
 import { VERSIONED } from './lib/classification.ts';
 import { buildLedger } from './lib/ledger.ts';
@@ -66,9 +68,9 @@ const assumptions = assumptionsFile ? JSON.parse(readFileSync(assumptionsFile, '
 if (!assumptions || typeof assumptions !== 'object' || Array.isArray(assumptions)) {
   throw new Error('Farming assumptions must be a JSON object keyed by ranked protocol slug');
 }
-const farming = farmingSummaries(board, assumptions);
+const farming = farmingSummaries(board, assumptions).map(f => ({...f, profiles: catalog[f.slug] ?? []}));
 const dashboardFarming = Object.fromEntries(farming.map(row => [row.slug, {
-  route: row.route, assumptions: row.assumptions, economics: row.economics,
+  profiles: row.profiles, route: row.route, assumptions: row.assumptions, economics: row.economics,
 }]));
 const ledger = buildLedger(snapshot, board);
 const intelligence = modelIntelligence(snapshot, board);
@@ -81,7 +83,7 @@ const screened = ledger.rows.filter(r => r.symbol === null && r.gecko_id === nul
   !VERSIONED.test(r.name) && !/\b(wrapped|staked|staking)\b|^(binance|coinbase|bybit|kraken|bitget|okx|bitfinex|gemini)\b/i.test(r.name));
 const coverage = {screened:screened.length, excluded:screened.filter(r=>r.rank === null).map(r=>r.slug),
   exceptions:ledger.rows.filter(r=>r.watchlist && r.status !== 'Pre-token candidate').map(r=>r.slug)};
-const decisionReview = {defaults:engine.defaults, coverage, validation, decisions};
+const decisionReview = {comparison, defaults:engine.defaults, coverage, validation, decisions};
 writeFileSync(join(out,'decision-review.json'), JSON.stringify(decisionReview,null,2)+'\n');
 writeFileSync(join(out, 'model-intelligence.json'), JSON.stringify(intelligence, null, 2) + '\n');
 const research = {
@@ -122,31 +124,23 @@ function copyFiles(from: string, to: string): string[] {
 const dashboardFiles = copyFiles(join(here, 'dashboard'), join(out, 'dashboard'));
 // An offline audit extract accompanies the interactive views inside the dossier.
 writeFileSync(join(out,'dashboard','00-farm-plan.txt'),readFileSync(join(here,'lib','farming.ts'),'utf8'));
-const priority = intelligence.rows.filter(r => r.participation);
-const shift = intelligence.rows.find(r => r.slug === 'shift-defi');
 const audit = [
-  'Token Radar | Evidence ledger',
-  'Snapshot ' + snapshot.as_of + ' | participation evidence dated individually through 2026-11-27',
-  'Ranked ' + board.length + ' | snapshot records ' + ledger.rows.length + ' | watchlist ' + snapshot.watchlist.length,
-  'Participation reviews: ' + priority.length + ' reviewed; ' +
-    priority.filter(r => r.participation!.status === 'Documented route').length + ' documented routes.',
-  'The primary value is the fixed three-feature regularized Huber estimate. Category peers and stress scenarios are explanatory.',
-  ...(shift ? ['Shift DeFi primary ' + shift.models.m71!.value + ' USD, rank ' + shift.models.m71!.rank +
-    '; at median growth ' + shift.stress.reference!.value + ' USD, rank ' + shift.stress.reference!.rank + '.'] : []),
-  'Coverage screen '+screened.length+'; exclusions: '+coverage.excluded.join(', ')+'. Mandatory exceptions: '+coverage.exceptions.join(', '),
-  ...decisions.filter(r=>r.slug==='sentora-curator').map(r=>'Sentora illustrative base net '+r.base.net.toFixed(2)+' USD; low peer net '+r.sensitivity[0].net.toFixed(2)+' USD. Qualification unknown.'),
-  ...['shift-defi', 'lofty', 'doppler-finance'].flatMap(slug => {
-    const row = priority.find(r => r.slug === slug);
-    if (!row?.participation) return [];
-    const route = dashboardFarming[slug]?.route;
-    return [slug + ' | ' + row.participation.status, row.participation.finding,
-      ...(route?.settlement ? [route.settlement] : []), ...row.participation.sources];
+  'Token Radar V7 | Snapshot '+snapshot.as_of+' | '+board.length+' ranked | '+snapshot.watchlist.length+' mandatory',
+  'Official order uses the fixed TVL, growth and age valuation. Opportunity order uses assess() and rankDecisions().',
+  Object.values(catalog).flat().length+' participation routes across '+Object.keys(catalog).length+' protocols. Wallet eligibility unknown.',
+  ...['shift-defi','lofty','axis','polymarket-international','firelight','extended-perps'].map(slug=>{
+    const profiles=catalog[slug], profile=profiles.at(-1);
+    const d=decisions.find(r=>r.slug===slug), old=comparison[slug];
+    if (!d || !old) return '';
+    return [profile.id+' | '+(profile.fees ?? profile.entry), profile.settlement ?? profile.exit, profile.incentive ?? profile.risks,
+      'Ranked route '+d.profileId+' vs submitted V6: opportunity #'+d.opportunityRank+' vs #'+old.rank+
+      '; modeled net $'+d.base.net.toFixed(2)+' vs $'+old.net.toFixed(2)+'; '+d.verdict+'.',
+      (profile.terms?.newEntry==='closed' ? 'Existing holder: '+profile.terms.queueDays+' days or approximately '+profile.terms.approxInstantExitBps+' bps for instant redemption. ' : '')+profile.reviewed_at+' | '+profile.sources.join(' ')].join('\n');
   }),
-  '',
-  'See 01-farming-routes.json for the full documented route catalog, with entry, execution, exit, costs, settlement, risks and sources.',
+  'The ranked default uses the first listed profile. Alternate paths and program terms are selectable in Decision. Fixed capital, zero realized trading profit, equal exit notional. Quote-dependent costs retain a user budget.'
 ];
-writeFileSync(join(out,'dashboard','00-evidence.txt'), audit.join('\n') + '\n');
-dashboardFiles.push('00-evidence.txt','00-farm-plan.txt');
+writeFileSync(join(out,'dashboard','00-audit.txt'), audit.join('\n')+'\n');
+dashboardFiles.push('00-audit.txt','00-farm-plan.txt');
 const shots = copyFiles(join(here, 'screenshots'), join(out, 'screenshots'));
 if (shots.length < 3) {
   process.stderr.write(`token radar: screenshots/ holds ${shots.length} image${shots.length === 1 ? '' : 's'}: include the ranked board, model research, protocol detail and accounting\n`);

@@ -1,0 +1,912 @@
+{
+  "steakhouse-financial": {
+    "rank": 1,
+    "net": 4.805496958904111,
+    "verdict": "Assumption-sensitive"
+  },
+  "sentora-curator": {
+    "rank": 2,
+    "net": 5.679503458904112,
+    "verdict": "Assumption-sensitive"
+  },
+  "rockawayx": {
+    "rank": 3,
+    "net": -18.59261854109589,
+    "verdict": "Below break-even"
+  },
+  "symbiotic": {
+    "rank": 4,
+    "net": -20.39828204109589,
+    "verdict": "Below break-even"
+  },
+  "hyperithm": {
+    "rank": 5,
+    "net": -20.682325041095893,
+    "verdict": "Below break-even"
+  },
+  "clearstar": {
+    "rank": 6,
+    "net": -22.366363541095893,
+    "verdict": "Below break-even"
+  },
+  "lagoon": {
+    "rank": 7,
+    "net": -22.606952541095893,
+    "verdict": "Below break-even"
+  },
+  "ember": {
+    "rank": 8,
+    "net": -24.53267704109589,
+    "verdict": "Below break-even"
+  },
+  "loopscale-lending": {
+    "rank": 9,
+    "net": -25.48748054109589,
+    "verdict": "Below break-even"
+  },
+  "reti-pooling": {
+    "rank": 10,
+    "net": -25.77202604109589,
+    "verdict": "Below break-even"
+  },
+  "tulipa-capital": {
+    "rank": 11,
+    "net": -26.31989354109589,
+    "verdict": "Below break-even"
+  },
+  "lofty": {
+    "rank": 12,
+    "net": -79.42617004109589,
+    "verdict": "Below break-even"
+  },
+  "gauntlet": {
+    "rank": 13,
+    "net": -3.056129541095892,
+    "verdict": "Below break-even"
+  },
+  "shift-defi": {
+    "rank": 14,
+    "net": -13.87671004109589,
+    "verdict": "Below break-even"
+  },
+  "upshift": {
+    "rank": 15,
+    "net": -15.14566054109589,
+    "verdict": "Below break-even"
+  },
+  "galaxy-curation": {
+    "rank": 16,
+    "net": -22.40825854109589,
+    "verdict": "Below break-even"
+  },
+  "armitage-by-wintermute": {
+    "rank": 17,
+    "net": -23.49541754109589,
+    "verdict": "Below break-even"
+  },
+  "keyrock": {
+    "rank": 18,
+    "net": -24.15935154109589,
+    "verdict": "Below break-even"
+  },
+  "cian-yield-layer": {
+    "rank": 19,
+    "net": -19.448470041095888,
+    "verdict": "Below break-even"
+  },
+  "gami-labs": {
+    "rank": 20,
+    "net": -25.19137554109589,
+    "verdict": "Below break-even"
+  },
+  "r25": {
+    "rank": 21,
+    "net": -20.671830541095893,
+    "verdict": "Verify participation"
+  },
+  "saturn": {
+    "rank": 22,
+    "net": -21.98980554109589,
+    "verdict": "Verify participation"
+  },
+  "curvance": {
+    "rank": 23,
+    "net": -22.70803254109589,
+    "verdict": "Verify participation"
+  },
+  "tydro": {
+    "rank": 24,
+    "net": -23.70310254109589,
+    "verdict": "Verify participation"
+  },
+  "extended-perps": {
+    "rank": 25,
+    "net": -24.387097041095892,
+    "verdict": "Verify participation"
+  },
+  "avant-avusd": {
+    "rank": 26,
+    "net": -24.57720704109589,
+    "verdict": "Verify participation"
+  },
+  "infinifi": {
+    "rank": 27,
+    "net": -25.35683154109589,
+    "verdict": "Verify participation"
+  },
+  "ipor-fusion": {
+    "rank": 28,
+    "net": -25.73157104109589,
+    "verdict": "Verify participation"
+  },
+  "yuzu-money": {
+    "rank": 29,
+    "net": -25.968374041095892,
+    "verdict": "Verify participation"
+  },
+  "solv-strategies": {
+    "rank": 30,
+    "net": -26.05421504109589,
+    "verdict": "Verify participation"
+  },
+  "nado-spot": {
+    "rank": 31,
+    "net": -26.21546554109589,
+    "verdict": "Verify participation"
+  },
+  "current": {
+    "rank": 32,
+    "net": -26.23588354109589,
+    "verdict": "Verify participation"
+  },
+  "project-0": {
+    "rank": 33,
+    "net": -26.390589541095892,
+    "verdict": "Verify participation"
+  },
+  "arrakis-modular": {
+    "rank": 34,
+    "net": -26.606775541095892,
+    "verdict": "Verify participation"
+  },
+  "vishwa": {
+    "rank": 35,
+    "net": -26.65502904109589,
+    "verdict": "Verify participation"
+  },
+  "re7-labs": {
+    "rank": 36,
+    "net": -26.66948554109589,
+    "verdict": "Verify participation"
+  },
+  "flux-finance": {
+    "rank": 37,
+    "net": -26.87796004109589,
+    "verdict": "Verify participation"
+  },
+  "makina": {
+    "rank": 38,
+    "net": -26.88563154109589,
+    "verdict": "Verify participation"
+  },
+  "noon": {
+    "rank": 39,
+    "net": -27.012512041095892,
+    "verdict": "Verify participation"
+  },
+  "project-x": {
+    "rank": 40,
+    "net": -27.24768904109589,
+    "verdict": "Verify participation"
+  },
+  "aegis-yusd": {
+    "rank": 41,
+    "net": -27.24833054109589,
+    "verdict": "Verify participation"
+  },
+  "mystic-finance-lending": {
+    "rank": 42,
+    "net": -27.58504004109589,
+    "verdict": "Verify participation"
+  },
+  "templar-lending": {
+    "rank": 43,
+    "net": -27.76317554109589,
+    "verdict": "Verify participation"
+  },
+  "apex-omni": {
+    "rank": 44,
+    "net": -27.86509804109589,
+    "verdict": "Verify participation"
+  },
+  "vfat.io": {
+    "rank": 45,
+    "net": -27.884192541095892,
+    "verdict": "Verify participation"
+  },
+  "bitlayer-ybtc-family": {
+    "rank": 46,
+    "net": -27.90052304109589,
+    "verdict": "Verify participation"
+  },
+  "xrpl-dex": {
+    "rank": 47,
+    "net": -27.90878604109589,
+    "verdict": "Verify participation"
+  },
+  "avant-aveth": {
+    "rank": 48,
+    "net": -28.06311254109589,
+    "verdict": "Verify participation"
+  },
+  "lulo": {
+    "rank": 49,
+    "net": -28.06746304109589,
+    "verdict": "Verify participation"
+  },
+  "zoo-finance": {
+    "rank": 50,
+    "net": -28.09924204109589,
+    "verdict": "Verify participation"
+  },
+  "xion-finance": {
+    "rank": 51,
+    "net": -28.16536754109589,
+    "verdict": "Verify participation"
+  },
+  "d2-finance": {
+    "rank": 52,
+    "net": -28.21384654109589,
+    "verdict": "Verify participation"
+  },
+  "neutral-trade": {
+    "rank": 53,
+    "net": -28.279962041095892,
+    "verdict": "Verify participation"
+  },
+  "defindex": {
+    "rank": 54,
+    "net": -28.36525404109589,
+    "verdict": "Verify participation"
+  },
+  "chain-fusion": {
+    "rank": 55,
+    "net": -28.49596704109589,
+    "verdict": "Verify participation"
+  },
+  "perena-vaults": {
+    "rank": 56,
+    "net": -28.50452204109589,
+    "verdict": "Verify participation"
+  },
+  "native-credit-pool": {
+    "rank": 57,
+    "net": -28.540521041095893,
+    "verdict": "Verify participation"
+  },
+  "katana-pre-launch": {
+    "rank": 58,
+    "net": -28.55297904109589,
+    "verdict": "Verify participation"
+  },
+  "9summits": {
+    "rank": 59,
+    "net": -28.75312704109589,
+    "verdict": "Verify participation"
+  },
+  "strata-markets": {
+    "rank": 60,
+    "net": -28.791267041095892,
+    "verdict": "Verify participation"
+  },
+  "paimon": {
+    "rank": 61,
+    "net": -28.79282854109589,
+    "verdict": "Verify participation"
+  },
+  "rif-on-chain": {
+    "rank": 62,
+    "net": -28.79657604109589,
+    "verdict": "Verify participation"
+  },
+  "syntropia": {
+    "rank": 63,
+    "net": -28.900248041095892,
+    "verdict": "Verify participation"
+  },
+  "agni-finance": {
+    "rank": 64,
+    "net": -28.92116054109589,
+    "verdict": "Verify participation"
+  },
+  "sygnum-fiusd-liquidity-fund": {
+    "rank": 65,
+    "net": -28.925154541095893,
+    "verdict": "Verify participation"
+  },
+  "stellar-dex": {
+    "rank": 66,
+    "net": -28.99274104109589,
+    "verdict": "Verify participation"
+  },
+  "growihf": {
+    "rank": 67,
+    "net": -29.03515954109589,
+    "verdict": "Verify participation"
+  },
+  "goose": {
+    "rank": 68,
+    "net": -29.06640054109589,
+    "verdict": "Verify participation"
+  },
+  "steer-protocol": {
+    "rank": 69,
+    "net": -29.09139454109589,
+    "verdict": "Verify participation"
+  },
+  "bouncebit-prime": {
+    "rank": 70,
+    "net": -29.13721354109589,
+    "verdict": "Verify participation"
+  },
+  "bucket-cdp": {
+    "rank": 71,
+    "net": -29.20432354109589,
+    "verdict": "Verify participation"
+  },
+  "snuggle": {
+    "rank": 72,
+    "net": -29.213532041095892,
+    "verdict": "Verify participation"
+  },
+  "tau-labs": {
+    "rank": 73,
+    "net": -29.302372041095893,
+    "verdict": "Verify participation"
+  },
+  "qearn": {
+    "rank": 74,
+    "net": -29.30851404109589,
+    "verdict": "Verify participation"
+  },
+  "yieldfi": {
+    "rank": 75,
+    "net": -29.31600154109589,
+    "verdict": "Verify participation"
+  },
+  "fstswap": {
+    "rank": 76,
+    "net": -29.31915704109589,
+    "verdict": "Verify participation"
+  },
+  "reya-perps": {
+    "rank": 77,
+    "net": -29.44227804109589,
+    "verdict": "Verify participation"
+  },
+  "bima-cdp": {
+    "rank": 78,
+    "net": -29.444944541095893,
+    "verdict": "Verify participation"
+  },
+  "bend": {
+    "rank": 79,
+    "net": -29.48438804109589,
+    "verdict": "Verify participation"
+  },
+  "byreal": {
+    "rank": 80,
+    "net": -29.54312504109589,
+    "verdict": "Verify participation"
+  },
+  "binaryx-platform": {
+    "rank": 81,
+    "net": -29.56066804109589,
+    "verdict": "Verify participation"
+  },
+  "antarctic": {
+    "rank": 82,
+    "net": -29.56399304109589,
+    "verdict": "Verify participation"
+  },
+  "vesu": {
+    "rank": 83,
+    "net": -29.61599104109589,
+    "verdict": "Verify participation"
+  },
+  "mev-capital": {
+    "rank": 84,
+    "net": -29.65458104109589,
+    "verdict": "Verify participation"
+  },
+  "defa-by-invoicemate": {
+    "rank": 85,
+    "net": -29.67915004109589,
+    "verdict": "Verify participation"
+  },
+  "fluxion-network": {
+    "rank": 86,
+    "net": -29.69494054109589,
+    "verdict": "Verify participation"
+  },
+  "block-analitica": {
+    "rank": 87,
+    "net": -29.72741504109589,
+    "verdict": "Verify participation"
+  },
+  "turboflow-perps": {
+    "rank": 88,
+    "net": -29.80261054109589,
+    "verdict": "Verify participation"
+  },
+  "boros": {
+    "rank": 89,
+    "net": -29.84670704109589,
+    "verdict": "Verify participation"
+  },
+  "syncswap": {
+    "rank": 90,
+    "net": -29.87099954109589,
+    "verdict": "Verify participation"
+  },
+  "stablehodl": {
+    "rank": 91,
+    "net": -29.87568104109589,
+    "verdict": "Verify participation"
+  },
+  "katana-dex": {
+    "rank": 92,
+    "net": -29.881352541095893,
+    "verdict": "Verify participation"
+  },
+  "granite": {
+    "rank": 93,
+    "net": -29.930037541095892,
+    "verdict": "Verify participation"
+  },
+  "alphagrowth": {
+    "rank": 94,
+    "net": -29.99523504109589,
+    "verdict": "Verify participation"
+  },
+  "btcfi-cdp": {
+    "rank": 95,
+    "net": -30.03502354109589,
+    "verdict": "Verify participation"
+  },
+  "nonce-capital": {
+    "rank": 96,
+    "net": -13.651983041095892,
+    "verdict": "Verify participation"
+  },
+  "defi-saver-asset-management": {
+    "rank": 97,
+    "net": -20.198487541095894,
+    "verdict": "Verify participation"
+  },
+  "theo-network-thusd": {
+    "rank": 98,
+    "net": -21.969251541095893,
+    "verdict": "Verify participation"
+  },
+  "b14g": {
+    "rank": 99,
+    "net": -22.55509004109589,
+    "verdict": "Verify participation"
+  },
+  "figure-markets-exchange": {
+    "rank": 100,
+    "net": -22.95030404109589,
+    "verdict": "Verify participation"
+  },
+  "valos": {
+    "rank": 101,
+    "net": -23.33927654109589,
+    "verdict": "Verify participation"
+  },
+  "stellar-defi-hub": {
+    "rank": 102,
+    "net": -24.20797904109589,
+    "verdict": "Verify participation"
+  },
+  "axis": {
+    "rank": 103,
+    "net": -24.75679254109589,
+    "verdict": "Verify participation"
+  },
+  "noble": {
+    "rank": 104,
+    "net": -25.05132454109589,
+    "verdict": "Verify participation"
+  },
+  "circle-gateway": {
+    "rank": 105,
+    "net": -25.31300604109589,
+    "verdict": "Verify participation"
+  },
+  "arcus-perps": {
+    "rank": 106,
+    "net": -25.50047054109589,
+    "verdict": "Verify participation"
+  },
+  "usdcx": {
+    "rank": 107,
+    "net": -25.68087554109589,
+    "verdict": "Verify participation"
+  },
+  "azverse-perps": {
+    "rank": 108,
+    "net": -25.797605041095892,
+    "verdict": "Verify participation"
+  },
+  "3f": {
+    "rank": 109,
+    "net": -26.61014604109589,
+    "verdict": "Verify participation"
+  },
+  "august-digital": {
+    "rank": 110,
+    "net": -26.96866054109589,
+    "verdict": "Verify participation"
+  },
+  "drakewell": {
+    "rank": 111,
+    "net": -27.13710304109589,
+    "verdict": "Verify participation"
+  },
+  "y10k-capital": {
+    "rank": 112,
+    "net": -27.40043054109589,
+    "verdict": "Verify participation"
+  },
+  "decibel": {
+    "rank": 113,
+    "net": -27.449439041095893,
+    "verdict": "Verify participation"
+  },
+  "flowdesk": {
+    "rank": 114,
+    "net": -27.59819104109589,
+    "verdict": "Verify participation"
+  },
+  "gamma-research": {
+    "rank": 115,
+    "net": -27.61134554109589,
+    "verdict": "Verify participation"
+  },
+  "liminal-basis": {
+    "rank": 116,
+    "net": -27.613839541095892,
+    "verdict": "Verify participation"
+  },
+  "waterline": {
+    "rank": 117,
+    "net": -27.69906404109589,
+    "verdict": "Verify participation"
+  },
+  "communityv3": {
+    "rank": 118,
+    "net": -27.90771954109589,
+    "verdict": "Verify participation"
+  },
+  "nemo-trading": {
+    "rank": 119,
+    "net": -27.947437041095892,
+    "verdict": "Verify participation"
+  },
+  "phoenix-perp": {
+    "rank": 120,
+    "net": -27.98813654109589,
+    "verdict": "Verify participation"
+  },
+  "origami-finance": {
+    "rank": 121,
+    "net": -27.99292704109589,
+    "verdict": "Verify participation"
+  },
+  "bisonfi": {
+    "rank": 122,
+    "net": -28.03891054109589,
+    "verdict": "Verify participation"
+  },
+  "risex": {
+    "rank": 123,
+    "net": -28.03919754109589,
+    "verdict": "Verify participation"
+  },
+  "agua": {
+    "rank": 124,
+    "net": -28.08114954109589,
+    "verdict": "Verify participation"
+  },
+  "fira": {
+    "rank": 125,
+    "net": -28.11311704109589,
+    "verdict": "Verify participation"
+  },
+  "adrastea-validator": {
+    "rank": 126,
+    "net": -28.25599504109589,
+    "verdict": "Verify participation"
+  },
+  "anemoy-capital": {
+    "rank": 127,
+    "net": -28.38307754109589,
+    "verdict": "Verify participation"
+  },
+  "tempo-stablecoin-dex": {
+    "rank": 128,
+    "net": -28.44608204109589,
+    "verdict": "Verify participation"
+  },
+  "theo-network-thbill": {
+    "rank": 129,
+    "net": -28.451718541095893,
+    "verdict": "Verify participation"
+  },
+  "rocksolid-network": {
+    "rank": 130,
+    "net": -28.55430054109589,
+    "verdict": "Verify participation"
+  },
+  "hakutora": {
+    "rank": 131,
+    "net": -28.65212354109589,
+    "verdict": "Verify participation"
+  },
+  "syntetika": {
+    "rank": 132,
+    "net": -28.65861004109589,
+    "verdict": "Verify participation"
+  },
+  "3jane-lending": {
+    "rank": 133,
+    "net": -28.65890854109589,
+    "verdict": "Verify participation"
+  },
+  "t3tris-finance": {
+    "rank": 134,
+    "net": -28.67580654109589,
+    "verdict": "Verify participation"
+  },
+  "monolith-market": {
+    "rank": 135,
+    "net": -28.79102354109589,
+    "verdict": "Verify participation"
+  },
+  "tessera-v": {
+    "rank": 136,
+    "net": -29.00739254109589,
+    "verdict": "Verify participation"
+  },
+  "estate-protocol": {
+    "rank": 137,
+    "net": -29.018468041095893,
+    "verdict": "Verify participation"
+  },
+  "strato-cdp": {
+    "rank": 138,
+    "net": -29.04243104109589,
+    "verdict": "Verify participation"
+  },
+  "manifest-trade": {
+    "rank": 139,
+    "net": -29.056413541095893,
+    "verdict": "Verify participation"
+  },
+  "sharpbyte-capital": {
+    "rank": 140,
+    "net": -29.09251604109589,
+    "verdict": "Verify participation"
+  },
+  "valantis-sthype-restaking": {
+    "rank": 141,
+    "net": -29.21750904109589,
+    "verdict": "Verify participation"
+  },
+  "predict-fun": {
+    "rank": 142,
+    "net": -29.260331041095892,
+    "verdict": "Verify participation"
+  },
+  "superearn": {
+    "rank": 143,
+    "net": -29.29578204109589,
+    "verdict": "Verify participation"
+  },
+  "vena-finance": {
+    "rank": 144,
+    "net": -29.335485541095892,
+    "verdict": "Verify participation"
+  },
+  "pangolins": {
+    "rank": 145,
+    "net": -29.40558854109589,
+    "verdict": "Verify participation"
+  },
+  "icarus-cl": {
+    "rank": 146,
+    "net": -29.43084704109589,
+    "verdict": "Verify participation"
+  },
+  "swan-dao": {
+    "rank": 147,
+    "net": -29.44780504109589,
+    "verdict": "Verify participation"
+  },
+  "set-protocol": {
+    "rank": 148,
+    "net": -29.495534541095893,
+    "verdict": "Verify participation"
+  },
+  "mezzanine": {
+    "rank": 149,
+    "net": -29.53448304109589,
+    "verdict": "Verify participation"
+  },
+  "subfrost": {
+    "rank": 150,
+    "net": -29.55184704109589,
+    "verdict": "Verify participation"
+  },
+  "bulk": {
+    "rank": 151,
+    "net": -29.580515041095893,
+    "verdict": "Verify participation"
+  },
+  "hertzflow": {
+    "rank": 152,
+    "net": -29.59211154109589,
+    "verdict": "Verify participation"
+  },
+  "stellar-amm": {
+    "rank": 153,
+    "net": -29.594764041095893,
+    "verdict": "Verify participation"
+  },
+  "abstract": {
+    "rank": 154,
+    "net": -29.60440904109589,
+    "verdict": "Verify participation"
+  },
+  "vault-street": {
+    "rank": 155,
+    "net": -29.63872004109589,
+    "verdict": "Verify participation"
+  },
+  "loopscale-curation": {
+    "rank": 156,
+    "net": -29.65895904109589,
+    "verdict": "Verify participation"
+  },
+  "anthias-labs": {
+    "rank": 157,
+    "net": -29.68162404109589,
+    "verdict": "Verify participation"
+  },
+  "temple": {
+    "rank": 158,
+    "net": -29.75587304109589,
+    "verdict": "Verify participation"
+  },
+  "aftermath-aflp": {
+    "rank": 159,
+    "net": -29.79621654109589,
+    "verdict": "Verify participation"
+  },
+  "damm-capital": {
+    "rank": 160,
+    "net": -29.83365454109589,
+    "verdict": "Verify participation"
+  },
+  "flying-tulip-ftusd": {
+    "rank": 161,
+    "net": -29.91214004109589,
+    "verdict": "Verify participation"
+  },
+  "goonfi": {
+    "rank": 162,
+    "net": -29.91316504109589,
+    "verdict": "Verify participation"
+  },
+  "monarq": {
+    "rank": 163,
+    "net": -30.00436404109589,
+    "verdict": "Verify participation"
+  },
+  "nucleus": {
+    "rank": 164,
+    "net": -30.24584604109589,
+    "verdict": "Verify participation"
+  },
+  "veda": {
+    "rank": 165,
+    "net": -4.295598041095889,
+    "verdict": "Verify access or risk"
+  },
+  "onre": {
+    "rank": 166,
+    "net": -18.58020754109589,
+    "verdict": "Verify access or risk"
+  },
+  "mellow-core": {
+    "rank": 167,
+    "net": -20.23443604109589,
+    "verdict": "Verify access or risk"
+  },
+  "opentrade": {
+    "rank": 168,
+    "net": -20.272332541095892,
+    "verdict": "Verify access or risk"
+  },
+  "k3-capital": {
+    "rank": 169,
+    "net": -21.13923404109589,
+    "verdict": "Verify access or risk"
+  },
+  "hive-protocol": {
+    "rank": 170,
+    "net": -21.627198541095893,
+    "verdict": "Verify access or risk"
+  },
+  "doppler-finance": {
+    "rank": 171,
+    "net": -24.68643604109589,
+    "verdict": "Verify access or risk"
+  },
+  "firelight": {
+    "rank": 172,
+    "net": -26.33518204109589,
+    "verdict": "Verify access or risk"
+  },
+  "polymarket-international": {
+    "rank": 173,
+    "net": -19.12847754109589,
+    "verdict": "Verify access or risk"
+  },
+  "figure-markets-prime": {
+    "rank": 174,
+    "net": -20.812520541095893,
+    "verdict": "Verify access or risk"
+  },
+  "nuva": {
+    "rank": 175,
+    "net": -27.24635454109589,
+    "verdict": "Verify access or risk"
+  },
+  "tori-finance": {
+    "rank": 176,
+    "net": -26.53220004109589,
+    "verdict": "Verify access or risk"
+  },
+  "usdd": {
+    "rank": 177,
+    "net": -8.584534541095891,
+    "verdict": "Resolve token identity"
+  },
+  "plume-vaults": {
+    "rank": 178,
+    "net": -21.04089604109589,
+    "verdict": "Resolve token identity"
+  },
+  "bitfi-basis": {
+    "rank": 179,
+    "net": -21.07391654109589,
+    "verdict": "Resolve token identity"
+  },
+  "mezo-earn": {
+    "rank": 180,
+    "net": -26.03289504109589,
+    "verdict": "Resolve token identity"
+  },
+  "bittensor-dtao": {
+    "rank": 181,
+    "net": -16.15931204109589,
+    "verdict": "Resolve token identity"
+  },
+  "lightning-network": {
+    "rank": 182,
+    "net": -21.20219504109589,
+    "verdict": "Resolve token identity"
+  }
+}

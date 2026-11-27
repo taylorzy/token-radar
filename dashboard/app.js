@@ -399,7 +399,7 @@
             state.route=state.route==='Documented route'?'all':'Documented route';
             renderControls(); refreshResults(); document.querySelector('.coverage-toggle')?.focus();
           }}),
-          el('div',null,el('b',{text:'Documented participation routes'}),
+          el('div',null,el('b',{text:'Protocols with documented routes'}),
             el('p',{class:'sub',text:'Incentive terms and airdrop eligibility require separate evidence.'}))),
         el('details',null,el('summary',{text:'Growth-sensitive ranks'}),
         el('p',{class:'sub',text:'Largest moves at peer-median weekly growth'}),
@@ -625,7 +625,7 @@
     var summary = [account.length + ' records', DATA.rows.length + ' ranked', facts.covered + '/' + facts.required + ' watchlist',
       (DATA.rows.length-facts.exceptions)+' candidates', facts.exceptions + ' mandatory exceptions', (facts.reconciled ? 'Ledger reconciled' : 'Ledger mismatch')];
     return el('section', { class: 'lede' },
-      el('h1', { text: 'Token Radar V6' }),
+      el('h1', { text: 'Token Radar V7' }),
       el('div', { class: 'ledger-totals' }, summary.map(function (fact) { return el('b', { text: fact }); })));
   }
 
@@ -920,7 +920,7 @@
             el('div',{class:'source-addresses'},evidence.sources.map(url=>el('p',{text:url}))))) : null),
       el('div',{class:'farm-evidence'},
         field('Participation',routeOf(row)),
-        field('Incentive evidence',explicitIncentive),
+        field('Incentive evidence',route?.incentive || explicitIncentive),
         field('Airdrop eligibility','Individual eligibility unverified')),
       el('div',{class:'farm-plan'},
         el('div',{class:'farm-terms'},

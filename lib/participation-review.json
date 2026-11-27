@@ -1,411 +1,568 @@
 {
   "armitage-by-wintermute": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Armitage lists Prime and Select separately. Inspect the Ethereum Select allocations. Check interface eligibility and available withdrawal liquidity.",
     "sources": [
       "https://armitage.wintermute.com",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "arrakis-modular": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit proportional underlying amounts into a public Meta Vault for ERC20 shares",
+    "sources": [
+      "https://docs.arrakis.finance/text/arrakisModular/architecture/metaVaults.html"
+    ]
+  },
+  "avant-aveth": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Stake avETH for savETH",
+    "sources": [
+      "https://docs.avantprotocol.com/overview/using-avant-protocol/unstaking-savassets",
+      "https://docs.avantprotocol.com/overview/core-tokens"
+    ]
+  },
+  "avant-avusd": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Stake avUSD for savUSD",
+    "sources": [
+      "https://docs.avantprotocol.com/overview/using-avant-protocol/unstaking-savassets",
+      "https://docs.avantprotocol.com/overview/core-tokens"
+    ]
   },
   "axis": {
-    "date": "2026-11-26",
-    "finding": "Origin Vault lists USDT, USDC and USDx. Coordinates are vault rewards. A dated exit schedule and jurisdiction terms were not established.",
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Existing ogUSDx holder only. Origin subscriptions closed August 5.",
     "sources": [
-      "https://axis.to"
-    ],
-    "status": "Further verification"
+      "https://www.axis.to/insights/Whats-Next-for-USDx-and-Coordinates"
+    ]
   },
   "b14g": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "The portal describes a BTC security mechanism. Confirm the supported dual-staking pair, locking contract and release terms before funding.",
     "sources": [
       "https://www.b14g.xyz/"
-    ],
-    "status": "Further verification"
+    ]
   },
   "bitfi-basis": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "Current issuer page advertises a BFI claim and bfUSD strategies. The sealed snapshot label predates this evidence. No new-token opportunity is inferred.",
     "sources": [
       "https://www.bitfi.one"
-    ],
-    "status": "Further verification"
+    ]
   },
   "bittensor-dtao": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "TAO staking supports subnet positions. Subnet alpha assets and TAO already exist. The aggregate row does not identify a distinct new-token route.",
     "sources": [
       "https://bittensor.com"
-    ],
-    "status": "Further verification"
+    ]
+  },
+  "bucket-cdp": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit accepted collateral and borrow BUCK against Bottle",
+    "sources": [
+      "https://docs.bucketprotocol.io/introduction"
+    ]
+  },
+  "byreal": {
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "Solana network fees illustrated at 0.00001 to 0.00002 SOL. Token account rent example 0.0020393 SOL is refundable. Need exact LP exit path.",
+    "sources": [
+      "https://docs.byreal.io/resources/knowledge/fees"
+    ]
   },
   "cian-yield-layer": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select a CIAN stETH Yield Layer deployment. Verify supported inputs, caps, gas and exact withdrawal terms for that vault.",
     "sources": [
       "https://docs.cian.app/yieldlayer/for-users-quick-start/core-concepts-and-yield-layer-page-overview",
       "https://docs.cian.app/yieldlayer/for-users-quick-start/fees"
-    ],
-    "status": "Documented route"
+    ]
   },
   "clearstar": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Match the Arc USDC vault. A similarly named vault accepts vbUSDC. Check interface eligibility and available withdrawal liquidity.",
     "sources": [
       "https://app.morpho.org/arc/vault/0xd45C268Ef9850a00D51d7c05C0aF17fdAd309060/clearstar-core-usdc",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "curvance": {
-    "date": "2026-11-26",
-    "finding": "The transparency page explains that Earn Vaults allocate one underlying asset across approved two-asset markets. Confirm the selected vault liquidity and local terms.",
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Supply savUSD and borrow USDC against it",
     "sources": [
-      "https://app.curvance.com/transparency"
-    ],
-    "status": "Further verification"
+      "https://blog.curvance.com/posts/avant-savusd-usdc-yield-curvance/",
+      "https://docs.avantprotocol.com/overview/using-avant-protocol/unstaking-savassets"
+    ]
   },
   "defi-saver-asset-management": {
-    "date": "2026-11-26",
-    "finding": "DeFi Saver manages existing positions across third-party protocols. Costs and exit depend on the underlying position and any automation. No distinct campaign was verified.",
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Select Re7-WETH in Smart Savings and supply WETH through the Morpho vault",
     "sources": [
-      "https://defisaver.com/"
-    ],
-    "status": "Further verification"
+      "https://help.defisaver.com/features/smart-savings/overview-of-morpho-vaults",
+      "https://docs.morpho.org/get-started/resources/apps/vault/"
+    ]
+  },
+  "defindex": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Use provider integration to sign deposit into a specific Stellar vault",
+    "sources": [
+      "https://docs.automated.finance/docs/core/stellar/vaults"
+    ]
   },
   "doppler-finance": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Check jurisdiction first: the XRP Vault excludes US users and sanctioned regions.",
     "sources": [
       "https://docs.doppler.finance/product/doppler-vaults/xrp-vault"
-    ],
-    "status": "Documented route"
+    ]
   },
   "ember": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select a specific Ember vault and inspect its underlying asset and strategy.",
     "sources": [
       "https://learn.ember.so/ember-protocol/tutorial"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "extended-perps": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit USDC for XVS",
+    "sources": [
+      "https://docs.extended.exchange/extended-resources/vault"
+    ]
   },
   "figure-markets-prime": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Verify account and jurisdiction eligibility for the Prime lending marketplace.",
     "sources": [
       "https://www.figuremarkets.com/disclosures/Democratized_Prime_General_Terms_and_Conditions/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "firelight": {
+    "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Check the FXRP vault on Flare and its coverage exposure. Reserve FLR for gas. Request unstaking, then return to claim FXRP after the window. Check period boundaries and redemption value.",
+    "finding": "Check the FXRP vault on Flare and its coverage exposure. Reserve FLR for gas.",
     "sources": [
       "https://docs.firelight.finance/for-stakers/deployments/guide-to-deploying-fxrp-on-firelight",
       "https://docs.firelight.finance/for-stakers/unstaking-and-withdrawals"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "flux-finance": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Supply supported underlying for fTokens",
+    "sources": [
+      "https://docs.fluxfinance.com/protocol/lending"
+    ]
   },
   "galaxy-curation": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select the Arc listing. Quality, Enhanced and PYUSD are distinct products. Check interface eligibility and available withdrawal liquidity.",
     "sources": [
       "https://app.morpho.org/curator/galaxy",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "gami-labs": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Locate Gami USDC on Lagoon. Confirm the named curator, address and public or private access.",
     "sources": [
       "https://lagoon.finance",
       "https://docs.lagoon.finance/vault/deposit-and-withdraw-flows"
-    ],
-    "status": "Documented route"
+    ]
   },
   "gauntlet": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Identify a Gauntlet-curated Morpho vault. Compare its market allocations, collateral exposure, accepted asset, cap and withdrawable liquidity.",
     "sources": [
       "https://morpho.org/stories/gauntlet"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "granite": {
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "LP withdrawal caps refill linearly over 24 hours after exhaustion. Not a mandatory one-day lock. Verify exact deposit market.",
+    "sources": [
+      "https://docs.granite.world/protocol-mechanics/safety-mechanisms/withdrawal-caps"
+    ]
   },
   "hive-protocol": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "The official B2 Hive app returned a regional access restriction. No route was verified for this access context.",
     "sources": [
       "https://hive.bsquared.network/"
-    ],
-    "status": "Further verification"
+    ]
   },
   "hyperithm": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "The directory lists several Apex deployments and V1 variants. Verify the exact chain and version. Check interface eligibility and available withdrawal liquidity.",
     "sources": [
       "https://app.morpho.org/curator/hyperithm",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "infinifi": {
-    "date": "2026-11-26",
-    "finding": "The issuer code describes iUSD minted against USDC and a redemption controller. Current deployment status, reserve liquidity and a usable withdrawal quote remain unverified.",
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Supply USDC for iUSD",
     "sources": [
       "https://github.com/InfiniFi-Labs/infinifi-protocol"
-    ],
-    "status": "Further verification"
+    ]
+  },
+  "ipor-fusion": {
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "Specific fee configuration on Vault Info. Need a concrete vault and withdrawal policy.",
+    "sources": [
+      "https://ipor.io/docs/fusion-for-depositors/user-guide/vault-fees"
+    ]
   },
   "k3-capital": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "K3 says its US site is in preparation and offers no services to US residents through that site. Confirm eligibility directly before any funding.",
     "sources": [
       "https://k3.capital"
-    ],
-    "status": "Further verification"
+    ]
   },
   "keyrock": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Check the Keyrock Prime listing, vault owner and chain in the directory. Check interface eligibility and available withdrawal liquidity.",
     "sources": [
       "https://curator.morpho.org/vaults",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "lagoon": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Identify an asynchronous Lagoon vault, the accepted asset, curator, fee settings and deposit permissions.",
     "sources": [
       "https://docs.lagoon.finance/vault/deposit-and-withdraw-flows",
       "https://docs.lagoon.finance/vault/fees"
-    ],
-    "status": "Documented route"
+    ]
   },
   "lightning-network": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Prepare a compatible Lightning node or wallet with bitcoin, on-chain fee budget and a suitable peer. Check channel backup and monitoring requirements.",
     "sources": [
       "https://docs.lightning.engineering/the-lightning-network/payment-channels/lifecycle-of-a-payment-channel"
-    ],
-    "status": "Documented route"
+    ]
   },
   "lofty": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Confirm marketplace account requirements and review the chosen property's share terms, expenses, vacancy exposure and recent order activity.",
     "sources": [
       "https://www.lofty.ai/how-it-works"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "loopscale-lending": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Select a single-asset Loopscale vault on Lend. Inspect its curator, collateral and idle-liquidity buffer.",
+    "sources": [
+      "https://docs.loopscale.com/using-loopscale/earn"
+    ]
+  },
+  "lulo": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit USDC or supported stablecoin into Protected",
+    "sources": [
+      "https://www.lulo.fi/docs/how-it-works"
+    ]
+  },
+  "makina": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Lock machine shares for security shares",
+    "sources": [
+      "https://docs.makina.finance/contracts/periphery/security-module/contract.SecurityModule"
+    ]
   },
   "mellow-core": {
+    "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Match the deployment to the permissionless ERC20RootVault generation and verify its configured tokens and deposit permissions. Preview burning LP against the lower TVL estimate. Check per-block limits and the assets available from subvaults.",
+    "finding": "Match the deployment to the permissionless ERC20RootVault generation and verify its configured tokens and deposit permissions.",
     "sources": [
       "https://docs.mellow.finance/mellow-permissionless-vaults/architecture",
       "https://docs.mellow.finance/mellow-alm/mellow-permissionless-vaults/mellow-contracts-addresses/mellow-protocol-addresses-mainnet"
-    ],
-    "status": "Documented route"
+    ]
   },
   "mezo-earn": {
-    "date": "2026-11-26",
-    "finding": "Locking MEZO requires MEZO and BTC for gas and produces a veMEZO NFT. This is an existing-token governance mechanism. A separate Earn token was not evidenced.",
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit both assets into a selected pool",
     "sources": [
-      "https://mezo.org/docs/users/mezo-earn/lock/vemezo/how-to-lock-mezo"
-    ],
-    "status": "Further verification"
+      "https://mezo.org/docs/users/mezo-earn/pools/using-mezo-pools-guide"
+    ]
   },
   "noble": {
-    "date": "2026-11-26",
-    "finding": "The site identifies Noble Dollar infrastructure. Holding or transferring a stablecoin does not establish a protocol-specific incentive or an exit quote.",
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "Issuer identifies USDN and yield infrastructure. Current points campaign or eligible exit not established.",
     "sources": [
-      "https://www.noble.xyz"
-    ],
-    "status": "Further verification"
+      "https://github.com/noble-assets/noble"
+    ]
   },
   "nonce-capital": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "Nonce links its Deposit and EtherFi Earn experiences. Confirm the exact strategy, receipt, custody and withdrawal path before routing a deposit.",
     "sources": [
       "https://nonce-capital.xyz/"
-    ],
-    "status": "Further verification"
+    ]
+  },
+  "nuva": {
+    "status": "Documented route",
+    "date": "2026-11-26",
+    "finding": "For nvYLDS, verify Ethereum USDC, gas, deposit minimum and current location and screening terms before funding.",
+    "sources": [
+      "https://nuva.finance/docs/nvylds-deep-dive",
+      "https://nuva.finance/terms-policies/terms-of-service"
+    ]
   },
   "onre": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Check access terms and redemption conditions. The FAQ describes ONyc minting with supported USDC or USDG through a compatible Solana wallet.",
     "sources": [
       "https://docs.onre.finance/technical-resources/frequently-asked-questions"
-    ],
-    "status": "Documented route"
+    ]
   },
   "opentrade": {
-    "date": "2026-11-26",
-    "finding": "The infrastructure supports approved users and allowlisted wallets; distributors control product terms and redemption. Identify the exact distributor and agreement.",
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Approved lender transfers supported assets under master loan agreement",
     "sources": [
-      "https://www.opentrade.io/infrastructure"
-    ],
-    "status": "Further verification"
+      "https://docs.opentrade.io/terms-and-conditions/platform-terms-of-service"
+    ]
   },
   "plume-vaults": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select a Plume vault and verify which of USDC, USDT or pUSD it accepts, the supported network and any access requirements.",
     "sources": [
       "https://www.plume.org/vaults",
       "https://docs.nest.credit/about/liquidity-and-redemptions"
-    ],
-    "status": "Documented route"
+    ]
   },
   "polymarket-international": {
+    "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Check international platform access for your location and read the market resolution rules before considering a position. Check available bids to sell, or redeem winning tokens after resolution. A losing position can exhaust principal.",
+    "finding": "Check international platform access for your location and read the market resolution rules before considering a position.",
     "sources": [
       "https://docs.polymarket.com/api-reference/geoblock",
       "https://docs.polymarket.com/trading/overview",
       "https://docs.polymarket.com/trading/positions/manage"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "predict-fun": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Split USDT into matched YES and NO shares",
+    "sources": [
+      "https://docs.predict.fun/knowledge-base/splitting-merging-shares"
+    ]
   },
   "r25": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "R25 lists a vault studio and curated strategies. Creating a vault requires curator eligibility; the landing page does not identify depositor exit terms for a specific vault.",
     "sources": [
       "https://www.r25.xyz/"
-    ],
-    "status": "Further verification"
+    ]
   },
   "reti-pooling": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Inspect the validator, pool minimum and any asset or NFT gating criteria.",
     "sources": [
       "https://txnlab.gitbook.io/reti-open-pooling/getting-started/quick-start-for-stakers"
-    ],
-    "status": "Documented route"
+    ]
   },
   "rockawayx": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Distinguish USDC Yield from its Confidential RWA and ecosystem vaults. Check interface eligibility and available withdrawal liquidity.",
     "sources": [
       "https://app.morpho.org/vaults?curators=rockawayx",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "saturn": {
-    "date": "2026-11-26",
-    "finding": "The USDat interface shows mint, swap and stake paths and points, and restricts participation to eligible persons outside the US. Review the fee, price impact and minimum received per quote.",
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "USDat Season 2 advertises Gravity points for holding, no lock, and eligible non-US participants. Cash conversion and executable exit quote unverified.",
     "sources": [
       "https://app.saturn.credit/"
-    ],
-    "status": "Further verification"
+    ]
   },
   "sentora-curator": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "For the Sentora Tempo Morpho route, verify the exact vault, pathUSD supply asset, gas asset, cap and access before funding.",
     "sources": [
       "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "shift-defi": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select the vault version, underlying deposit asset and available capacity in the Shift app.",
     "sources": [
       "https://shiftprotocol.gitbook.io/shift/resources/faq"
-    ],
-    "status": "Documented route"
+    ]
   },
   "steakhouse-financial": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Steakhouse documents vaults on Morpho and Kamino. Identify the specific Steakhouse vault and verify its network, deposit asset, cap, available liquidity and curator permissions.",
     "sources": [
       "https://www.steakhouse.financial/docs/products/stablecoin-products/vaults"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "steer-protocol": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit selected assets to Smart Pool for LP tokens",
+    "sources": [
+      "https://docs.steer.finance/flagship-apps/smart-pools/how-to-invest/"
+    ]
+  },
+  "stellar-amm": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Set pool-share trustline and deposit underlying pair",
+    "sources": [
+      "https://developers.stellar.org/docs/learn/fundamentals/liquidity-on-stellar-sdex-liquidity-pools"
+    ]
   },
   "symbiotic": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Verify the specific vault's single collateral token, deposit access, operator and network exposure, slashing policy and epoch duration.",
     "sources": [
       "https://docs.symbiotic.fi/learn/core-concepts/vault",
       "https://docs.symbiotic.fi/learn/mechanics/epochs-and-delays"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "templar-lending": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Supply market borrow asset through token transfer",
+    "sources": [
+      "https://docs.templarfi.org/guide/contract/market/supply.html"
+    ]
   },
   "tori-finance": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Distinguish market swaps from direct minting. Identity verification applies to direct mint and redeem.",
     "sources": [
       "https://tori.finance/"
-    ],
-    "status": "Documented route"
+    ]
   },
   "tulipa-capital": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select Tulipa USDC on Lagoon and verify the exact vault identity and access terms.",
     "sources": [
       "https://lagoon.finance",
       "https://docs.lagoon.finance/vault/deposit-and-withdraw-flows"
-    ],
-    "status": "Documented route"
+    ]
   },
   "tydro": {
-    "date": "2026-11-26",
-    "finding": "Tydro offers supply and borrowing on Ink. Check the reserve asset, utilization and withdrawable liquidity. Adding borrowing introduces liquidation risk.",
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "Supported Ink market suppliers earn interest. Verify redemption and market liquidity before promotion.",
     "sources": [
-      "https://tydro.com/"
-    ],
-    "status": "Further verification"
+      "https://docs.tydro.com/"
+    ]
   },
   "upshift": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Select an Upshift vault and verify its input asset, curator, fees and withdrawal conditions. Review strategy and NAV risk.",
     "sources": [
       "https://docs.upshift.finance/introduction/how-it-works"
-    ],
-    "status": "Documented route"
+    ]
   },
   "usdd": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "The guide covers TRON. Check the collateral type, debt terms and liquidation threshold. Use TronLink with sufficient TRX for transaction costs.",
     "sources": [
       "https://docs.usdd.io/user-guide/open-a-vault"
-    ],
-    "status": "Documented route"
+    ]
   },
   "valos": {
+    "status": "Further verification",
     "date": "2026-11-26",
     "finding": "Valos describes managed credit and absolute-return strategies with a contact workflow. A public deposit or redemption process was not established.",
     "sources": [
       "https://valos.io/"
-    ],
-    "status": "Further verification"
+    ]
   },
   "veda": {
+    "status": "Documented route",
     "date": "2026-11-26",
     "finding": "Identify the specific Veda BoringVault product. Verify its Teller configuration, supported asset and share terms in the product documentation.",
     "sources": [
       "https://docs.veda.tech/architecture-and-flow-of-funds"
-    ],
-    "status": "Documented route"
+    ]
+  },
+  "xrpl-dex": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Fund selling asset and required XRP reserve. Submit offer.",
+    "sources": [
+      "https://xrpl.org/docs/concepts/tokens/decentralized-exchange/offers"
+    ]
+  },
+  "yieldfi": {
+    "status": "Documented route",
+    "date": "2026-11-27",
+    "finding": "Deposit approved asset in selected vault for a vault position",
+    "sources": [
+      "https://docs.yield.fi/due-diligence-questionaire/flow-of-funds"
+    ]
   },
   "yuzu-money": {
-    "date": "2026-11-26",
-    "finding": "Alpha exposes senior syzUSD and junior yzPP tranches, while Prime uses leveraged RWA assets. Confirm tranche-specific eligibility, redemption and loss priority.",
-    "sources": [
-      "https://app.yuzu.money"
-    ],
-    "status": "Further verification"
-  },
-  "loopscale-lending": {
+    "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Select a single-asset Loopscale vault on Lend. Inspect its curator, collateral and idle-liquidity buffer. Check free LP balance. Compare the immediate exit quote with the queue and extra capital-days. Pledged LP is unavailable until debt is repaid.",
+    "finding": "Stake yzUSD for syzUSD",
     "sources": [
-      "https://docs.loopscale.com/using-loopscale/earn"
-    ],
-    "status": "Documented route"
+      "https://app.yuzu.money/docs"
+    ]
   }
 }

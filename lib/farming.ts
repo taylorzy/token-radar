@@ -11,7 +11,11 @@ type Route = {
 };
 
 export function documentedRoute(slug: string): Route | null {
-  return Object.hasOwn(routes, slug) ? (routes as Record<string, Route>)[slug]! : null;
+  const profile = Object.hasOwn(routes, slug) ? routes[slug][0] : null;
+  if (!profile) return null;
+  return {...profile, action: profile.action ?? 'Confirm the selected product and preview the transaction before signing.',
+    fees: profile.fees ?? 'Obtain transaction and exit quotes.', capital: profile.capital ?? 'Minimum unverified.',
+    settlement: profile.settlement ?? profile.exit};
 }
 
 function categoryRoute(category: string) {
