@@ -183,7 +183,7 @@
     return el('section', { class: 'panel compact comparison', id: 'comparison' },
       el('h2', { text: 'Pinned comparison · ' + pins.size + '/4' }),
       rows.length ? el('div', { class: 'table-wrap' }, el('table', null,
-        el('thead', null, el('tr', null, ['Protocol', 'TVL', '7d', 'Tracking', 'Primary', 'Experimental', 'Evidence'].map(function (h) {
+        el('thead', null, el('tr', null, ['Protocol', 'TVL', '7d', 'Tracking', 'Primary', 'Experimental', 'Model ranks', 'Median growth', 'Evidence'].map(function (h) {
           return el('th', { scope: 'col', text: h });
         }))),
         el('tbody', null, rows.map(function (r) {
@@ -193,6 +193,7 @@
             el('td', { text: fmtUsd(r.tvl_usd) }), el('td', { text: fmtPct(r.change_7d) }), el('td', { text: fmtAge(r.age_days) }),
             el('td', { text: '#' + r.rank + ' · ' + fmtUsd(r.implied_value_usd) }),
             el('td', { text: '#' + other.rank + ' · ' + fmtUsd(other.value) }),
+            el('td',{text:insights.get(r.slug).rankRange.join(' to ')}),el('td',{text:'#'+insights.get(r.slug).stress.reference.rank+' / '+fmtUsd(insights.get(r.slug).stress.reference.value)}),
             el('td', { text: byAccount.get(r.slug).status + ' · ' + routeOf(r) }));
         }))
       )) : el('p', { class: 'sub', text: 'Pin up to four rows on the board to compare them here.' }));
@@ -302,6 +303,147 @@
     return el('table', null, el('thead', null, el('tr', null, headers.map(h => el('th', {text:h})))),
       el('tbody', null, records.map(row => el('tr', null, row.map(cell => cell instanceof Node ? el('td',null,cell) : el('td', {text:String(cell)}))))));
   }
+  function svgNode(tag, attrs, label) {
+    var node = document.createElementNS('http://www.w3.org/2000/svg', tag);
+    Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+    if (label) node.textContent = label;
+    return node;
+  }
+
+  function scatter(options) {
+    var { width, height, xTicks, yTicks, xLabel, yLabel, points, formatX, formatY } = options;
+    var chart = svgNode('svg', {viewBox: '0 0 '+width+' '+height, class:'research-chart',
+      role: options.activate ? 'group' : 'img', 'aria-label': yLabel+' versus '+xLabel});
+    var left = 66, top = 25, right = width - 17, bottom = height - 46;
+    var scale = (ticks, a, b) => v => a + (b-a)*(v-ticks[0])/(ticks.at(-1)-ticks[0]);
+    var x = scale(xTicks, left, right), y = scale(yTicks, bottom, top);
+    function line(x1,y1,x2,y2,kind) {
+      chart.append(svgNode('line',{x1,y1,x2,y2,class:kind||'chart-grid'}));
+    }
+    function label(value, x, y, anchor) {
+      chart.append(svgNode('text',{x,y,'text-anchor':anchor||'start'},value));
+    }
+    xTicks.forEach(v => { line(x(v),top,x(v),bottom); label(formatX(v),x(v),bottom+17,'middle'); });
+    yTicks.forEach(v => { line(left,y(v),right,y(v)); label(formatY(v),left-8,y(v)+4,'end'); });
+    label(yLabel,left,14);
+    label(xLabel,(left+right)/2,height-6,'middle');
+    if (options.reference) {
+      var [a,b] = options.reference;
+      line(x(a[0]),y(a[1]),x(b[0]),y(b[1]),'chart-reference');
+    }
+    if (options.connect && points.length) chart.append(svgNode('polyline',{
+      points:points.map(p=>x(p.x)+','+y(p.y)).join(' '), class:'chart-trend'}));
+    points.forEach(p => {
+      var dot = svgNode('circle',{cx:x(p.x),cy:y(p.y),r:p.radius||3.2,class:'plot-point '+(p.kind||'')});
+      dot.append(svgNode('title',{},p.label));
+      if (options.activate) {
+        dot.setAttribute('tabindex','0');
+        dot.setAttribute('role','button');
+        dot.setAttribute('aria-label',p.label);
+        dot.addEventListener('click',()=>options.activate(p));
+        dot.addEventListener('keydown',e=> {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); options.activate(p); }
+        });
+      }
+      chart.append(dot);
+    });
+    return chart;
+  }
+
+  var marketMode = 'primary';
+  function marketLens(list) {
+    var modes={primary:'Primary valuation',consensus:'Seven-model median',conservative:'Stress-tested value',opportunity:'Propensity-weighted proxy',documented:'Documented opportunity'};
+    var value=p=>marketMode==='primary'?p.implied_value_usd:insights.get(p.slug)[marketMode];
+    var choose=el('select',{id:'market-mode','aria-label':'Rank screened opportunities'},Object.entries(modes).map(([k,v])=>el('option',{value:k,text:v})));
+    choose.value=marketMode;
+    choose.onchange=()=>{marketMode=choose.value;refreshResults();document.querySelector('#market-mode').focus();};
+    var swing = p => p.rank - insights.get(p.slug).stress.reference.rank;
+    var plotted=list.filter(p=>p.tvl_usd>0 && value(p)>0);
+    var extent = values => {
+      var min = Math.floor(Math.min(...values.map(Math.log10)));
+      var max = Math.ceil(Math.max(...values.map(Math.log10)));
+      return Array.from({length:Math.max(2,max-min+1)},(_,i)=>min+i);
+    };
+    var routeCount = DATA.rows.filter(p=>routeOf(p)==='Documented route').length;
+    var chart = plotted.length ? scatter({
+      width:810,height:200,xTicks:extent(plotted.map(p=>p.tvl_usd)),yTicks:extent(plotted.map(value)),
+      xLabel:'Protocol TVL (USD, log)',yLabel:modes[marketMode]+' (USD, log)',
+      formatX:v=>fmtUsd(10**v),formatY:v=>fmtUsd(10**v),
+      points:plotted.slice().sort((a,b)=>Number(routeOf(a)==='Documented route')-Number(routeOf(b)==='Documented route'))
+        .map(p=>({x:Math.log10(p.tvl_usd),y:Math.log10(value(p)),slug:p.slug,
+          kind:routeOf(p)==='Documented route'?'has-route':'other-route',
+          radius:Math.abs(swing(p))>=20?6:3.5,
+          label:p.name+' • '+fmtUsd(value(p))+' • TVL '+fmtUsd(p.tvl_usd)+' • '+routeOf(p)+
+            ' • rank '+p.rank+' to '+insights.get(p.slug).stress.reference.rank+' at peer-median growth'})),
+      activate:p=>openDetail(p.slug)
+    }) : el('p',{class:'empty',text:'No positive values in this screen for the selected lens.'});
+    var stress = list.slice().sort((a,b)=>Math.abs(swing(b))-Math.abs(swing(a))||a.rank-b.rank).slice(0,4);
+    var leader = plotted.slice().sort((a,b)=>value(b)-value(a)||a.rank-b.rank)[0];
+    return el('section',{class:'landscape'},
+      el('div',{class:'landscape-main'},el('div',{class:'lens-heading'},
+        el('h2',{text:'Opportunity landscape'}),choose),
+        chart,el('p',{class:'chart-key sub'},el('span',{class:'key-dot',text:'Documented route'}),
+          el('span',{class:'key-dot muted-dot',text:'Conditional or research only'}),
+          el('span',{class:'key-dot large-dot',text:'20+ places at peer-median growth'}),
+          el('span',{text:plotted.length+' plotted'})),
+        marketMode==='primary'?null:el('p',{class:'sub',text:intel.features.metrics[marketMode]+'.'+
+          (leader?' Screen high: '+leader.name+' '+fmtUsd(value(leader))+'.':'')})),
+      el('aside',{class:'landscape-side'},
+        el('div',{class:'route-coverage'},
+          el('button',{type:'button',class:'coverage-toggle',
+          'aria-pressed':String(state.route==='Documented route'),
+          'aria-label':'Filter ranked board to documented participation routes',
+          text:routeCount+' / '+DATA.rows.length,onclick:()=>{
+            state.route=state.route==='Documented route'?'all':'Documented route';
+            renderControls(); refreshResults(); document.querySelector('.coverage-toggle')?.focus();
+          }}),
+          el('div',null,el('b',{text:'Documented participation routes'}),
+            el('p',{class:'sub',text:'Incentive terms and airdrop eligibility require separate evidence.'}))),
+        el('h3',{text:'Growth-sensitive ranks'}),
+        el('p',{class:'sub',text:'Largest moves at peer-median weekly growth'}),
+        stress.map(p=>el('button',{type:'button',class:'move',onclick:()=>openDetail(p.slug)},el('span',{text:p.name}),
+          el('b',{text:'#'+p.rank+' to #'+insights.get(p.slug).stress.reference.rank})))));
+  }
+  function protocolOverview(row,r) {
+    var c=r.comparables, st=r.stress.reference;
+    var title=(t)=>el('h3',{text:t});
+    var axis = intel.features.stress.map(([k,label])=>[label,r.stress[k]]);
+    axis.unshift(['Primary estimate',r.models.m71]);
+    var max=Math.max(...axis.map(a=>a[1].value));
+    var basis=el('section',{class:'chart-pane'},title('Valuation under stress'),
+      el('p',{class:'sub',text:'Each scenario reranks the complete board. USD market cap.'}),
+      axis.map(([label,v])=>el('div',{class:'stress-line'},el('span',{text:label}),el('div',null,el('i',{style:'width:'+100*v.value/max+'%'})),el('b',{text:fmtUsd(v.value)+'  #'+v.rank}))),
+      el('div',{class:'valuation-range'},title('Seven-model valuation range'),
+        el('p',{class:'sub',text:'Related specifications fitted to the same snapshot.'}),
+        el('div',{class:'valuation-range-values'},
+          [['Low',r.span.low[1]],['Median',r.consensus],['High',r.span.high[1]]].map(([label,value])=>
+            el('div',null,el('span',{text:label}),el('b',{text:fmtUsd(value)}))))));
+    var peers=el('section',{class:'chart-pane'},title('Market comparables'),
+      el('p',{class:'sub',text:c.categoryCount+' traded peers in '+row.category+'. Ordered by closest TVL. Shared category is a business-model proxy.'}),
+      c.category.length?grid(['Category peer','TVL','Traded cap'],c.category.map(p=>[p.name,fmtUsd(p.tvl),fmtUsd(p.cap)])):el('p',{text:'No same-category traded peer.'}),
+      el('p',{text:c.categoryMultiple===null?'Sparse category: median multiple withheld.':'Category median market cap / TVL: '+c.categoryMultiple.toFixed(2)+'x. Descriptive only.'}),
+      el('details',{open:''},el('summary',{text:'Numerical neighbors · transformed inputs'}),el('p',{text:'Distance uses standardized transformed TVL, growth and tracking age with median imputation. Categories and chains can differ.'}),
+        grid(['Numerical peer','Category','Distance','Shared chain'],c.numerical.map(p=>[p.name,p.category,p.distance.toFixed(2),p.chains.join(', ')||'None']))));
+    return el('section',{class:'protocol-overview'},el('div',{class:'thesis'},el('div',null,el('small',{text:'PRIMARY IMPLIED VALUE'}),el('strong',{text:fmtUsd(row.implied_value_usd)})),
+      el('div',null,title('Model ranks '+r.rankRange.join('–')),
+        el('div',{class:'rank-rail','aria-hidden':'true'},
+          el('i',{style:'left:'+100*(r.rankRange[0]-1)/(DATA.rows.length-1)+'%;width:'+100*(r.rankRange[1]-r.rankRange[0])/(DATA.rows.length-1)+'%'}),
+          el('em',{style:'left:'+100*(row.rank-1)/(DATA.rows.length-1)+'%'})),
+        el('p',{text:'Primary #'+row.rank+' of '+DATA.rows.length+' · peer-median growth #'+st.rank})),
+      el('div',null,el('h3',{class:r.uncertainty.weak?'weak-support':'',text:r.uncertainty.weak?'Weak peer support':'Within peer support'}),
+        el('p',{text:'Peer-error envelope '+r.uncertainty.global.map(fmtUsd).join(' to ')}),
+        el('p',{text:'Seven-model high / low '+r.span.ratio.toFixed(1)+'×'}))),
+      el('div',{class:'driver-grid'},
+        [['TVL',fmtUsd(row.tvl_usd),
+          Math.exp(DATA.model.regression.terms.find(t=>t.feature==='tvl').coefficient*
+            (Math.log(row.tvl_usd)-DATA.model.regression.terms.find(t=>t.feature==='tvl').center))],
+          ['7-day growth',fmtPct(row.change_7d),r.terms.growth],
+          ['Tracking age',fmtAge(row.age_days),r.terms.age]].map(([label,value,term])=>
+          el('div',null,el('span',{text:label}),el('b',{text:value}),
+            el('small',{text:term>0?term.toFixed(2)+'× centered factor':'Centered factor unavailable'})))),
+      el('p',{class:'sub driver-note',text:'Factors multiply the fitted intercept baseline. Tracking age proxies tokenless age.'}),
+      el('div',{class:'analysis-grid'},basis,peers));
+  }
   function intelligenceDetail(r) {
     var names = {starter:'Starter heuristic', tvl:'TVL only', growth:'TVL + growth', age:'TVL + age',
       m7:'Full unpenalized', expanded:'Strong shrinkage', m71:'V3 primary'};
@@ -314,7 +456,7 @@
         [label,fmtUsd(r.stress[k].value),r.stress[k].rank])),
       el('p',{text:'Peer support ' + (u.weak ? 'weak' : 'within reference') + '. Nearby peers: ' +
         u.nearestPeers.join(', ') + '. Local mean absolute log error ' + u.localLogError.toFixed(2) + ' (fit residual diagnostic).'}),
-      el('h3',{text:'Token presence and evidence'}),el('p',{text:r.propensity ?
+      el('h3',{text:'Snapshot token presence and evidence'}),el('p',{text:'Cross-sectional resemblance to protocols with recorded tokens. Future issuance probability and individual eligibility are unknown.'}),el('p',{text:r.propensity ?
         'Family-held-out propensity ' + (100*r.propensity.propensity).toFixed(1) + '% | category comparator ' +
         (100*r.propensity.categoryBase).toFixed(1) + '% (' + r.propensity.categoryN + ' training rows). Opportunity rank #' +
         r.rankings.opportunity + '. Documented participation screen: ' + (r.documented ? 'qualifies, rank #' + r.rankings.documented : 'no qualifying route') :
@@ -328,24 +470,72 @@
     function update() {
       var k = mode.value;
       var sorted = intel.rows.filter(r => r.rankings[k]).sort((a,b) => a.rankings[k]-b.rankings[k]);
-      results.replaceChildren(el('p',{text:intel.features.metrics[k] + '. ' + sorted.length + ' eligible.'}),
-        grid(['Rank','Protocol','Score','Model rank range'],sorted.map(r => [r.rankings[k],el('button',{class:'protocol-link',type:'button',text:r.slug,onclick:()=>openDetail(r.slug)}),fmtUsd(r[k]),r.rankRange.join(' to ')])));
+      results.replaceChildren(el('p',{text:intel.features.metrics[k]+'. '+sorted.length+' eligible.'}),
+        grid(['Rank','Protocol','Score','Model rank range'],sorted.map(r=>[r.rankings[k],
+          el('button',{class:'protocol-link',type:'button',text:byRanked.get(r.slug).name,onclick:()=>openDetail(r.slug)}),
+          fmtUsd(r[k]),r.rankRange.join(' to ')])));
     }
     mode.onchange = update; update();
     var interval = intel.interval.overall, presence = intel.presence;
-    return el('section',{class:'panel',id:'intelligence'},el('h2',{text:'Model intelligence'}),
-      el('p',{text:'Shift DeFi | growth sensitivity'}), intelligenceSummary('shift-defi'),
-      el('h3',{text:'80% interval calibration | 119 traded peers'}),
-      grid(['Method','Coverage','Mean log width','Interval score (lower)'],Object.entries(interval).map(([k,v]) =>
-        [({global:'Global split',adaptive:'Nearby residuals',size:'TVL strata'})[k],(100*v.coverage).toFixed(1)+'%',v.logWidth.toFixed(2),v.intervalScore.toFixed(2)])),
-      el('p',{text:'Five family-held-out folds with separate calibration. Both adaptive methods missed one more peer than global. The V3 empirical envelope remains primary. Future launch coverage is unknown.'}),
-      el('h3',{text:'Token presence | 579 screened records'}),
-      grid(['Family-held-out model','Brier (lower)','Log loss (lower)','AUC (higher)'],Object.entries(presence.scores).map(([k,v]) =>
-        [k,v.brier.toFixed(3),v.logLoss.toFixed(3),v.auc.toFixed(3)])),
-      el('details',null,el('summary',{text:'Inspect ridge calibration'}),grid(['Count','Mean prediction','Observed presence'],
-        presence.scores.ridge.calibration.filter(b=>b.n).map(b=>[b.n,b.predicted.toFixed(2),b.observed.toFixed(2)]))),
-      el('p',{text:'Presence in the sealed snapshot is the outcome. No verified issuance dates or complete follow-up cohort. Family-held-out scores also informed model selection.'}),
-      el('h3',{text:'Opportunity rankings'}), mode, results);
+    var sample = research.m71Loo;
+    var middle = presence.scores.ridge.calibration[2];
+    var powers = sample.flatMap(p=>[Math.log10(p[1]),Math.log10(p[2])]);
+    var min = Math.floor(Math.min(...powers)), max = Math.ceil(Math.max(...powers));
+    var dollars = Array.from({length:max-min+1},(_,i)=>min+i);
+    var percent = v => (100*v).toFixed(1)+'%';
+    var ticks = [0,.25,.5,.75,1];
+    var names = {global:'Global split',adaptive:'Nearby residuals',size:'TVL strata'};
+    var stats = research.comparisons;
+    var modelNames = {starter:'Starter',v1:'V1 TVL Huber',growth:'TVL + growth',age:'TVL + age',
+      m7:'M7 full',m71:'M7.1 primary',extended:'M9 expanded'};
+    var errorMax = Math.max(...Object.keys(modelNames).flatMap(k=>[stats.loo[k].mean,stats.age[k].mean]));
+    var pane = (title,copy,chart,foot) => el('section',{class:'chart-pane validation-pane'},
+      el('h3',{text:title}),el('p',{class:'sub',text:copy}),chart,el('p',{class:'sub',text:foot}));
+    return el('section',{class:'panel',id:'intelligence'},
+      el('h2',{text:'Model validation'}),
+      el('p',{class:'validation-intro',text:'M7.1 retains all three valuation inputs. TVL-only had lower mean error in both held-out tests. Snapshot token presence is the calibration outcome.'}),
+      el('div',{class:'validation-board'},
+        pane('Predicted vs. observed traded cap','M7.1 leave-one-out predictions · '+sample.length+' traded peers',
+          scatter({width:580,height:192,xTicks:dollars,yTicks:dollars,xLabel:'Predicted cap (USD, log)',yLabel:'Observed cap (USD, log)',
+            formatX:v=>fmtUsd(10**v),formatY:v=>fmtUsd(10**v),reference:[[min,min],[max,max]],
+            points:sample.map(([slug,predicted,observed])=>({x:Math.log10(predicted),y:Math.log10(observed),
+              kind:'other-route',label:slug+' • predicted '+fmtUsd(predicted)+' • observed '+fmtUsd(observed)}))}),
+          'Dashed line shows exact agreement. The archive evaluates cross-sectional traded caps.'),
+        pane('Comparative model error','Mean absolute log error · lower is better',
+          el('div',{class:'model-errors'},Object.entries(modelNames).map(([key,label])=>
+            el('div',{class:'error-row'+(key==='m71'?' primary-error':'')},el('b',{text:label}),
+              ['loo','age'].map(test=>el('div',{class:'error-track'},el('i',{style:'width:'+100*stats[test][key].mean/errorMax+'%'}),
+                el('span',{text:stats[test][key].mean.toFixed(3)})))))),
+          'Dark green bars show leave-one-out errors. Pale bars show age-cohort errors.'),
+        pane('Snapshot token presence calibration','Ridge · family-held-out · 579 screened records',
+          el('div',{class:'calibration-composition'},
+            scatter({width:340,height:180,xTicks:ticks,yTicks:ticks,xLabel:'Mean predicted share',yLabel:'Observed share',
+              formatX:v=>Math.round(v*100)+'%',formatY:v=>Math.round(v*100)+'%',reference:[[0,0],[1,1]],connect:true,
+              points:presence.scores.ridge.calibration.filter(b=>b.n).map(b=>({x:b.predicted,y:b.observed,
+                kind:'has-route',radius:4.5,label:b.n+' records • '+percent(b.predicted)+' predicted • '+percent(b.observed)+' observed'}))}),
+            el('div',{class:'calibration-counts'},grid(['n','Pred.','Obs.'],presence.scores.ridge.calibration.map(b=>
+              [b.n,percent(b.predicted),percent(b.observed)])))),
+          'The middle bin predicted '+percent(middle.predicted)+' and observed '+percent(middle.observed)+
+            '. Launch outcomes lack a verified follow-up cohort.'),
+        pane('Interval coverage vs. width','Five family-held-out folds · 119 traded peers · 80% target',
+          el('div',{class:'calibration-composition'},
+            scatter({width:330,height:180,xTicks:[5.30,5.32,5.34,5.36,5.38],yTicks:[.79,.80,.81],
+              xLabel:'Mean log width',yLabel:'Empirical coverage',formatX:v=>v.toFixed(2),formatY:percent,
+              reference:[[5.30,.80],[5.38,.80]],
+              points:Object.entries(interval).map(([k,v])=>({x:v.logWidth,y:v.coverage,kind:'has-route',radius:5,
+                label:names[k]+' • '+percent(v.coverage)+' coverage • '+v.logWidth.toFixed(2)+' mean log width'}))}),
+            el('div',{class:'calibration-counts'},grid(['Method','Covered','Width'],Object.entries(interval).map(([k,v])=>
+              [names[k],Math.round(v.coverage*119)+'/119',v.logWidth.toFixed(2)])))),
+          'Global split covered one more peer. Empirical coverage for a future launch is unknown.')),
+      el('details',{class:'validation-numbers'},el('summary',{text:'Detailed interval and classifier scores'}),
+        grid(['Interval method','Coverage','Mean log width','Interval score (lower)'],Object.entries(interval).map(([k,v])=>
+          [names[k],percent(v.coverage),v.logWidth.toFixed(2),v.intervalScore.toFixed(2)])),
+        grid(['Family-held-out model','Brier (lower)','Log loss (lower)','AUC (higher)'],Object.entries(presence.scores).map(([k,v])=>
+          [k,v.brier.toFixed(3),v.logLoss.toFixed(3),v.auc.toFixed(3)])),
+        el('p',{text:'Family-held-out classifier scores also informed model selection.'}),
+        el('p',{text:'Shift DeFi | growth sensitivity'}),intelligenceSummary('shift-defi')),
+      el('details',{class:'validation-numbers'},el('summary',{text:'Explore opportunity rankings'}),
+        el('p',{text:'The opportunity score multiplies the seven-model valuation median by resemblance to protocols with a token recorded in the snapshot. It uses neither an issuance forecast nor a payout estimate. The documented lens limits that same score to candidates with a documented participation route.'}),mode,results));
   }
   function intelligenceSummary(slug) {
     var r = insights.get(slug);
@@ -388,7 +578,7 @@
     });
     describe();
     return el('div', { class: 'view-stack' },
-      el('div', { class: 'research-grid' },
+      el('details',{class:'panel compact secondary-validation'},el('summary',{text:'Traded peer benchmark and detailed model errors'}),el('div', { class: 'research-grid' },
         el('section', { class: 'panel compact' },
           el('h2', { text: 'Market comparables' }), peerChart(),
           el('p', { class: 'sub', text: research.peers.length + ' traded peers · teal line: V1 Huber fit · both axes logarithmic' })),
@@ -401,7 +591,7 @@
               return el('tr', { class: entry[0] === 'm71' ? 'chosen' : '' }, el('td', { text: entry[1] }),
                 el('td', { text: stats.loo[entry[0]].mean.toFixed(3) }), el('td', { text: stats.age[entry[0]].mean.toFixed(3) }));
             }))),
-          el('p', { class: 'sub', text: 'V1 had lower held-out mean error. V3 uses M7.1 because the rubric values TVL, growth and age. Neither test measures future launch performance.' }))),
+          el('p', { class: 'sub', text: 'V1 had lower held-out mean error. V3 uses M7.1 because the rubric values TVL, growth and age. Neither test measures future launch performance.' })))),
       el('section', { class: 'panel compact sandbox' },
         el('h2', { text: 'Experimental ranking sandbox' }),
         el('p', { class: 'sub', text: 'TVL remains fitted. Scale the fitted growth and tracking-age terms from zero to twice their fitted contribution. Every change recomputes all candidate ranks. The primary board and its uncertainty range are fixed.' }),
@@ -419,7 +609,7 @@
 
   function header() {
     return el('header', { class: 'top' },
-      el('div', { class: 'brand' }, el('span', { class: 'mark' }), el('span', { class: 'brand-name', text: 'Token Radar' })),
+      el('div', { class: 'brand' }, el('span', { class: 'mark' }), el('span', { class: 'brand-name', text: 'Token Radar  /  Research terminal' })),
       el('div', { class: 'top-meta' },
         el('span', { text: 'Snapshot ' + DATA.as_of }),
         el('span', { text: 'DefiLlama protocol index' }),
@@ -433,7 +623,7 @@
     var summary = [account.length + ' records', DATA.rows.length + ' ranked', facts.covered + '/' + facts.required + ' watchlist',
       facts.exceptions + ' mandatory exceptions', (facts.reconciled ? 'Ledger reconciled' : 'Ledger mismatch')];
     return el('section', { class: 'lede' },
-      el('h1', { text: 'Protocol launch radar' }),
+      el('h1', { text: 'Market research' }),
       el('div', { class: 'ledger-totals' }, summary.map(function (fact) { return el('b', { text: fact }); })));
   }
 
@@ -531,7 +721,7 @@
       );
       tbody.appendChild(tr);
     });
-    return el('div', { class: 'panel' },
+    return el('div', { class: 'panel ranked-table' },
       el('div', { class: 'table-wrap' },
         el('table', null,
           el('caption', { class: 'sub', text: 'Select a protocol to inspect its valuation, evidence and farming plan.' }),
@@ -577,18 +767,16 @@
 
   function modelPanel() {
     var fit = DATA.model.regression;
-    var scores = research.comparisons;
-    return el('section', { class: 'panel model compact' },
-      el('div', null, el('h2', { text: 'Primary valuation: regularized TVL + growth + age' }),
-        el('p', { class: 'formula', text: 'USD = exp(' + fit.intercept.toFixed(4) + fit.terms.map(function (t) {
-          return (t.coefficient < 0 ? ' - ' : ' + ') + Math.abs(t.coefficient).toFixed(4) + ' * ' +
-            { tvl: 'centered log(TVL)', growth: 'centered asinh(growth%/100)', age: 'centered log(1+tracking days)' }[t.feature];
-        }).join('') + ')' }),
-        el('p', { class: 'sub', text: '80th-percentile peer-error range: divide or multiply by ' + DATA.uncertainty.factor.toFixed(2) +
-          '. Cross-sectional traded peers; launch coverage unknown.' })),
-      el('div', { class: 'validation' },
-        el('p', null, el('strong', { text: 'M7.1: ' + scores.loo.m71.mean.toFixed(3) + ' leave-one-out / ' + scores.age.m71.mean.toFixed(3) + ' age cohorts' })),
-        el('p', { class: 'sub', text: 'V1 TVL-only comparator: ' + scores.loo.v1.mean.toFixed(3) + ' / ' + scores.age.v1.mean.toFixed(3) + '. Mean absolute log error on ' + research.peers.length + ' traded peers. Tracking age is a proxy for tokenless age.' })));
+    return el('details', { class: 'panel model compact' },
+      el('summary', null, el('strong', {text:'Primary valuation'}),
+        el('span', {text:'TVL · 7-day growth · tracking age'}),
+        el('span', {class:'formula-affordance',text:'Estimator formula'})),
+      el('p', { class: 'formula', text: 'USD = exp(' + fit.intercept.toFixed(4) + fit.terms.map(function (t) {
+        return (t.coefficient < 0 ? ' - ' : ' + ') + Math.abs(t.coefficient).toFixed(4) + ' × ' +
+          { tvl: 'centered log(TVL)', growth: 'centered asinh(growth%/100)', age: 'centered log(1+tracking days)' }[t.feature];
+      }).join('') + ')' }),
+      el('p', { class: 'sub', text: 'Empirical peer-error range: divide or multiply by ' + DATA.uncertainty.factor.toFixed(2) +
+        '. Tracking age proxies tokenless age. Launch coverage is unknown.' }));
   }
 
   function farmingCalculator(slug) {
@@ -605,7 +793,7 @@
     });
     var reward = el('input', { type: 'number', min: '0', step: 'any' });
     var planning = window.RADAR_FARM_SUMMARIES[slug];
-    var result = el('p', { class: 'scenario-result', 'aria-live': 'polite' });
+    var result = el('div', { class: 'scenario-result', 'aria-live': 'polite' });
     function update() {
       var values = inputs.map(function (input) { return input.valueAsNumber; });
       var input = {
@@ -618,12 +806,19 @@
         return;
       }
       function money(value) { return '$' + value.toFixed(2); }
-      result.textContent = 'Break-even reward ' + money(summary.requiredRewardUSD) +
-        '. Capital committed ' + money(summary.capitalUSD) + '. Estimated fees ' + money(summary.feesUSD) +
-        ', foregone return ' + money(summary.opportunityUSD) + ', and labor value ' + money(summary.laborUSD) +
-        '. Required reward per labor hour ' + (summary.rewardPerHourUSD === null ? 'n/a' : money(summary.rewardPerHourUSD)) +
-        '. Conditional verdict: ' + summary.verdict + '.';
-      return { input: input, summary: summary };
+      var components = [['Fees',summary.feesUSD],['Foregone return',summary.opportunityUSD],['Labor',summary.laborUSD]];
+      var total = summary.requiredRewardUSD;
+      result.replaceChildren(
+        el('div',{class:'break-even-value'},el('small',{text:'Break-even reward '}),
+          el('strong',{text:money(total)})),
+        el('div',{class:'break-even-components'},el('div',{class:'cost-allocation','aria-hidden':'true'},
+          components.map(([label,value],i)=>el('i',{class:'cost-'+i,style:'width:'+(total?100*value/total:0)+'%'}))),
+          el('div',{class:'cost-items'},components.map(([label,value],i)=>el('span',null,
+            el('i',{class:'cost-'+i}),label+' ',el('b',{text:money(value)}))))),
+        el('p',{class:'break-even-note',text:'Capital committed '+money(summary.capitalUSD)+
+          ' · Required reward per labor hour '+(summary.rewardPerHourUSD===null?'n/a':money(summary.rewardPerHourUSD))+
+          ' · '+summary.verdict+'.'}));
+       return { input: input, summary: summary };
 
     }
     var labels = inputs.map(function (input, i) {
@@ -638,15 +833,13 @@
     }
     update();
     return el('section', { class: 'detail-section' },
-      el('h3', { text: 'Illustrative farming costs' }),
-      el('p', { class: 'sub', text: 'Example values are illustrative assumptions. Enter your own fee quotes and time estimates.' }),
-      planning.route && planning.route.capital ? el('p', { class: 'sub', text:
-        'Capital: ' + planning.route.capital + ' Fees: ' + planning.route.fees +
-        ' Settlement: ' + planning.route.settlement + ' Risks: ' + planning.route.risks }) : null,
+      el('h3', { text: 'Illustrative break-even economics' }),
+      el('p', { class: 'sub', text: 'Edit the assumptions using your own quotes and time estimates. Live charges are unverified.' }),
       el('div', { class: 'farm-calculator', oninput: update }, labels,
         el('label', null, 'Hypothetical reward (USD, optional)', reward)),
       el('button', { type: 'button', class: 'button', text: 'Load example assumptions', onclick: function () {
         inputs.forEach(function (input, i) { input.value = fields[i][1]; });
+        if (slug === 'lofty') inputs[1].value = '55';
         reward.value = '';
         update();
       } }),
@@ -658,6 +851,7 @@
         refreshResults();
       } }),
       result,
+      slug==='lofty'?el('p',{class:'sub',text:'Lofty example assumes a $1,000 purchase and resale at the same gross price: 2.5% buy + 3% sell = $55 in marketplace fees. Requote for the selected order.'}):null,
       el('p', { class: 'sub', text: 'Break-even is fees plus simple foregone return plus labor value, before taxes or protocol gains or losses.' })
     );
   }
@@ -672,6 +866,7 @@
     writeHash();
     dialog.textContent = '';
     var steps = row.farm_steps;
+    var finding = insights.get(slug).participation;
     dialog.appendChild(el('div', { class: 'detail-head' },
       el('div', null,
         el('span', { class: 'brand-name', text: 'Rank ' + row.rank + ' of ' + DATA.board_size }),
@@ -680,7 +875,7 @@
       ),
       el('button', { class: 'close', type: 'button', 'aria-label': 'Close details', text: 'Close', onclick: function () { dialog.close(); } })
     ));
-    dialog.appendChild(el('button',{type:'button',text:'Inspect model ranks, stress and token evidence',onclick:()=>document.getElementById('valuation-sensitivity').scrollIntoView()}));
+    dialog.appendChild(protocolOverview(row,insights.get(slug)));
     var classification = DATA.classification[row.slug];
     dialog.appendChild(el('section', { class: 'detail-section' },
       el('h3', { text: classification.status }),
@@ -708,15 +903,48 @@
     ));
     dialog.appendChild(farmingCalculator(slug));
     dialog.appendChild(intelligenceDetail(insights.get(slug)));
-    dialog.appendChild(el('section', { class: 'detail-section' },
-      el('h3', { text: 'Farm plan' }),
-      el('ol', { class: 'steps' }, steps.map(function (s) {
-        var at = s.indexOf(' Cost: ');
-        var action = at >= 0 ? s.slice(0, at) : s;
-        var tail = at >= 0 ? s.slice(at + 1) : '';
-        return el('li', null, el('b', { text: action }), el('span', { class: 'cost', text: tail }));
-      }))
-    ));
+    var route = window.RADAR_FARM_SUMMARIES[slug].route;
+    var explicitIncentive = slug==='saturn' ? 'Issuer interface shows USDat points.' :
+      slug==='bitfi-basis' ? 'Issuer page advertises a BFI claim.' :
+      slug==='firelight' ? 'Review records an early-contribution claim.' : 'Separate incentive terms unverified';
+    var evidence = finding || (route && {status:'Documented route',date:route.reviewed_at,sources:route.sources});
+    var field = (label,copy) => el('div',null,el('b',{text:label}),el('p',{text:copy}));
+    dialog.appendChild(el('section',{class:'detail-section farm-workspace'},
+      el('div',{class:'farm-heading'},el('h3',{text:'Participation research'}),
+        evidence ? el('div',{class:'source-links'},el('span',{text:'Reviewed '+evidence.date}),
+          el('details',{class:'source-disclosure'},el('summary',{text:evidence.sources.map(url=>new URL(url).hostname).join(' · ')}),
+            el('div',{class:'source-addresses'},evidence.sources.map(url=>el('p',{text:url}))))) : null),
+      el('div',{class:'farm-evidence'},
+        field('Participation',routeOf(row)),
+        field('Incentive evidence',explicitIncentive),
+        field('Airdrop eligibility','Individual eligibility unverified')),
+      el('div',{class:'farm-plan'},
+        el('div',{class:'farm-terms'},
+          field('Access & jurisdiction',route ? route.entry : 'Confirm product access and applicable restrictions with the issuer.'),
+          field('Capital & transaction costs',route ? route.capital+' '+route.fees : 'Capital and live transaction costs require verification.'),
+          field('Withdrawal & settlement',route ? route.settlement : 'Validate the exit mechanism, delay and settlement terms.'),
+          field('Risks & evidence',route ? route.risks : (finding ? finding.finding : 'Route-specific terms remain unverified.'))),
+        el('div',null,el('h3',{text:route?'Execution steps':'Research steps'}),
+          el('ol',{class:'execution-steps'},steps.map(function(step,i) {
+            var core = route ? [route.entry,route.action,route.exit][i] : null;
+            var tags = step.match(/ Cost: (.*?) Time: (.*?planning estimate\)\.)/);
+            var action = core || (tags ? step.slice(0,tags.index) : step);
+            return el('li',null,el('b',{text:action}),tags?el('div',{class:'step-meta'},
+              el('span',null,el('strong',{text:'Cost '}),tags[1]),
+              el('span',null,el('strong',{text:'Time '}),tags[2])):null);
+          }))))));
+    var sections=Array.from(dialog.children).slice(1);
+    var pages=[['Valuation',[sections[0],sections[2]]],['Evidence & scenarios',[sections[1],sections[4]]],['Farming economics',[sections[5],sections[3]]]];
+    if(finding && finding.status==='Further verification') sections[1].appendChild(el('p',{text:'External review '+finding.date+' | '+finding.finding}));
+    var nav=el('nav',{class:'workspace-nav','aria-label':'Protocol research'});
+    dialog.insertBefore(sections[5],sections[3]);
+    var buttons=pages.map(([name,items],i)=>el('button',{type:'button',text:name,onclick:()=>select(i)}));
+    function select(i){
+      pages.forEach((page,j)=>{page[1].forEach(part=>{part.hidden=i!==j;});buttons[j].setAttribute('aria-pressed',String(i===j));});
+      dialog.scrollTop=0;
+    }
+    buttons.forEach(button=>nav.appendChild(button));
+    dialog.insertBefore(nav,sections[0]);select(0);
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
     } else {
@@ -735,13 +963,13 @@
   function refreshResults() {
     count.hidden = state.tab === 'accounting' || state.tab === 'research';
     if (state.tab === 'research' || state.tab === 'accounting') {
-      resultHost.replaceChildren(...(state.tab === 'research' ? [el('button',{type:'button',text:'Inspect uncertainty and opportunity rankings',onclick:()=>document.querySelector('#intelligence').scrollIntoView()}),researchPanel(), intelligencePanel()] : [accountingPanel()]));
+      resultHost.replaceChildren(...(state.tab === 'research' ? [intelligencePanel(), researchPanel()] : [accountingPanel()]));
       writeHash(); return;
     }
     var matches = rows().length;
     count.textContent = matches + ' of ' + activeRows().length + ' rows shown';
     resultHost.replaceChildren(matches
-      ? (state.tab === 'pre-token' ? boardTable() : liveTable())
+      ? (state.tab === 'pre-token' ? el('div',null,marketLens(rows()),boardTable()) : liveTable())
       : el('div', { class: 'panel empty', text: 'No protocols match these filters.' }));
     writeHash();
   }

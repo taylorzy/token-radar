@@ -21,6 +21,7 @@ import { farmEconomics, farmingSummaries } from './lib/economics.ts';
 import { modelIntelligence } from './lib/model-intelligence.ts';
 import { buildLedger } from './lib/ledger.ts';
 import frozenModelReview from './lib/frozen-model-review.json' with { type: 'json' };
+import m71Loo from './lib/m71-loo-predictions.json' with { type: 'json' };
 import { isComparable } from './lib/valuation.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
@@ -71,6 +72,7 @@ const intelligence = modelIntelligence(snapshot, board);
 writeFileSync(join(out, 'model-intelligence.json'), JSON.stringify(intelligence, null, 2) + '\n');
 const research = {
   ...frozenModelReview,
+  m71Loo,
   peers: snapshot.protocols.filter(isComparable).map(p => [p.name, p.tvl_usd, p.mcap_usd]),
 };
 const accounting = ledger.rows.map(row => ({
@@ -103,6 +105,30 @@ function copyFiles(from: string, to: string): string[] {
 }
 
 const dashboardFiles = copyFiles(join(here, 'dashboard'), join(out, 'dashboard'));
+// An offline audit extract accompanies the interactive views inside the dossier.
+const priority = intelligence.rows.filter(r => r.participation);
+const shift = intelligence.rows.find(r => r.slug === 'shift-defi');
+const audit = [
+  'Token Radar | Evidence ledger',
+  'Snapshot ' + snapshot.as_of + ' | external participation review 2026-11-26',
+  'Ranked ' + board.length + ' | snapshot records ' + ledger.rows.length + ' | watchlist ' + snapshot.watchlist.length,
+  'Priority research: ' + priority.length + ' reviewed; ' +
+    priority.filter(r => r.participation!.status === 'Documented route').length + ' documented routes.',
+  'The primary value is the fixed three-feature regularized Huber estimate. Category peers and stress scenarios are explanatory.',
+  ...(shift ? ['Shift DeFi primary ' + shift.models.m71!.value + ' USD, rank ' + shift.models.m71!.rank +
+    '; at median growth ' + shift.stress.reference!.value + ' USD, rank ' + shift.stress.reference!.rank + '.'] : []),
+  ...['shift-defi', 'lofty', 'doppler-finance'].flatMap(slug => {
+    const row = priority.find(r => r.slug === slug);
+    if (!row?.participation) return [];
+    const route = dashboardFarming[slug]?.route;
+    return [slug + ' | ' + row.participation.status, row.participation.finding,
+      ...(route?.settlement ? [route.settlement] : []), ...row.participation.sources];
+  }),
+  '',
+  'See 01-farming-routes.json for the full documented route catalog, with entry, execution, exit, costs, settlement, risks and sources.',
+];
+writeFileSync(join(out,'dashboard','00-evidence.txt'), audit.join('\n') + '\n');
+dashboardFiles.push('00-evidence.txt');
 const shots = copyFiles(join(here, 'screenshots'), join(out, 'screenshots'));
 if (shots.length < 3) {
   process.stderr.write(`token radar: screenshots/ holds ${shots.length} image${shots.length === 1 ? '' : 's'}: include the ranked board, model research, protocol detail and accounting\n`);

@@ -1,9 +1,10 @@
 ﻿import { classifyProtocols, externalEvidence } from './classification.ts';
 import { impliedValue, MODEL, ageDays, type BoardRow, type Snapshot, type SnapshotProtocol } from './model.ts';
-import { FEATURES, fitMultivariate, fitValuation, isComparable, valuationParts, type MultivariateFit } from './valuation.ts';
+import { median, FEATURES, fitMultivariate, fitValuation, isComparable, valuationParts, type MultivariateFit } from './valuation.ts';
 import { intervalStudy, peerSupport, quantile } from './interval-study.ts';
 import { protocolGroups, tokenPresence } from './token-presence.ts';
-import routes from '../dashboard/farming-routes.json' with { type: 'json' };
+import routes from '../dashboard/01-farming-routes.json' with { type: 'json' };
+import { participationReview } from './farming.ts';
 import frozen from './frozen-model-review.json' with { type: 'json' };
 
 const dollar = (v: number) => Math.max(1, Math.round(v));
@@ -108,7 +109,19 @@ export function modelIntelligence(snapshot: Snapshot, board: BoardRow[]) {
     const propensity = cls.status === 'Pre-token candidate' ? presence.score(p) : null;
     const factor = frozen.m71Uncertainty.factor;
     const terms = valuationParts(primary, p, asOf);
+    const same = peers.filter(peer => peer.category === p.category);
+    const describe = (peer: SnapshotProtocol) => ({
+      name: peer.name, category: peer.category, slug: peer.slug, tvl: peer.tvl_usd,
+      cap: peer.mcap_usd!, growth: peer.change_7d, days: ageDays(asOf, peer.listed_at),
+      chains: peer.chains.filter(chain => p.chains.includes(chain)),
+    });
+    const categoryPeers = same.slice().sort((a, b) =>
+      Math.abs(Math.log(a.tvl_usd / Math.max(1, p.tvl_usd))) - Math.abs(Math.log(b.tvl_usd / Math.max(1, p.tvl_usd))) || slugOrder(a.slug,b.slug));
     return {
+      participation: participationReview(p.slug),
+      comparables: { categoryCount: same.length, category: categoryPeers.slice(0,3).map(describe),
+        numerical: s.neighbors.slice(0,3).map(n => ({...describe(peers[n.index]!), distance:n.distance})),
+        categoryMultiple: same.length >= 5 ? median(same.map(peer => peer.mcap_usd! / peer.tvl_usd)) : null },
       slug: p.slug, models: model, consensus: r.consensus,
       span: { low: r.sorted[0], high: r.sorted.at(-1), ratio: Math.exp(r.spread), logSpread: r.spread },
       rankRange: [Math.min(...ranks), Math.max(...ranks)],

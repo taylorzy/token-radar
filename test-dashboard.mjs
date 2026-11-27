@@ -15,8 +15,13 @@ const browser = spawn(edge, ['--headless', '--disable-gpu', '--disable-backgroun
 let socket;
 try {
   const portFile = join(profile, 'DevToolsActivePort');
-  for (let i = 0; !existsSync(portFile) && i < 100; i++) await sleep(100);
-  const [port] = readFileSync(portFile, 'utf8').split('\n');
+  let port;
+  for (let i=0; !port && i<100; i++) {
+    try { port=readFileSync(portFile,'utf8').split('\n')[0].trim(); }
+    catch(error) { if (!['ENOENT','EBUSY'].includes(error.code)) throw error; }
+    if (!port) await sleep(100);
+  }
+  assert.ok(port,'Edge debugging endpoint started');
   const targets = await (await fetch('http://localhost:' + port + '/json/list')).json();
   socket = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
   await new Promise((ok, fail) => {
@@ -79,12 +84,30 @@ try {
   } else if (!process.env.RADAR_BROWSER_COVERAGE || expected === 182 && await evalPage('!!window.RADAR.model.experimental')) {
     assert.ok(await evalPage("document.body.innerText.includes('V1 TVL-only Huber')"));
   }
+  if (m11) {
+    assert.equal(await evalPage("document.querySelectorAll('.landscape [role=button]').length"), expected);
+    await evalPage("document.querySelector('.model summary').click()");
+    assert.ok(await evalPage("document.querySelector('.model').open && document.querySelector('.formula').innerText.includes('centered asinh')"));
+    await evalPage("document.querySelector('.model summary').click()");
+    await evalPage("document.querySelector('.landscape [role=button]').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter'}))");
+    assert.ok(await evalPage("document.querySelector('dialog').open"));
+    await evalPage("document.querySelector('dialog').close()");
+  }
   await shot('1-board.png');
+  if (m11) {
+    await evalPage("document.querySelector('.coverage-toggle').click()");
+    assert.equal(await evalPage("document.querySelectorAll('.landscape .plot-point').length"), 28);
+    await evalPage("document.querySelector('.coverage-toggle').click()");
+  }
+  await evalPage("const picker=document.querySelector('#market-mode');picker.value='documented';picker.dispatchEvent(new Event('change'))");
+  assert.ok(await evalPage("document.querySelector('.landscape').innerText.includes('documented participation route')"));
+  await evalPage("const picker2=document.querySelector('#market-mode');picker2.value='primary';picker2.dispatchEvent(new Event('change'))");
   await evalPage("[...document.querySelectorAll('.protocol-link')].find(b => b.textContent === 'USDD').click()");
   assert.ok(await evalPage("document.querySelector('dialog').open"));
   if (await evalPage('!!window.RADAR.uncertainty')) assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('peer-error range')"));
   if (await evalPage('!!window.RADAR.model.experimental')) assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('Experimental fit')"));
   assert.ok(await evalPage("!document.querySelector('dialog [role=alert]')"));
+  await evalPage("[...document.querySelectorAll('dialog nav button')].find(b=>b.textContent==='Farming economics').click()");
   assert.ok(await evalPage("[...document.querySelectorAll('dialog button')].some(b => b.textContent.includes('Load example assumptions'))"));
   await evalPage("[...document.querySelectorAll('dialog button')].find(b => b.textContent.includes('Load example assumptions')).click()");
   assert.ok(await evalPage("document.querySelector('.scenario-result').textContent.includes('Break-even reward $')"));
@@ -94,7 +117,7 @@ try {
   }
   if (m11 && shots) await command('Emulation.setDeviceMetricsOverride',
     { width: 1440, height: 1080, deviceScaleFactor: 1, mobile: false });
-  await shot(m11 ? '3-detail.png' : '2-detail.png');
+  if(!m11) await shot('2-detail.png');
   if (m11 && shots) await command('Emulation.setDeviceMetricsOverride',
     { width: 1440, height: 960, deviceScaleFactor: 1, mobile: false });
   if(m11) {
@@ -108,6 +131,7 @@ try {
   const documented = await evalPage("window.RADAR.rows.filter(r => r.farm_steps[0].startsWith('Documented route.')).length");
   assert.ok(documented >= 9);
   assert.equal(await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"), documented);
+  if (m11) assert.equal(await evalPage("document.querySelectorAll('.landscape .plot-point').length"), documented);
   if (!m11) await shot('3-filtered.png');
   await evalPage("[...document.querySelectorAll('button')].find(b => b.textContent === 'Clear filters').click()");
   assert.equal(await evalPage("document.querySelectorAll('table:not(dialog table) > tbody > tr').length"), expected);
@@ -157,11 +181,15 @@ try {
     await evalPage("(() => { const x = document.querySelector('#weight-age'); x.value='0'; x.dispatchEvent(new Event('input')); })()");
     assert.notEqual(await evalPage("document.querySelector('#sandbox-result').textContent"), first);
     if (await evalPage('!!window.RADAR_INTELLIGENCE')) {
-      await evalPage("document.querySelector('#intelligence').scrollIntoView()");
+      assert.equal(await evalPage("document.querySelectorAll('#intelligence svg').length"), 3);
+      assert.equal(await evalPage("document.querySelectorAll('#intelligence svg:first-of-type .plot-point').length"), 127);
+      await evalPage("window.scrollTo(0, 0)");
       await evalPage("const mode = document.querySelector('#opportunity-mode'); mode.value='documented'; mode.dispatchEvent(new Event('change'))");
-      assert.ok(await evalPage("document.querySelector('#intelligence').textContent.includes('11 eligible')"));
+      assert.ok(await evalPage("document.querySelector('#intelligence').textContent.includes(window.RADAR_INTELLIGENCE.rows.filter(r=>r.documented).length+' eligible')"));
     }
-    await shot('2-model.png');
+    if (shots) await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1024, deviceScaleFactor: 1, mobile: false });
+    await shot('2-validation.png');
+    if (shots) await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 960, deviceScaleFactor: 1, mobile: false });
     await evalPage(button('Show experiment on board'));
     assert.ok(await evalPage("document.querySelector('[data-sort=experiment]') !== null"));
     await evalPage("document.querySelector('[data-sort=experiment]').click()");
@@ -169,7 +197,18 @@ try {
     await evalPage(button('Accounting & comparison'));
     assert.equal(await evalPage("document.querySelectorAll('#comparison tbody tr').length"), 2);
     assert.ok(await evalPage("document.querySelector('#accounting').innerText.includes('758 unique slugs')"));
-    await shot('4-accounting.png');
+    await evalPage(button('Ranked board'));
+    await evalPage("const q=document.querySelector('#q');q.value='Shift DeFi';q.dispatchEvent(new Event('input'));document.querySelector('.protocol-link').click()");
+    assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('Market comparables') && document.querySelector('dialog').innerText.includes('#56')"));
+    assert.ok(await evalPage("document.querySelector('.valuation-range-values').textContent.includes('$10.8M') && document.querySelector('.valuation-range-values').textContent.includes('$369.8M')"));
+    await shot('4-protocol.png');
+    await evalPage("document.querySelector('dialog').close();document.querySelector('#q').value='Lofty';document.querySelector('#q').dispatchEvent(new Event('input'));document.querySelector('.protocol-link').click()");
+    await evalPage("Array.from(document.querySelectorAll('dialog nav button')).find(b=>b.textContent==='Farming economics').click();Array.from(document.querySelectorAll('dialog button')).find(b=>b.textContent==='Load example assumptions').click()");
+    assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('2.5%') && document.querySelector('.scenario-result').textContent.includes('Break-even reward $79.11')"));
+    await shot('3-participation.png');
+    await evalPage("document.querySelector('dialog').close()");
+    await evalPage(button('Clear filters'));
+    await evalPage(button('Accounting & comparison'));
     await evalPage(button('Next'));
     assert.ok(await evalPage("document.querySelector('.ledger-pager').textContent.includes('page 2')"));
     await evalPage(button('Previous'));

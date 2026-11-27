@@ -1,5 +1,8 @@
-import routes from '../dashboard/farming-routes.json' with { type: 'json' };
+import routes from '../dashboard/01-farming-routes.json' with { type: 'json' };
 import type { SnapshotProtocol } from './model.ts';
+
+import review from './participation-review.json' with { type: 'json' };
+export const participationReview = (slug: string) => Object.hasOwn(review, slug) ? review[slug as keyof typeof review] : null;
 
 type Route = {
   sources: string[]; entry: string; action: string; exit: string;
@@ -37,6 +40,12 @@ function categoryRoute(category: string) {
 
 export function farmPlan(p: SnapshotProtocol): string[] {
   const documented = documentedRoute(p.slug);
+  const finding = participationReview(p.slug);
+  if (!documented && finding) return [
+    'Research only. ' + finding.finding + ' Source: ' + finding.sources[0] + '.',
+    'Check the named product, access terms, transaction quote and exit mechanism with the issuer. Allow 20 minutes for review as a planning assumption.',
+    'Leave capital uncommitted while fees, eligibility or settlement are unresolved. Research transaction budget: $0. No individual reward is established.',
+  ];
   const category = categoryRoute((p.category ?? '').toLowerCase());
   if (!documented && !category) return [
     `Research only. Find ${p.name}'s official user guide and verify whether a user-facing route exists. Risks and entry requirements are unknown. Cost: $0 transaction budget for research. Time: allow 20 minutes as a planning estimate.`,
@@ -49,8 +58,8 @@ export function farmPlan(p: SnapshotProtocol): string[] {
   const sources = documented ? ` Source: ${documented.sources.join(' ')}.` : '';
   return [
     `${level}. ${p.name}. ${entry}${sources} Cost: $0 transaction budget for review. Time: allow 20 minutes for review (planning estimate).`,
-    `${action} Cost: actual entry fees unknown; use the transaction preview as your estimate and record it separately from capital. Time: allow 15 minutes for setup (planning estimate); settlement varies.`,
-    `${exit} Cost: actual exit fees unknown; estimate them from an exit quote, including any protocol charges. Time: allow 15 minutes for exit handling (planning estimate); settlement varies.`,
+    `${action} Cost: ${documented?.fees ?? "Use a live entry quote; separate fees from capital."} Time: allow 15 minutes for setup (planning estimate).`,
+    `${exit} Cost: verify exit costs in the transaction quote. Time: allow 15 minutes for handling (planning estimate). ${documented?.settlement ?? "Settlement varies."}`,
     'Airdrop eligibility is unknown. If a campaign is published, check the official terms for your exact product and activity. Cost: $0 to review. Time: allow 10 minutes (planning estimate).',
   ];
 }

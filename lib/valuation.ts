@@ -47,7 +47,7 @@ export function featureValue(row: SnapshotProtocol, asOf: string, feature: Featu
   return Number.isFinite(days) && days >= 0 ? Math.log1p(days) : null;
 }
 
-function median(values: number[]) {
+export function median(values: number[]) {
   const sorted = values.slice().sort((a, b) => a - b);
   const middle = Math.floor(sorted.length / 2);
   return (sorted[middle]! + sorted[Math.floor((sorted.length - 1) / 2)]!) / 2;
