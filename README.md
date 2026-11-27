@@ -1,5 +1,9 @@
 # Token Radar V7 local review candidate
 
+[![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![rank](https://make.fun/badge/token-radar-01/taylorzy/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![reward](https://make.fun/badge/token-radar-01/taylorzy/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+
 Open the generated dashboard in artifacts/v7/review/dashboard/index.html. The cover compares the submitted V6 default opportunity order with the V7 full-board order. Select a verdict to inspect the route evidence, change routes and test alternative exit scenarios. Local edits to assumptions take effect across the board when applied.
 
 ## Rebuild and verify
