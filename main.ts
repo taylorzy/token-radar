@@ -19,6 +19,9 @@ import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
 import { farmEconomics, farmingSummaries } from './lib/economics.ts';
 import { modelIntelligence } from './lib/model-intelligence.ts';
+import engine from './dashboard/00-decision.js';
+import validation from './dashboard/00-validation.json' with { type:'json' };
+import { VERSIONED } from './lib/classification.ts';
 import { buildLedger } from './lib/ledger.ts';
 import frozenModelReview from './lib/frozen-model-review.json' with { type: 'json' };
 import m71Loo from './lib/m71-loo-predictions.json' with { type: 'json' };
@@ -69,6 +72,17 @@ const dashboardFarming = Object.fromEntries(farming.map(row => [row.slug, {
 }]));
 const ledger = buildLedger(snapshot, board);
 const intelligence = modelIntelligence(snapshot, board);
+const ledgerBySlug = new Map(ledger.rows.map(r => [r.slug,r]));
+const intelligenceBySlug = new Map(intelligence.rows.map(r => [r.slug,r]));
+const decisions = engine.rankDecisions(board.map(row => engine.assess(row, intelligenceBySlug.get(row.slug),
+  ledgerBySlug.get(row.slug), dashboardFarming[row.slug])));
+const screened = ledger.rows.filter(r => r.symbol === null && r.gecko_id === null &&
+  !['Bridge','Canonical Bridge','Liquid Staking','Liquid Restaking','Restaked BTC','CEX'].includes(r.category ?? '') &&
+  !VERSIONED.test(r.name) && !/\b(wrapped|staked|staking)\b|^(binance|coinbase|bybit|kraken|bitget|okx|bitfinex|gemini)\b/i.test(r.name));
+const coverage = {screened:screened.length, excluded:screened.filter(r=>r.rank === null).map(r=>r.slug),
+  exceptions:ledger.rows.filter(r=>r.watchlist && r.status !== 'Pre-token candidate').map(r=>r.slug)};
+const decisionReview = {defaults:engine.defaults, coverage, validation, decisions};
+writeFileSync(join(out,'decision-review.json'), JSON.stringify(decisionReview,null,2)+'\n');
 writeFileSync(join(out, 'model-intelligence.json'), JSON.stringify(intelligence, null, 2) + '\n');
 const research = {
   ...frozenModelReview,
@@ -80,6 +94,7 @@ const accounting = ledger.rows.map(row => ({
   watchlist: row.watchlist, disposition: row.disposition, evidence: row.evidence,
 }));
 writeFileSync(join(out, 'data.js'), dataScript(radar) +
+  `window.RADAR_DECISIONS = ${JSON.stringify(decisionReview)};\n` +
   `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString().replace(/\r\n/g, '\n')};\n` +
   `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n` +
   `window.RADAR_ACCOUNTING = ${JSON.stringify(accounting)};\n` +
@@ -106,17 +121,20 @@ function copyFiles(from: string, to: string): string[] {
 
 const dashboardFiles = copyFiles(join(here, 'dashboard'), join(out, 'dashboard'));
 // An offline audit extract accompanies the interactive views inside the dossier.
+writeFileSync(join(out,'dashboard','00-farm-plan.txt'),readFileSync(join(here,'lib','farming.ts'),'utf8'));
 const priority = intelligence.rows.filter(r => r.participation);
 const shift = intelligence.rows.find(r => r.slug === 'shift-defi');
 const audit = [
   'Token Radar | Evidence ledger',
-  'Snapshot ' + snapshot.as_of + ' | external participation review 2026-11-26',
+  'Snapshot ' + snapshot.as_of + ' | participation evidence dated individually through 2026-11-27',
   'Ranked ' + board.length + ' | snapshot records ' + ledger.rows.length + ' | watchlist ' + snapshot.watchlist.length,
-  'Priority research: ' + priority.length + ' reviewed; ' +
+  'Participation reviews: ' + priority.length + ' reviewed; ' +
     priority.filter(r => r.participation!.status === 'Documented route').length + ' documented routes.',
   'The primary value is the fixed three-feature regularized Huber estimate. Category peers and stress scenarios are explanatory.',
   ...(shift ? ['Shift DeFi primary ' + shift.models.m71!.value + ' USD, rank ' + shift.models.m71!.rank +
     '; at median growth ' + shift.stress.reference!.value + ' USD, rank ' + shift.stress.reference!.rank + '.'] : []),
+  'Coverage screen '+screened.length+'; exclusions: '+coverage.excluded.join(', ')+'. Mandatory exceptions: '+coverage.exceptions.join(', '),
+  ...decisions.filter(r=>r.slug==='sentora-curator').map(r=>'Sentora illustrative base net '+r.base.net.toFixed(2)+' USD; low peer net '+r.sensitivity[0].net.toFixed(2)+' USD. Qualification unknown.'),
   ...['shift-defi', 'lofty', 'doppler-finance'].flatMap(slug => {
     const row = priority.find(r => r.slug === slug);
     if (!row?.participation) return [];
@@ -128,7 +146,7 @@ const audit = [
   'See 01-farming-routes.json for the full documented route catalog, with entry, execution, exit, costs, settlement, risks and sources.',
 ];
 writeFileSync(join(out,'dashboard','00-evidence.txt'), audit.join('\n') + '\n');
-dashboardFiles.push('00-evidence.txt');
+dashboardFiles.push('00-evidence.txt','00-farm-plan.txt');
 const shots = copyFiles(join(here, 'screenshots'), join(out, 'screenshots'));
 if (shots.length < 3) {
   process.stderr.write(`token radar: screenshots/ holds ${shots.length} image${shots.length === 1 ? '' : 's'}: include the ranked board, model research, protocol detail and accounting\n`);

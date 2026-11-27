@@ -1,8 +1,24 @@
-# Token Radar baseline
+# Token Radar V6
 
 [![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 [![rank](https://make.fun/badge/token-radar-01/taylorzy/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
 [![reward](https://make.fun/badge/token-radar-01/taylorzy/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+
+## V6 local review
+
+The default board orders 182 protocols by research opportunity. Each row also shows its official implied-value rank. Open an opportunity verdict to inspect costs, change a scenario, compare downside cases or apply assumptions to the board. The Accounting tab reconciles the broad 198-record screen with the 182 ranked protocols. Model research includes the completed matched validation on 119 traded peers.
+
+The 32 documented mechanisms include Loopscale vault lending, Firelight staking, Mellow ERC20RootVaults and Polymarket International outcome positions. The dated sources identify participation mechanics. Wallet qualification, reward allocation and current quotes remain unknown.
+
+Run from this source directory in cmd.exe:
+
+```cmd
+node main.ts --input ..\..\research\baseline-input --output ..\..\artifacts\v6\review
+node test-v4.mjs ..\..\artifacts\v6\review ..\..\artifacts\next-review\refined-review
+node test-v6.mjs ..\..\artifacts\v6\review ..\..\artifacts\next-review\refined-review
+```
+
+Open the generated dashboard/index.html. Model assumptions, equations, scope and limitations are visible in the offline page. The following sections record prior model research and historical releases.
 
 For a local run with Node 22.18 or later, pass the input directory from the unpacked official kit. The competition harness supplies the same sealed input at /input.
 

@@ -376,5 +376,61 @@
     "settlement": "Redemption depends on liquidity accessible to this vault; no guaranteed settlement time.",
     "risks": "Borrower collateral, market liquidity, oracle and curator allocation risk.",
     "reviewed_at": "2026-11-26"
+  },
+  "loopscale-lending": {
+    "sources": [
+      "https://docs.loopscale.com/using-loopscale/earn"
+    ],
+    "entry": "Select a single-asset Loopscale vault on Lend. Inspect its curator, collateral and idle-liquidity buffer.",
+    "action": "Preview the deposit and record vault LP units. Curators allocate pooled funds; optimized idle liquidity can add external exposure.",
+    "exit": "Check free LP balance. Compare the immediate exit quote with the queue and extra capital-days. Pledged LP is unavailable until debt is repaid.",
+    "capital": "Selected vault asset and network fees.",
+    "fees": "A low-liquidity immediate exit can carry a fee. Obtain the actual quote.",
+    "settlement": "Queue depends on available liquidity.",
+    "risks": "Curator, collateral losses, external markets and delayed exit.",
+    "reviewed_at": "2026-11-27"
+  },
+  "firelight": {
+    "sources": [
+      "https://docs.firelight.finance/for-stakers/deployments/guide-to-deploying-fxrp-on-firelight",
+      "https://docs.firelight.finance/for-stakers/unstaking-and-withdrawals"
+    ],
+    "entry": "Check the FXRP vault on Flare and its coverage exposure. Reserve FLR for gas.",
+    "action": "Preview FXRP approval and deposit; the vault mints stXRP.",
+    "exit": "Request unstaking, then return to claim FXRP after the window. Check period boundaries and redemption value.",
+    "capital": "FXRP principal and FLR gas.",
+    "fees": "Quote approval, stake, unstake and withdrawal transactions.",
+    "settlement": "With 30-day periods the documented exit window spans 30 to 60 days.",
+    "risks": "Slashing can affect pending exits; emissions end at request.",
+    "reviewed_at": "2026-11-27"
+  },
+  "polymarket-international": {
+    "sources": [
+      "https://docs.polymarket.com/api-reference/geoblock",
+      "https://docs.polymarket.com/trading/overview",
+      "https://docs.polymarket.com/trading/positions/manage"
+    ],
+    "entry": "Check international platform access for your location and read the market resolution rules before considering a position.",
+    "action": "Inspect the order book, pUSD cost and settlement. A matched order exchanges collateral for outcome tokens on Polygon.",
+    "exit": "Check available bids to sell, or redeem winning tokens after resolution. A losing position can exhaust principal.",
+    "capital": "Quoted collateral for the selected outcome.",
+    "fees": "Check market fee, spread and funding or withdrawal quotes.",
+    "settlement": "Selling requires a match; redemption depends on resolution.",
+    "risks": "Geographic restrictions, resolution disputes and full position loss.",
+    "reviewed_at": "2026-11-27"
+  },
+  "mellow-core": {
+    "sources": [
+      "https://docs.mellow.finance/mellow-permissionless-vaults/architecture",
+      "https://docs.mellow.finance/mellow-alm/mellow-permissionless-vaults/mellow-contracts-addresses/mellow-protocol-addresses-mainnet"
+    ],
+    "entry": "Match the deployment to the permissionless ERC20RootVault generation and verify its configured tokens and deposit permissions.",
+    "action": "Preview the required basket. The root vault accepts tokens in its configured ratio and mints LP units.",
+    "exit": "Preview burning LP against the lower TVL estimate. Check per-block limits and the assets available from subvaults.",
+    "capital": "Deployment-specific token basket plus gas.",
+    "fees": "Inspect configured management, protocol and performance rates and transaction quotes.",
+    "settlement": "Per-block limits can require staged withdrawal.",
+    "risks": "Oracle estimates, strategy and subvault liquidity.",
+    "reviewed_at": "2026-11-27"
   }
 }

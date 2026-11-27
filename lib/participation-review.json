@@ -99,12 +99,13 @@
     "status": "Documented route"
   },
   "firelight": {
-    "date": "2026-11-26",
-    "finding": "Firelight offers staking and cover participation on Flare. Verify FXRP, FLR gas, unstaking and cover-loss conditions; an early-contribution claim is distinct from a new participant entitlement.",
+    "date": "2026-11-27",
+    "finding": "Check the FXRP vault on Flare and its coverage exposure. Reserve FLR for gas. Request unstaking, then return to claim FXRP after the window. Check period boundaries and redemption value.",
     "sources": [
-      "https://docs.firelight.finance/"
+      "https://docs.firelight.finance/for-stakers/deployments/guide-to-deploying-fxrp-on-firelight",
+      "https://docs.firelight.finance/for-stakers/unstaking-and-withdrawals"
     ],
-    "status": "Further verification"
+    "status": "Documented route"
   },
   "galaxy-curation": {
     "date": "2026-11-26",
@@ -200,12 +201,13 @@
     "status": "Documented route"
   },
   "mellow-core": {
-    "date": "2026-11-26",
-    "finding": "Mellow documents a vault system with configurable fees. Verify the deployed vault architecture, collateral, access and withdrawal rules before using it.",
+    "date": "2026-11-27",
+    "finding": "Match the deployment to the permissionless ERC20RootVault generation and verify its configured tokens and deposit permissions. Preview burning LP against the lower TVL estimate. Check per-block limits and the assets available from subvaults.",
     "sources": [
-      "https://docs.mellow.finance/mellow-permissionless-vaults/architecture"
+      "https://docs.mellow.finance/mellow-permissionless-vaults/architecture",
+      "https://docs.mellow.finance/mellow-alm/mellow-permissionless-vaults/mellow-contracts-addresses/mellow-protocol-addresses-mainnet"
     ],
-    "status": "Further verification"
+    "status": "Documented route"
   },
   "mezo-earn": {
     "date": "2026-11-26",
@@ -257,12 +259,14 @@
     "status": "Documented route"
   },
   "polymarket-international": {
-    "date": "2026-11-26",
-    "finding": "The international market directs US traders to the US platform. Trading an outcome share introduces event-resolution and loss risk; no launch or reward entitlement was verified.",
+    "date": "2026-11-27",
+    "finding": "Check international platform access for your location and read the market resolution rules before considering a position. Check available bids to sell, or redeem winning tokens after resolution. A losing position can exhaust principal.",
     "sources": [
-      "https://polymarket.com"
+      "https://docs.polymarket.com/api-reference/geoblock",
+      "https://docs.polymarket.com/trading/overview",
+      "https://docs.polymarket.com/trading/positions/manage"
     ],
-    "status": "Further verification"
+    "status": "Documented route"
   },
   "r25": {
     "date": "2026-11-26",
@@ -395,5 +399,13 @@
       "https://app.yuzu.money"
     ],
     "status": "Further verification"
+  },
+  "loopscale-lending": {
+    "date": "2026-11-27",
+    "finding": "Select a single-asset Loopscale vault on Lend. Inspect its curator, collateral and idle-liquidity buffer. Check free LP balance. Compare the immediate exit quote with the queue and extra capital-days. Pledged LP is unavailable until debt is repaid.",
+    "sources": [
+      "https://docs.loopscale.com/using-loopscale/earn"
+    ],
+    "status": "Documented route"
   }
 }

@@ -19,7 +19,7 @@ const ledger=JSON.parse(file(out,'protocol-accounting.json')).rows;
 const eligible=new Set(ledger.filter(r=>r.status==='Pre-token candidate').map(r=>r.slug));
 const priority=new Set([...ledger.filter(r=>r.watchlist).map(r=>r.slug),...board.filter(r=>eligible.has(r.slug)).slice(0,20).map(r=>r.slug)]);
 assert.equal(priority.size,48);
-assert.deepEqual(new Set(x.rows.filter(r=>r.participation).map(r=>r.slug)),priority);
+assert.deepEqual(new Set(x.rows.filter(r=>r.participation).map(r=>r.slug)),new Set([...priority,"loopscale-lending"]));
 for(const row of x.rows){
  const p=board.find(b=>b.slug===row.slug), c=row.comparables;
  assert.equal(c.numerical.length,3);

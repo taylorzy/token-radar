@@ -7,7 +7,7 @@
   var DATA = window.RADAR;
   if (!DATA) return;
   var app = document.getElementById('board');
-  var state = { q: '', category: 'all', tab: 'pre-token', sort: 'implied', dir: -1, selected: null, classification: 'all', route: 'all', chain: 'all', showExperiment: false };
+  var state = { q: '', category: 'all', tab: 'pre-token', sort: 'decision', dir: 1, selected: null, classification: 'all', route: 'all', chain: 'all', showExperiment: false };
 
   var usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
   function fmtUsd(n) {
@@ -125,6 +125,7 @@
       else if (key === 'growth') { av = a.change_7d === null ? -Infinity : a.change_7d; bv = b.change_7d === null ? -Infinity : b.change_7d; }
       else if (key === 'age') { av = a.age_days === null ? Infinity : a.age_days; bv = b.age_days === null ? Infinity : b.age_days; }
       else if (key === 'experiment') { av = simulated.get(a.slug).value; bv = simulated.get(b.slug).value; }
+      else if (key === 'decision') { av = decisions.get(a.slug).opportunityRank; bv = decisions.get(b.slug).opportunityRank; }
       else if (key === 'rank') { av = a.rank; bv = b.rank; }
       else if (key === 'cap') { av = a.mcap_usd ?? -Infinity; bv = b.mcap_usd ?? -Infinity; }
       else { av = a.implied_value_usd; bv = b.implied_value_usd; }
@@ -210,14 +211,14 @@
     var header = ['rank', 'slug', 'name', 'tvl_usd', 'change_7d_pct', 'tracking_age_days',
       'primary_value_usd', 'peer_range_low_usd', 'peer_range_high_usd', 'classification',
       'mandatory_watchlist', 'farming_evidence', 'required_reward_usd', 'reward_per_hour_usd',
-      'experimental_rank', 'experimental_value_usd'];
+      'experimental_rank', 'experimental_value_usd', 'opportunity_rank', 'decision', 'scenario_net_usd', 'scenario_assumptions'];
     var lines = [header, ...selected.map(function (r) {
       var [low, high] = valueRange(r);
       var quote = window.RADAR_FARM_SUMMARIES[r.slug].economics;
       var other = simulated.get(r.slug);
       return [r.rank, r.slug, r.name, r.tvl_usd, r.change_7d, r.age_days, r.implied_value_usd,
         low, high, byAccount.get(r.slug).status, byAccount.get(r.slug).watchlist, routeOf(r),
-        quote?.requiredRewardUSD, quote?.rewardPerHourUSD, other.rank, other.value];
+        quote?.requiredRewardUSD, quote?.rewardPerHourUSD, other.rank, other.value, decisions.get(r.slug).opportunityRank, decisions.get(r.slug).verdict, decisions.get(r.slug).base.net,decisions.describe()];
     })];
     var csv = lines.map(function (line) {
       return line.map(function (value) {
@@ -299,6 +300,7 @@
 
   var intel = window.RADAR_INTELLIGENCE;
   var insights = new Map(intel.rows.map(r => [r.slug, r]));
+  var decisions = decisionWorkspace(el,grid,openDetail,byAccount,insights,refreshResults);
   function grid(headers, records) {
     return el('table', null, el('thead', null, el('tr', null, headers.map(h => el('th', {text:h})))),
       el('tbody', null, records.map(row => el('tr', null, row.map(cell => cell instanceof Node ? el('td',null,cell) : el('td', {text:String(cell)}))))));
@@ -399,10 +401,10 @@
           }}),
           el('div',null,el('b',{text:'Documented participation routes'}),
             el('p',{class:'sub',text:'Incentive terms and airdrop eligibility require separate evidence.'}))),
-        el('h3',{text:'Growth-sensitive ranks'}),
+        el('details',null,el('summary',{text:'Growth-sensitive ranks'}),
         el('p',{class:'sub',text:'Largest moves at peer-median weekly growth'}),
         stress.map(p=>el('button',{type:'button',class:'move',onclick:()=>openDetail(p.slug)},el('span',{text:p.name}),
-          el('b',{text:'#'+p.rank+' to #'+insights.get(p.slug).stress.reference.rank})))));
+          el('b',{text:'#'+p.rank+' to #'+insights.get(p.slug).stress.reference.rank}))))));
   }
   function protocolOverview(row,r) {
     var c=r.comparables, st=r.stress.reference;
@@ -621,9 +623,9 @@
   function lede() {
     var facts = ledgerFacts();
     var summary = [account.length + ' records', DATA.rows.length + ' ranked', facts.covered + '/' + facts.required + ' watchlist',
-      facts.exceptions + ' mandatory exceptions', (facts.reconciled ? 'Ledger reconciled' : 'Ledger mismatch')];
+      (DATA.rows.length-facts.exceptions)+' candidates', facts.exceptions + ' mandatory exceptions', (facts.reconciled ? 'Ledger reconciled' : 'Ledger mismatch')];
     return el('section', { class: 'lede' },
-      el('h1', { text: 'Market research' }),
+      el('h1', { text: 'Token Radar V6' }),
       el('div', { class: 'ledger-totals' }, summary.map(function (fact) { return el('b', { text: fact }); })));
   }
 
@@ -651,8 +653,8 @@
         state.tab = id;
         state.category = state.classification = state.chain = 'all';
         state.q = ''; page = 0;
-        state.sort = id === 'live' ? 'cap' : 'implied';
-        state.dir = -1;
+        state.sort = id === 'live' ? 'cap' : 'decision';
+        state.dir = id === 'live' ? -1 : 1;
         renderControls();
         refreshResults();
         controlHost.querySelector('[aria-pressed="true"]').focus();
@@ -678,7 +680,7 @@
 
   function sortHeader(key, label) {
     return el('th', { scope: 'col', 'aria-sort': state.sort === key ? (state.dir < 0 ? 'descending' : 'ascending') : null },
-      el('button', { type: 'button', 'data-sort': key, onclick: function () { if (state.sort === key) state.dir = -state.dir; else { state.sort = key; state.dir = key === 'rank' || key === 'name' ? 1 : -1; } refreshResults(); resultHost.querySelector('[data-sort=' + key + ']').focus(); } },
+      el('button', { type: 'button', 'data-sort': key, onclick: function () { if (state.sort === key) state.dir = -state.dir; else { state.sort = key; state.dir = key === 'decision' || key === 'rank' || key === 'name' ? 1 : -1; } refreshResults(); resultHost.querySelector('[data-sort=' + key + ']').focus(); } },
         label,
         state.sort === key ? el('span', { 'aria-hidden': 'true', text: state.dir < 0 ? ' \u2193' : ' \u2191' }) : null
       )
@@ -693,6 +695,7 @@
       var [low, high] = valueRange(r);
       var plan = window.RADAR_FARM_SUMMARIES[r.slug];
       var quote = plan.economics;
+      var decision = decisions.get(r.slug);
       var alternative = simulated.get(r.slug);
       var growth = r.change_7d === null ? 'n/a' : fmtPct(r.change_7d);
       var growthClass = r.change_7d === null ? '' : r.change_7d >= 0 ? 'pos' : 'neg';
@@ -717,7 +720,8 @@
             (ledger.status === 'Pre-token candidate' ? 'Mandatory watchlist' : 'Mandatory exception') : 'Optional candidate' })),
         el('td', null, el('span', { class: 'status route', 'data-status': routeOf(r), text: routeOf(r) }),
           quote ? el('span', { class: 'sub block', text: 'Scenario: ' + fmtUsd(quote.requiredRewardUSD) + ' required / ' +
-            fmtUsd(quote.rewardPerHourUSD) + '/h / ' + quote.verdict }) : el('span', { class: 'sub block', text: plan.route ? new URL(plan.route.sources[0]).hostname : 'No cost scenario' }))
+            fmtUsd(quote.rewardPerHourUSD) + '/h / ' + quote.verdict }) : el('span', { class: 'sub block', text: plan.route ? new URL(plan.route.sources[0]).hostname : 'Research required' })),
+        el('td',null,el('button',{type:'button',class:'button',text:'#'+decision.opportunityRank+' · '+decision.verdict,onclick:()=>openDetail(r.slug,'Decision')}),el('span',{class:'sub block',text:decisions.money(decision.base.net)+' / '+decisions.money(decision.downside)}))
       );
       tbody.appendChild(tr);
     });
@@ -734,7 +738,7 @@
             sortHeader('implied', 'Primary / peer range'),
             state.showExperiment ? sortHeader('experiment', 'Experimental') : null,
             el('th', { scope: 'col', text: 'Token evidence' }),
-            el('th', { scope: 'col', text: 'Farming evidence' })
+            el('th', { scope: 'col', text: 'Farming evidence' }),sortHeader('decision','Opportunity · Base / downside')
           )),
           tbody
         )
@@ -859,7 +863,7 @@
   var dialog = el('dialog', { class: 'detail', id: 'detail', 'aria-labelledby': 'detail-title' });
   dialog.addEventListener('close', function () { state.selected = null; writeHash(); });
 
-  function openDetail(slug) {
+  function openDetail(slug,initialPage) {
     var row = DATA.rows.filter(function (r) { return r.slug === slug; })[0];
     if (!row) return;
     state.selected = slug;
@@ -906,7 +910,7 @@
     var route = window.RADAR_FARM_SUMMARIES[slug].route;
     var explicitIncentive = slug==='saturn' ? 'Issuer interface shows USDat points.' :
       slug==='bitfi-basis' ? 'Issuer page advertises a BFI claim.' :
-      slug==='firelight' ? 'Review records an early-contribution claim.' : 'Separate incentive terms unverified';
+      slug==='firelight' ? 'Staking emissions follow protocol rules; a separate token distribution is unverified.' : 'Separate incentive terms unverified';
     var evidence = finding || (route && {status:'Documented route',date:route.reviewed_at,sources:route.sources});
     var field = (label,copy) => el('div',null,el('b',{text:label}),el('p',{text:copy}));
     dialog.appendChild(el('section',{class:'detail-section farm-workspace'},
@@ -934,7 +938,9 @@
               el('span',null,el('strong',{text:'Time '}),tags[2])):null);
           }))))));
     var sections=Array.from(dialog.children).slice(1);
-    var pages=[['Valuation',[sections[0],sections[2]]],['Evidence & scenarios',[sections[1],sections[4]]],['Farming economics',[sections[5],sections[3]]]];
+    var decisionPanel=decisions.detail(row);
+    dialog.appendChild(decisionPanel);
+    var pages=[['Valuation',[sections[0],sections[2]]],['Evidence & scenarios',[sections[1],sections[4]]],['Farming economics',[sections[5],sections[3]]],['Decision',[decisionPanel]]];
     if(finding && finding.status==='Further verification') sections[1].appendChild(el('p',{text:'External review '+finding.date+' | '+finding.finding}));
     var nav=el('nav',{class:'workspace-nav','aria-label':'Protocol research'});
     dialog.insertBefore(sections[5],sections[3]);
@@ -944,7 +950,7 @@
       dialog.scrollTop=0;
     }
     buttons.forEach(button=>nav.appendChild(button));
-    dialog.insertBefore(nav,sections[0]);select(0);
+    dialog.insertBefore(nav,sections[0]);select(initialPage==='Decision'?3:0);
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
     } else {
@@ -963,13 +969,13 @@
   function refreshResults() {
     count.hidden = state.tab === 'accounting' || state.tab === 'research';
     if (state.tab === 'research' || state.tab === 'accounting') {
-      resultHost.replaceChildren(...(state.tab === 'research' ? [intelligencePanel(), researchPanel()] : [accountingPanel()]));
+      resultHost.replaceChildren(...(state.tab === 'research' ? [decisions.validation(), intelligencePanel(), researchPanel()] : [decisions.coverage(),accountingPanel()]));
       writeHash(); return;
     }
     var matches = rows().length;
     count.textContent = matches + ' of ' + activeRows().length + ' rows shown';
     resultHost.replaceChildren(matches
-      ? (state.tab === 'pre-token' ? el('div',null,marketLens(rows()),boardTable()) : liveTable())
+      ? (state.tab === 'pre-token' ? el('div',null,el('div',{class:'board-summary'},decisions.cover(rows()),marketLens(rows())),boardTable()) : liveTable())
       : el('div', { class: 'panel empty', text: 'No protocols match these filters.' }));
     writeHash();
   }

@@ -93,10 +93,27 @@ try {
     assert.ok(await evalPage("document.querySelector('dialog').open"));
     await evalPage("document.querySelector('dialog').close()");
   }
+  assert.equal(await evalPage("document.querySelector('tr[data-slug]').dataset.slug"),await evalPage("RADAR_DECISIONS.decisions[0].slug"));
+  await evalPage("window.scrollTo(0,0)");
+  await command('Emulation.setDeviceMetricsOverride', {width:1440,height:1080,deviceScaleFactor:1,mobile:false});
+  const visibleRows = await evalPage("Array.from(document.querySelectorAll('.ranked-table tbody tr')).filter(row=>{const box=row.getBoundingClientRect();return box.top>=0 && box.bottom<=innerHeight;}).length");
+  assert.ok(visibleRows>=6, 'Primary capture has '+visibleRows+' complete ranked rows');
+  console.log('Primary capture: '+visibleRows+' complete ranked rows');
+  assert.ok(await evalPage("document.querySelector('.decision-totals').textContent.includes('2 reverse in downside')"));
   await shot('1-board.png');
+  await command('Emulation.setDeviceMetricsOverride', {width:1440,height:960,deviceScaleFactor:1,mobile:false});
+  await evalPage("Array.from(document.querySelectorAll('.decision-card')).find(b=>b.innerText.includes('Sentora')).click()");
+  assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('$5.68') && document.querySelector('dialog').innerText.includes('-$29.08')"));
+  if (!process.env.RADAR_KEEP_REVIEW_SHOTS) await shot('4-protocol.png');
+  await evalPage("document.querySelector('.decision-detail details').open=true; const weight=document.querySelectorAll('.decision-inputs input')[7];weight.value='0';weight.dispatchEvent(new Event('input'));");
+  assert.ok(await evalPage("document.querySelector('.decision-detail').innerText.includes('Below break-even')"));
+  await evalPage("document.querySelector('.decision-detail details button').click();document.querySelector('dialog').close()");
+  assert.ok(await evalPage("document.querySelector('.decision-cover').innerText.includes('0% joint success')"));
+  await evalPage("document.querySelector('.decision-card').click();document.querySelector('.decision-detail details').open=true;document.querySelectorAll('.decision-detail details button')[1].click();document.querySelector('dialog').close()");
+
   if (m11) {
     await evalPage("document.querySelector('.coverage-toggle').click()");
-    assert.equal(await evalPage("document.querySelectorAll('.landscape .plot-point').length"), 28);
+    assert.equal(await evalPage("document.querySelectorAll('.landscape .plot-point').length"), 32);
     await evalPage("document.querySelector('.coverage-toggle').click()");
   }
   await evalPage("const picker=document.querySelector('#market-mode');picker.value='documented';picker.dispatchEvent(new Event('change'))");
@@ -188,7 +205,7 @@ try {
       assert.ok(await evalPage("document.querySelector('#intelligence').textContent.includes(window.RADAR_INTELLIGENCE.rows.filter(r=>r.documented).length+' eligible')"));
     }
     if (shots) await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1024, deviceScaleFactor: 1, mobile: false });
-    await shot('2-validation.png');
+    if (!process.env.RADAR_KEEP_REVIEW_SHOTS) await shot('2-validation.png');
     if (shots) await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 960, deviceScaleFactor: 1, mobile: false });
     await evalPage(button('Show experiment on board'));
     assert.ok(await evalPage("document.querySelector('[data-sort=experiment]') !== null"));
@@ -201,10 +218,15 @@ try {
     await evalPage("const q=document.querySelector('#q');q.value='Shift DeFi';q.dispatchEvent(new Event('input'));document.querySelector('.protocol-link').click()");
     assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('Market comparables') && document.querySelector('dialog').innerText.includes('#56')"));
     assert.ok(await evalPage("document.querySelector('.valuation-range-values').textContent.includes('$10.8M') && document.querySelector('.valuation-range-values').textContent.includes('$369.8M')"));
-    await shot('4-protocol.png');
+    // Shift stress is also checked numerically above.
     await evalPage("document.querySelector('dialog').close();document.querySelector('#q').value='Lofty';document.querySelector('#q').dispatchEvent(new Event('input'));document.querySelector('.protocol-link').click()");
     await evalPage("Array.from(document.querySelectorAll('dialog nav button')).find(b=>b.textContent==='Farming economics').click();Array.from(document.querySelectorAll('dialog button')).find(b=>b.textContent==='Load example assumptions').click()");
     assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('2.5%') && document.querySelector('.scenario-result').textContent.includes('Break-even reward $79.11')"));
+    await evalPage("document.querySelector('dialog').close();document.querySelector('#q').value='loopscale-lending';document.querySelector('#q').dispatchEvent(new Event('input'));document.querySelector('.protocol-link').click()");
+    await evalPage("Array.from(document.querySelectorAll('dialog nav button')).find(b=>b.textContent==='Farming economics').click()");
+    assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('immediate exit')"));
+    await evalPage("document.querySelector('.source-disclosure').open=true;document.querySelector('dialog').scrollTop=0");
+    assert.ok(await evalPage("document.querySelector('dialog').innerText.includes('docs.loopscale.com/using-loopscale/earn') && document.querySelector('dialog').innerText.includes('queue')"));
     await shot('3-participation.png');
     await evalPage("document.querySelector('dialog').close()");
     await evalPage(button('Clear filters'));
@@ -231,3 +253,4 @@ try {
   await sleep(500);
   try { rmSync(profile, { recursive: true, force: true }); } catch { /* Browser may still be releasing temporary files. */ }
 }
+

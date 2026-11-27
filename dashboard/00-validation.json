@@ -1,0 +1,65 @@
+{
+  "snapshot": "2026-11-14",
+  "peers": 119,
+  "categories": 33,
+  "families": 117,
+  "method": "Same held-out peers for each fit. Huber loss, fixed ridge 1 on non-TVL terms, fold-local transforms and imputation. Breadth = ln(1 + distinct chains); hinge = positive log TVL above $100M. Targets are snapshot traded market caps.",
+  "columns": [
+    "Model",
+    "Category mean",
+    "Family mean",
+    "Category median",
+    "Family median",
+    "Top 20 · category / family"
+  ],
+  "rows": [
+    [
+      "TVL only",
+      1.5802,
+      1.5715,
+      1.2687,
+      1.2465,
+      "6 / 7"
+    ],
+    [
+      "TVL + growth",
+      1.5837,
+      1.5763,
+      1.2611,
+      1.2394,
+      "7 / 7"
+    ],
+    [
+      "TVL + age",
+      1.5851,
+      1.5748,
+      1.2673,
+      1.2296,
+      "6 / 7"
+    ],
+    [
+      "V5 · TVL + growth + age",
+      1.5886,
+      1.5801,
+      1.2633,
+      1.2254,
+      "7 / 7"
+    ],
+    [
+      "V5 + chain breadth",
+      1.5951,
+      1.5855,
+      1.2652,
+      1.2604,
+      "7 / 7"
+    ],
+    [
+      "V5 + nonlinear TVL",
+      1.5901,
+      1.5819,
+      1.2556,
+      1.238,
+      "6 / 7"
+    ]
+  ]
+}
