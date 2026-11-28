@@ -291,3 +291,44 @@ body{font-family:"Segoe UI",sans-serif}
 .board-summary .landscape .research-chart{height:112px;width:100%;display:block}
 .board-summary .chart-key{margin:2px 0}
 .board-summary .decision-cover>.sub{margin-bottom:2px}
+
+/* Keep the official estimate and its observed peer error in one reading line. */
+.shell{max-width:1540px}
+.top{border-bottom-width:1px}
+.brand-name{letter-spacing:.05em}
+.lede{padding:24px 0 19px;align-items:baseline}
+.lede h1{font-size:clamp(32px,4vw,54px)}
+.ledger-totals{gap:5px 14px}
+.ledger-totals b{font:500 12px "Segoe UI",sans-serif;color:var(--muted)}
+.tabs{gap:3px;overflow-x:auto}
+.tabs button{white-space:nowrap;padding:10px 14px}
+.tabs button[aria-pressed=true]{background:#dce8df;font-weight:650}
+.market-disclosure{margin:0 0 10px}
+.market-disclosure>summary{width:fit-content;font-weight:600;padding:3px 0}
+.market-disclosure .landscape{margin-top:8px}
+.ranked-table .table-wrap{border-top:3px solid var(--accent)}
+.ranked-table th{padding:10px 12px;color:#304b42}
+.ranked-table td{padding:10px 12px;vertical-align:middle}
+.ranked-table .estimate,.ranked-table .range,.official-number{font-variant-numeric:tabular-nums;white-space:nowrap}
+.official-number{color:var(--muted);font-family:var(--mono)}
+.estimate strong{font-size:17px;color:#115b48}
+.estimate-track{display:block;margin-top:4px;width:76px;height:3px;background:#dbe5db}
+.estimate-track i{display:block;height:100%;background:#288269}
+.ranked-table .status{white-space:normal}
+.comparison{margin:8px 0}
+@media(max-width:700px){.top-meta span:not(:first-child){display:none}.tabs{flex-wrap:wrap}.tabs button{padding:6px}.lede{padding:12px 0}.controls .field{max-width:100%}}
+
+@media(max-width:620px){
+  .ranked-table table,.ranked-table tbody{display:block}
+  .ranked-table thead{display:block}
+  .ranked-table thead tr{display:flex;flex-wrap:wrap;background:var(--raised)}
+  .ranked-table thead th{display:none}
+  .ranked-table thead th:has(button){display:block;padding:6px 8px}
+  .ranked-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);padding:8px;border-bottom:1px solid var(--border)}
+  .ranked-table tbody td{display:block;padding:4px;white-space:normal;border:0}
+  .ranked-table td::before{content:attr(data-label);display:block;font:11px/1.4 "Segoe UI",sans-serif;color:var(--muted)}
+  .controls>.field{flex:1 1 42%;min-width:0}
+  .controls select{width:100%}
+}
+
+.board-options{float:right;color:var(--muted);font-size:12px}.board-options input{vertical-align:middle}.ranked-table{clear:both}

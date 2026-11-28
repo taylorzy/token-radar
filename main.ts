@@ -125,8 +125,8 @@ const dashboardFiles = copyFiles(join(here, 'dashboard'), join(out, 'dashboard')
 // An offline audit extract accompanies the interactive views inside the dossier.
 writeFileSync(join(out,'dashboard','00-farm-plan.txt'),readFileSync(join(here,'lib','farming.ts'),'utf8'));
 const audit = [
-  'Token Radar V7 | Snapshot '+snapshot.as_of+' | '+board.length+' ranked | '+snapshot.watchlist.length+' mandatory',
-  'Official order uses the fixed TVL, growth and age valuation. Opportunity order uses assess() and rankDecisions().',
+  'Token Radar V8 | Snapshot '+snapshot.as_of+' | '+board.length+' ranked | '+snapshot.watchlist.length+' mandatory',
+  'Default board ranks by descending implied value using the fixed TVL, growth and age valuation. Opportunity order uses assess() and rankDecisions().',
   Object.values(catalog).flat().length+' participation routes across '+Object.keys(catalog).length+' protocols. Wallet eligibility unknown.',
   ...['shift-defi','lofty','axis','polymarket-international','firelight','extended-perps'].map(slug=>{
     const profiles=catalog[slug], profile=profiles.at(-1);
@@ -137,6 +137,7 @@ const audit = [
       '; modeled net $'+d.base.net.toFixed(2)+' vs $'+old.net.toFixed(2)+'; '+d.verdict+'.',
       (profile.terms?.newEntry==='closed' ? 'Existing holder: '+profile.terms.queueDays+' days or approximately '+profile.terms.approxInstantExitBps+' bps for instant redemption. ' : '')+profile.reviewed_at+' | '+profile.sources.join(' ')].join('\n');
   }),
+  'Validation labels: V5 · TVL + growth + age identifies the specification used by the V5 entry in the category/family holdouts. M7.1 primary is its model identifier: Huber regression on TVL, seven-day growth and tracking age with ridge 1 on the non-TVL terms. Each validation fold refits its coefficients. The lower charts report leave-one-out and age-cohort tests; the board fits all eligible traded peers.',
   'The ranked default uses the first listed profile. Alternate paths and program terms are selectable in Decision. Fixed capital, zero realized trading profit, equal exit notional. Quote-dependent costs retain a user budget.'
 ];
 writeFileSync(join(out,'dashboard','00-audit.txt'), audit.join('\n')+'\n');

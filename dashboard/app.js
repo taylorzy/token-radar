@@ -7,7 +7,7 @@
   var DATA = window.RADAR;
   if (!DATA) return;
   var app = document.getElementById('board');
-  var state = { q: '', category: 'all', tab: 'pre-token', sort: 'decision', dir: 1, selected: null, classification: 'all', route: 'all', chain: 'all', showExperiment: false };
+  var state = { q: '', category: 'all', tab: 'pre-token', ...valuationOrder, selected: null, classification: 'all', route: 'all', chain: 'all', showExperiment: false };
 
   var usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
   function fmtUsd(n) {
@@ -79,8 +79,8 @@
     for (var key of ['q', 'category', 'classification', 'route', 'chain']) {
       if (params.has(key)) state[key] = params.get(key);
     }
-    if (['live', 'research', 'accounting'].includes(params.get('tab'))) state.tab = params.get('tab');
-    state.selected = state.tab === 'pre-token' ? params.get('p') : null;
+    if (['opportunity', 'live', 'research', 'accounting'].includes(params.get('tab'))) state.tab = params.get('tab');
+    state.selected = ['pre-token','opportunity'].includes(state.tab) ? params.get('p') : null;
   }
   function writeHash() {
     var params = new URLSearchParams();
@@ -117,22 +117,7 @@
     });
   }
   function sortedRows(list) {
-    var key = state.sort;
-    return list.slice().sort(function (a, b) {
-      var av, bv;
-      if (key === 'name') { av = a.name.toLowerCase(); bv = b.name.toLowerCase(); }
-      else if (key === 'tvl') { av = a.tvl_usd; bv = b.tvl_usd; }
-      else if (key === 'growth') { av = a.change_7d === null ? -Infinity : a.change_7d; bv = b.change_7d === null ? -Infinity : b.change_7d; }
-      else if (key === 'age') { av = a.age_days === null ? Infinity : a.age_days; bv = b.age_days === null ? Infinity : b.age_days; }
-      else if (key === 'experiment') { av = simulated.get(a.slug).value; bv = simulated.get(b.slug).value; }
-      else if (key === 'decision') { av = decisions.get(a.slug).opportunityRank; bv = decisions.get(b.slug).opportunityRank; }
-      else if (key === 'rank') { av = a.rank; bv = b.rank; }
-      else if (key === 'cap') { av = a.mcap_usd ?? -Infinity; bv = b.mcap_usd ?? -Infinity; }
-      else { av = a.implied_value_usd; bv = b.implied_value_usd; }
-      if (av < bv) return -state.dir;
-      if (av > bv) return state.dir;
-      return a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0;
-    });
+    return sortRadarRows(list, state, simulated, decisions);
   }
 
   var account = window.RADAR_ACCOUNTING;
@@ -170,7 +155,7 @@
 
   function pinButton(row) {
     return el('button', { class: 'pin', type: 'button', 'data-pin': row.slug,
-      'aria-label': 'Pin ' + row.name, 'aria-pressed': String(pins.has(row.slug)),
+      disabled: !pins.has(row.slug) && pins.size >= 4 ? '' : null, 'aria-label': (pins.has(row.slug) ? 'Unpin ' : 'Pin ') + row.name, 'aria-pressed': String(pins.has(row.slug)),
       text: pins.has(row.slug) ? 'Pinned' : 'Pin', onclick: function () {
         if (pins.has(row.slug)) pins.delete(row.slug);
         else if (pins.size < 4) pins.add(row.slug);
@@ -184,7 +169,7 @@
     return el('section', { class: 'panel compact comparison', id: 'comparison' },
       el('h2', { text: 'Pinned comparison · ' + pins.size + '/4' }),
       rows.length ? el('div', { class: 'table-wrap' }, el('table', null,
-        el('thead', null, el('tr', null, ['Protocol', 'TVL', '7d', 'Tracking', 'Primary', 'Experimental', 'Model ranks', 'Median growth', 'Evidence'].map(function (h) {
+        el('thead', null, el('tr', null, ['Protocol', 'TVL', '7d growth', 'Tracking age', 'Official rank / value', 'Experimental', 'Model rank span', 'Median-growth stress', 'Classification / route'].map(function (h) {
           return el('th', { scope: 'col', text: h });
         }))),
         el('tbody', null, rows.map(function (r) {
@@ -353,6 +338,7 @@
   }
 
   var marketMode = 'primary';
+  var showInputs = false;
   function marketLens(list) {
     var modes={primary:'Primary valuation',consensus:'Seven-model median',conservative:'Stress-tested value',opportunity:'Propensity-weighted proxy',documented:'Documented opportunity'};
     var value=p=>marketMode==='primary'?p.implied_value_usd:insights.get(p.slug)[marketMode];
@@ -383,7 +369,7 @@
     var leader = plotted.slice().sort((a,b)=>value(b)-value(a)||a.rank-b.rank)[0];
     return el('section',{class:'landscape'},
       el('div',{class:'landscape-main'},el('div',{class:'lens-heading'},
-        el('h2',{text:'Opportunity landscape'}),choose),
+        el('h2',{text:'Valuation landscape'}),choose),
         chart,el('p',{class:'chart-key sub'},el('span',{class:'key-dot',text:'Documented route'}),
           el('span',{class:'key-dot muted-dot',text:'Conditional or research only'}),
           el('span',{class:'key-dot large-dot',text:'20+ places at peer-median growth'}),
@@ -611,7 +597,7 @@
 
   function header() {
     return el('header', { class: 'top' },
-      el('div', { class: 'brand' }, el('span', { class: 'mark' }), el('span', { class: 'brand-name', text: 'Token Radar  /  Research terminal' })),
+      el('div', { class: 'brand' }, el('span', { class: 'mark' }), el('span', { class: 'brand-name', text: 'Token Radar   /   V8' })),
       el('div', { class: 'top-meta' },
         el('span', { text: 'Snapshot ' + DATA.as_of }),
         el('span', { text: 'DefiLlama protocol index' }),
@@ -625,7 +611,7 @@
     var summary = [account.length + ' records', DATA.rows.length + ' ranked', facts.covered + '/' + facts.required + ' watchlist',
       (DATA.rows.length-facts.exceptions)+' candidates', facts.exceptions + ' mandatory exceptions', (facts.reconciled ? 'Ledger reconciled' : 'Ledger mismatch')];
     return el('section', { class: 'lede' },
-      el('h1', { text: 'Token Radar V7' }),
+      el('h1', { id: 'view-title', text: 'Valuation Ranking' }),
       el('div', { class: 'ledger-totals' }, summary.map(function (fact) { return el('b', { text: fact }); })));
   }
 
@@ -641,7 +627,7 @@
   }
 
   function controls() {
-    var ranked = state.tab === 'pre-token';
+    var ranked = ['pre-token','opportunity'].includes(state.tab);
     var accounting = state.tab === 'accounting';
     var showingRows = ranked || state.tab === 'live';
     var categories = Array.from(new Set(activeRows().map(function (r) { return r.category || 'Other'; }))).sort();
@@ -651,17 +637,17 @@
       return el('button', { type: 'button', 'aria-pressed': String(state.tab === id), text: label, onclick: function () {
         if (state.tab === id) return;
         state.tab = id;
-        state.category = state.classification = state.chain = 'all';
+        state.category = state.classification = state.route = state.chain = 'all';
         state.q = ''; page = 0;
-        state.sort = id === 'live' ? 'cap' : 'decision';
-        state.dir = id === 'live' ? -1 : 1;
+        state.sort = id === 'live' ? 'cap' : id === 'opportunity' ? 'decision' : 'implied';
+        state.dir = id === 'opportunity' ? 1 : -1;
         renderControls();
         refreshResults();
         controlHost.querySelector('[aria-pressed="true"]').focus();
       } });
     }
     return el('div', { class: 'controls' },
-      el('div', { class: 'tabs', 'aria-label': 'Protocol universe' }, tab('pre-token', 'Ranked board'), tab('live', 'Live-token sample'), tab('research', 'Model research'), tab('accounting', 'Accounting & comparison')),
+      el('div', { class: 'tabs', 'aria-label': 'Protocol universe' }, tab('pre-token', 'Valuation Ranking'), tab('opportunity', 'Opportunity Ranking'), tab('live', 'Live-token sample'), tab('research', 'Model research'), tab('accounting', 'Accounting & comparison')),
       state.tab !== 'research' ? el('div', { class: 'field search' }, el('label', { for: 'q', text: 'Search' }), search) : null,
       showingRows ? filter('category', 'Categories', categories) : null,
       showingRows ? filter('chain', 'Chains', [...new Set(activeRows().flatMap(r => r.chains))].sort()) : null,
@@ -688,62 +674,43 @@
   }
 
   function boardTable() {
-    var list = sortedRows(rows());
-    var tbody = el('tbody');
-    list.forEach(function (r) {
-      var ledger = byAccount.get(r.slug);
-      var [low, high] = valueRange(r);
-      var plan = window.RADAR_FARM_SUMMARIES[r.slug];
-      var quote = plan.economics;
-      var decision = decisions.get(r.slug);
-      var alternative = simulated.get(r.slug);
-      var growth = r.change_7d === null ? 'n/a' : fmtPct(r.change_7d);
-      var growthClass = r.change_7d === null ? '' : r.change_7d >= 0 ? 'pos' : 'neg';
-      var tr = el('tr', {
-        'data-selected': state.selected === r.slug ? 'true' : 'false',
-        'data-slug': r.slug
-      },
-        el('td', { class: 'num', text: String(r.rank) }),
-        el('td', null, el('div', { class: 'name' },
-          el('button', { class: 'protocol-link', type: 'button', text: r.name, onclick: function () { openDetail(r.slug); } }),
-          pinButton(r),
-          el('span', { class: 'sub', text: (r.category || 'Other') + ' on ' + (r.chains && r.chains.length ? r.chains.slice(0, 2).join(', ') : 'an unnamed chain') })
-        )),
-        el('td', { class: 'num', text: fmtUsd(r.tvl_usd) }),
-        el('td', { class: 'num ' + growthClass, text: growth }),
-        el('td', { class: 'num', text: fmtAge(r.age_days) }),
-        el('td', null, el('strong', { class: 'num pos', text: fmtUsd(r.implied_value_usd) }),
-          el('span', { class: 'sub block', text: fmtUsd(low) + ' to ' + fmtUsd(high) + ' | model ranks ' + insights.get(r.slug).rankRange.join(' to ') })),
-        state.showExperiment ? el('td', { class: 'num', text: '#' + alternative.rank + ' / ' + fmtUsd(alternative.value) }) : null,
-        el('td', null, el('span', { class: 'status', 'data-status': ledger.status, text: ledger.status }),
-          el('span', { class: 'sub block', text: ledger.watchlist ?
-            (ledger.status === 'Pre-token candidate' ? 'Mandatory watchlist' : 'Mandatory exception') : 'Optional candidate' })),
-        el('td', null, el('span', { class: 'status route', 'data-status': routeOf(r), text: routeOf(r) }),
-          quote ? el('span', { class: 'sub block', text: 'Scenario: ' + fmtUsd(quote.requiredRewardUSD) + ' required / ' +
-            fmtUsd(quote.rewardPerHourUSD) + '/h / ' + quote.verdict }) : el('span', { class: 'sub block', text: plan.route ? new URL(plan.route.sources[0]).hostname : 'Research required' })),
-        el('td',null,el('button',{type:'button',class:'button',text:'#'+decision.opportunityRank+' · '+decision.verdict,onclick:()=>openDetail(r.slug,'Decision')}),el('span',{class:'sub block',text:decisions.money(decision.base.net)+' / '+decisions.money(decision.downside)}))
-      );
-      tbody.appendChild(tr);
+    const opportunity = state.tab === 'opportunity';
+    const heading = label => el('th', {scope:'col', text:label});
+    const headers = [
+      opportunity ? sortHeader('decision','Opportunity rank') : sortHeader('rank','Official rank'),
+      sortHeader('name','Protocol'), sortHeader('implied','Implied value'),
+      heading('Peer-error range'), heading('Token classification'), heading('Farming evidence')
+    ];
+    if (showInputs) headers.push(sortHeader('tvl','TVL'),sortHeader('growth','7d growth'),sortHeader('age','Tracking age'));
+    if (state.showExperiment) headers.push(sortHeader('experiment','Experimental'));
+    if (opportunity) headers.push(heading('Base / downside'));
+    const body = sortedRows(rows()).map(row => {
+      const ledger = byAccount.get(row.slug);
+      const decision = decisions.get(row.slug);
+      const farm = window.RADAR_FARM_SUMMARIES[row.slug];
+      const range = valueRange(row);
+      const detail = (label,page) => el('button',{type:'button',class:'protocol-link',text:label,
+        onclick:() => openDetail(row.slug,page)});
+      const cells = [
+        el('td',{class:'official-number',text:'#'+(opportunity ? decision.opportunityRank : row.rank)}),
+        el('td',null,detail(row.name),pinButton(row),el('small',{class:'block sub',text:row.category+' · '+row.chains.slice(0,2).join(', ')})),
+        el('td',{class:'estimate'},el('strong',{text:fmtUsd(row.implied_value_usd),title:usd.format(row.implied_value_usd)}),
+          el('span',{class:'estimate-track','aria-hidden':'true'},el('i',{style:'width:'+100*row.implied_value_usd/DATA.rows[0].implied_value_usd+'%'})),
+          opportunity ? el('small',{text:'Official #'+row.rank}) : null),
+        el('td',{class:'range',text:range.map(fmtUsd).join(' – ')}),
+        el('td',null,el('span',{class:'status','data-status':ledger.status,text:ledger.status}),
+          ledger.watchlist ? el('small',{class:'sub block',text:'Mandatory watchlist'}) : null),
+        el('td',null,detail(routeOf(row),'Farming economics'),el('small',{class:'sub block',text:farm.profiles?.length ? farm.profiles.length+' documented · View terms' : 'View research steps'}),
+          farm.economics ? el('small',{class:'sub block',text:'Scenario: '+decisions.money(farm.economics.requiredRewardUSD)+' break-even'}) : null)
+      ];
+      if (showInputs) cells.push(el('td',{text:fmtUsd(row.tvl_usd)}),el('td',{text:fmtPct(row.change_7d)}),el('td',{text:fmtAge(row.age_days)}));
+      if (state.showExperiment) cells.push(el('td',{text:fmtUsd(simulated.get(row.slug).value)}));
+      if (opportunity) cells.push(el('td',null,detail(decision.verdict,'Decision'),el('small',{class:'sub block',text:decisions.money(decision.base.net)+' / '+decisions.money(decision.downside)})));
+      cells.forEach((cell,index) => cell.dataset.label = headers[index].textContent.trim());
+      return el('tr',{'data-slug':row.slug},cells);
     });
-    return el('div', { class: 'panel ranked-table' },
-      el('div', { class: 'table-wrap' },
-        el('table', null,
-          el('caption', { class: 'sub', text: 'Select a protocol to inspect its valuation, evidence and farming plan.' }),
-          el('thead', null, el('tr', null,
-            sortHeader('rank', 'Rank'),
-            sortHeader('name', 'Protocol'),
-            sortHeader('tvl', 'TVL'),
-            sortHeader('growth', '7d'),
-            el('th', { scope: 'col', text: 'Tracking age' }),
-            sortHeader('implied', 'Primary / peer range'),
-            state.showExperiment ? sortHeader('experiment', 'Experimental') : null,
-            el('th', { scope: 'col', text: 'Token evidence' }),
-            el('th', { scope: 'col', text: 'Farming evidence' }),sortHeader('decision','Opportunity · Base / downside')
-          )),
-          tbody
-        )
-      )
-    );
+    return el('div',{class:'panel ranked-table'},el('div',{class:'table-wrap'},el('table',null,
+      el('thead',null,el('tr',null,headers)),el('tbody',null,body))));
   }
 
   function liveTable() {
@@ -836,8 +803,8 @@
       if (a.scenarioRewardUSD != null) reward.value = a.scenarioRewardUSD;
     }
     update();
-    return el('section', { class: 'detail-section' },
-      el('h3', { text: 'Illustrative break-even economics' }),
+    return el('details', { class: 'detail-section' },
+      el('summary', { text: 'Calculate illustrative break-even economics' }),
       el('p', { class: 'sub', text: 'Edit the assumptions using your own quotes and time estimates. Live charges are unverified.' }),
       el('div', { class: 'farm-calculator', oninput: update }, labels,
         el('label', null, 'Hypothetical reward (USD, optional)', reward)),
@@ -918,6 +885,8 @@
         evidence ? el('div',{class:'source-links'},el('span',{text:'Reviewed '+evidence.date}),
           el('details',{class:'source-disclosure'},el('summary',{text:evidence.sources.map(url=>new URL(url).hostname).join(' · ')}),
             el('div',{class:'source-addresses'},evidence.sources.map(url=>el('p',{text:url}))))) : null),
+      window.RADAR_FARM_SUMMARIES[slug].profiles?.length > 1 ?
+        el('button',{type:'button',class:'button',text:'Compare all '+window.RADAR_FARM_SUMMARIES[slug].profiles.length+' participation routes',onclick:()=>select(3)}) : null,
       el('div',{class:'farm-evidence'},
         field('Participation',routeOf(row)),
         field('Incentive evidence',route?.incentive || explicitIncentive),
@@ -950,7 +919,7 @@
       dialog.scrollTop=0;
     }
     buttons.forEach(button=>nav.appendChild(button));
-    dialog.insertBefore(nav,sections[0]);select(initialPage==='Decision'?3:0);
+    dialog.insertBefore(nav,sections[0]);select(Math.max(0,pages.findIndex(([name])=>name===initialPage)));
     if (typeof dialog.showModal === 'function') {
       if (!dialog.open) dialog.showModal();
     } else {
@@ -967,21 +936,42 @@
   }
 
   function refreshResults() {
+    document.querySelector('#view-title').textContent = ({
+      'pre-token':'Valuation Ranking', opportunity:'Opportunity Ranking', live:'Traded token sample',
+      research:'Model validation', accounting:'Protocol accounting'
+    })[state.tab];
     count.hidden = state.tab === 'accounting' || state.tab === 'research';
     if (state.tab === 'research' || state.tab === 'accounting') {
       resultHost.replaceChildren(...(state.tab === 'research' ? [decisions.validation(), intelligencePanel(), researchPanel()] : [decisions.coverage(),accountingPanel()]));
       writeHash(); return;
     }
+    const chartOpen = resultHost.querySelector('.market-disclosure')?.open ?? false;
     var matches = rows().length;
-    count.textContent = matches + ' of ' + activeRows().length + ' rows shown';
+    count.textContent = matches + ' of ' + activeRows().length + ' protocols' +
+      (state.tab === 'pre-token' && state.sort === 'implied' ? ' · Implied value, '+(state.dir < 0 ? 'highest first' : 'lowest first') : '') +
+      (state.tab === 'pre-token' ? ' · Peer-error range: estimate ÷ or × '+DATA.uncertainty.factor.toFixed(2) : '');
     resultHost.replaceChildren(matches
-      ? (state.tab === 'pre-token' ? el('div',null,el('div',{class:'board-summary'},decisions.cover(rows()),marketLens(rows())),boardTable()) : liveTable())
+      ? (state.tab === 'live' ? liveTable() : el('div',null,
+        state.tab === 'opportunity' ? decisions.cover(rows()) : null,
+        pins.size ? comparePanel() : null,
+        el('div',{class:'board-options'},el('label',null,el('input',{type:'checkbox',id:'input-columns',
+          checked:showInputs ? '' : null,onchange:event=>{
+            showInputs=event.target.checked;
+            if (!showInputs && ['tvl','growth','age'].includes(state.sort)) {
+              state.sort=state.tab==='opportunity'?'decision':'implied';
+              state.dir=state.tab==='opportunity'?1:-1;
+            }
+            refreshResults();document.querySelector('#input-columns').focus();
+          }}),' Show snapshot inputs')),
+        el('details',{class:'market-disclosure', open:chartOpen ? '' : null},el('summary',{text:'Explore the valuation chart'}),marketLens(rows())),
+        boardTable()))
       : el('div', { class: 'panel empty', text: 'No protocols match these filters.' }));
     writeHash();
   }
 
   rerank();
   readHash();
+  if (state.tab === 'opportunity') { state.sort = 'decision'; state.dir = 1; }
   if (state.tab === 'live') state.sort = 'cap';
   app.appendChild(el('div', { class: 'shell' }, header(), lede(), modelPanel(), controlHost, count, resultHost, dialog));
   renderControls();
