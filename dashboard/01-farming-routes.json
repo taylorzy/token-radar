@@ -336,35 +336,40 @@
       "id": "sentora-curator/v6",
       "origin": "V6",
       "sources": [
-        "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo",
-        "https://docs.morpho.org/get-started/resources/apps/vault/"
+        "https://app.morpho.org/curator/sentora",
+        "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo"
       ],
-      "entry": "For the Sentora Tempo Morpho route, verify the exact vault, pathUSD supply asset, gas asset, cap and access before funding.",
-      "action": "If the live vault accepts deposits, preview supplying pathUSD and record the shares. Review the isolated cbBTC collateral, oracle and utilization exposure.",
-      "exit": "Check the Morpho vault withdrawal quote and available liquidity, redeem shares for pathUSD when available, and reconcile the amount received.",
-      "capital": "pathUSD plus gas on Tempo; vault cap and any minimum require a live quote.",
-      "fees": "Quote network, vault and exit costs in the interface; no universal fee is assumed.",
-      "settlement": "Dependent on confirmations and withdrawal liquidity.",
+      "entry": "Morpho marks the Sentora pathUSD vault on Tempo deprecated. Skip this route for a new deposit.",
+      "action": "For an existing position, match the vault on Tempo and check the pathUSD balance and available redemption liquidity.",
+      "exit": "Preview a withdrawal into pathUSD at the exact vault. Keep the settlement pending until assets arrive.",
+      "capital": "Existing pathUSD vault position only for this review. A new deposit is outside the plan.",
+      "fees": "Request a holder-specific redemption and gas quote.",
+      "settlement": "Variable with vault liquidity. The deprecation label does not establish a withdrawal freeze.",
       "risks": "cbBTC collateral, oracle pricing, collateral liquidation and isolated-market liquidity.",
-      "reviewed_at": "2026-11-26",
+      "reviewed_at": "2026-11-27",
       "rewardEligibility": "Unverified for a prospective token distribution",
       "minimum": null,
       "liveQuote": null,
-      "terms": {},
+      "terms": {
+        "newEntry": "deprecated"
+      },
       "economics": {
-        "documentedTerms": {},
+        "documentedTerms": {
+          "newEntry": "deprecated"
+        },
         "minimumCapital": null,
         "variableFeeQuote": null,
         "quoteTimestamp": null,
         "holdingMinimumHours": null,
-        "settlement": "Dependent on confirmations and withdrawal liquidity.",
-        "transactionFee": "Quote network, vault and exit costs in the interface; no universal fee is assumed.",
-        "rewardProgram": null,
+        "settlement": "Variable with vault liquidity. The deprecation label does not establish a withdrawal freeze.",
+        "transactionFee": "Request a holder-specific redemption and gas quote.",
+        "rewardProgram": "The original lending mechanism earned variable interest. No individual token distribution is established.",
         "distributionForWallet": null,
         "modeledValueRef": "board.json#sentora-curator.implied_value_usd",
         "heuristicRef": "decision-review.json#sentora-curator.verdict",
         "scenarioFallback": "V6.defaults"
-      }
+      },
+      "incentive": "The original lending mechanism earned variable interest. No individual token distribution is established."
     }
   ],
   "cian-yield-layer": [
@@ -866,22 +871,28 @@
       "action": "Preview supplying USDC to Clearstar Core USDC. Check the spender, shares received and underlying market exposures.",
       "exit": "Use the same vault withdrawal interface and compare the redeemable amount to available liquidity before confirming.",
       "capital": "USDC on the selected network plus gas. Check the contract minimum and current caps.",
-      "fees": "Read the selected vault fee terms and wallet transaction quote. No universal fee rate assumed.",
+      "fees": "The Arc vault lists a 5% performance fee on earnings and 0% management fee. Obtain network and execution quotes.",
       "settlement": "Redemption depends on liquidity accessible to this vault; no guaranteed settlement time.",
       "risks": "Borrower collateral, market liquidity, oracle and curator allocation risk.",
-      "reviewed_at": "2026-11-26",
+      "reviewed_at": "2026-11-27",
       "rewardEligibility": "Unverified for a prospective token distribution",
       "minimum": null,
       "liveQuote": null,
-      "terms": {},
+      "terms": {
+        "performanceFeeOnProfitPct": 5,
+        "annualManagementFeePct": 0
+      },
       "economics": {
-        "documentedTerms": {},
+        "documentedTerms": {
+          "performanceFeeOnProfitPct": 5,
+          "annualManagementFeePct": 0
+        },
         "minimumCapital": null,
         "variableFeeQuote": null,
         "quoteTimestamp": null,
         "holdingMinimumHours": null,
         "settlement": "Redemption depends on liquidity accessible to this vault; no guaranteed settlement time.",
-        "transactionFee": "Read the selected vault fee terms and wallet transaction quote. No universal fee rate assumed.",
+        "transactionFee": "The Arc vault lists a 5% performance fee on earnings and 0% management fee. Obtain network and execution quotes.",
         "rewardProgram": null,
         "distributionForWallet": null,
         "modeledValueRef": "board.json#clearstar.implied_value_usd",
@@ -1308,31 +1319,42 @@
       "id": "yuzu-money/junior",
       "origin": "V7 desk review",
       "reviewed_at": "2026-11-27",
-      "entry": "Deposit into yzPP from a wallet",
-      "exit": "Withdraw through the vault. Confirm capacity and terms.",
+      "entry": "On Plasma, check eligibility and current terms before considering the USDT0 subscription to the yzPP first-loss tranche.",
+      "exit": "Request redemption of at least 5,000 yzPP. The normal 30-day redemption period retains first-loss exposure; losses can pause pending orders.",
       "incentive": "Junior tranche earns compensation for absorbing losses",
-      "risks": "First-loss capital",
+      "risks": "First-loss exposure continues while pending. Verify eligible access, issuer risk controls and live exit capacity.",
       "sources": [
         "https://app.yuzu.money/docs"
       ],
-      "terms": {},
+      "terms": {
+        "queueDays": 30,
+        "minimumRedemptionUnits": 5000,
+        "redemptionAsset": "yzPP"
+      },
       "rewardEligibility": "Unverified for a prospective token distribution",
       "minimum": null,
       "liveQuote": null,
       "economics": {
-        "documentedTerms": {},
+        "documentedTerms": {
+          "queueDays": 30,
+          "minimumRedemptionUnits": 5000,
+          "redemptionAsset": "yzPP"
+        },
         "minimumCapital": null,
         "variableFeeQuote": null,
         "quoteTimestamp": null,
         "holdingMinimumHours": null,
-        "settlement": "Withdraw through the vault. Confirm capacity and terms.",
+        "settlement": "30 days under normal conditions. Pool losses can pause redemption including pending requests.",
         "transactionFee": null,
         "rewardProgram": "Junior tranche earns compensation for absorbing losses",
         "distributionForWallet": null,
         "modeledValueRef": "board.json#yuzu-money.implied_value_usd",
         "heuristicRef": "decision-review.json#yuzu-money.verdict",
         "scenarioFallback": "V6.defaults"
-      }
+      },
+      "action": "Verify how the pool absorbs losses before senior holders. Retain the position only with the ability to meet the issuer redemption threshold.",
+      "settlement": "30 days under normal conditions. Pool losses can pause redemption including pending requests.",
+      "capital": "5,000 yzPP is the minimum redemption order. A purchase minimum is unverified."
     },
     {
       "slug": "yuzu-money",
@@ -1912,34 +1934,43 @@
   "bucket-cdp": [
     {
       "slug": "bucket-cdp",
-      "id": "bucket-cdp/bottle",
-      "origin": "V7 desk review",
+      "id": "bucket-cdp/sui-usdb",
+      "origin": "Operational source audit",
       "reviewed_at": "2026-11-27",
-      "entry": "Deposit accepted collateral and borrow BUCK against Bottle",
-      "exit": "Close debt position subject to collateral rules. BUCK holders can redeem against collateral.",
-      "incentive": "Borrowing liquidity",
+      "entry": "Open the new Sui CDP only after matching supported collateral, its minimum collateral ratio and the USDB debt market.",
+      "exit": "Repay outstanding USDB debt and accrued interest before recovering all collateral. Partial withdrawals must leave the position healthy.",
+      "incentive": "Borrowed USDB is debt; it is not earned income or evidence of a new token award.",
       "risks": "Immediate liquidation under collateral threshold. Check asset-specific MCR.",
       "sources": [
-        "https://docs.bucketprotocol.io/introduction"
+        "https://docs.bucketprotocol.io/user-guides/bucket-upgrade-and-migration",
+        "https://docs.bucketprotocol.io/mechanism/how-cdp-work"
       ],
-      "terms": {},
+      "terms": {
+        "oneTimeBorrowFeeBps": 0
+      },
       "rewardEligibility": "Unverified for a prospective token distribution",
       "minimum": null,
       "liveQuote": null,
       "economics": {
-        "documentedTerms": {},
+        "documentedTerms": {
+          "oneTimeBorrowFeeBps": 0
+        },
         "minimumCapital": null,
         "variableFeeQuote": null,
         "quoteTimestamp": null,
         "holdingMinimumHours": null,
-        "settlement": "Close debt position subject to collateral rules. BUCK holders can redeem against collateral.",
-        "transactionFee": null,
-        "rewardProgram": "Borrowing liquidity",
+        "settlement": "Confirm outstanding debt and transaction settlement on Sui; migration from eligible legacy debt is a distinct flow.",
+        "transactionFee": "No one-time borrowing fee on the new CDP. Per-asset interest and Sui gas still apply.",
+        "rewardProgram": null,
         "distributionForWallet": null,
         "modeledValueRef": "board.json#bucket-cdp.implied_value_usd",
         "heuristicRef": "decision-review.json#bucket-cdp.verdict",
         "scenarioFallback": "V6.defaults"
-      }
+      },
+      "action": "Check the per-asset interest rate and liquidation price. A legacy BUCK position has a separate migration flow for supported collateral.",
+      "capital": "Requires accepted collateral and SUI gas. Check collateral-specific thresholds.",
+      "fees": "No one-time borrowing fee on the new CDP. Per-asset interest and Sui gas still apply.",
+      "settlement": "Confirm outstanding debt and transaction settlement on Sui; migration from eligible legacy debt is a distinct flow."
     }
   ],
   "stellar-amm": [
@@ -2186,6 +2217,30 @@
         "heuristicRef": "decision-review.json#axis.verdict",
         "scenarioFallback": "V6.defaults"
       }
+    }
+  ],
+  "tydro": [
+    {
+      "slug": "tydro",
+      "id": "tydro/ink-gho-supply",
+      "origin": "Operational source audit",
+      "terms": {},
+      "sources": [
+        "https://tydro.com/faq",
+        "https://app.tydro.com/markets/"
+      ],
+      "reviewed_at": "2026-11-27",
+      "entry": "Select the GHO supply reserve on Ink. Check remaining supply cap, region and wallet access before previewing an unlevered supply.",
+      "action": "Retain the supply position and monitor the reserve. Supplier interest varies with demand. No borrowing is needed in this scenario.",
+      "exit": "Request GHO from the pool while the position is free of debt. Withdrawability depends on available reserve liquidity.",
+      "capital": "The issuer states no supply minimum. Assess the current cap and wallet restrictions.",
+      "fees": "Approval, supply and withdrawal incur network charges. Obtain wallet quotes; no current fee is verified.",
+      "settlement": "No assured redemption deadline. A thin reserve may delay withdrawal until borrowers repay or liquidity arrives.",
+      "risks": "Reserve liquidity, smart-contract and underlying asset risks. Borrowing against the deposit adds a health-factor constraint.",
+      "incentive": "Variable lending interest; prospective token distribution to a supplier is unknown.",
+      "rewardEligibility": "Prospective distribution unverified",
+      "minimum": null,
+      "liveQuote": null
     }
   ]
 }

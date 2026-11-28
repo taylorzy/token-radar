@@ -1,3 +1,4 @@
+import identityReview from './identity-review.json' with { type: 'json' };
 import evidenceFile from './protocol-evidence.json' with { type: 'json' };
 import type { SnapshotProtocol } from './model.ts';
 
@@ -8,9 +9,11 @@ export interface ExternalEvidence {
   status: Status | null;
   finding: string;
   sources: string[];
+  unit?: string;
+  subsequent?: { date: string; label: string; finding: string; sources: string[] };
 }
 
-const external = evidenceFile as Record<string, ExternalEvidence>;
+const external = { ...evidenceFile, ...identityReview } as Record<string, ExternalEvidence>;
 export const externalEvidence = (slug: string): ExternalEvidence | null =>
   Object.hasOwn(external, slug) ? external[slug]! : null;
 

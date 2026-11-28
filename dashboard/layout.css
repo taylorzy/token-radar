@@ -1,0 +1,299 @@
+/* Desktop research board and responsive controls. Loaded after the original board theme. */
+.shell {
+  padding-inline: clamp(14px, 2.6vw, 40px);
+}
+.top {
+  min-height: 36px;
+}
+.top-meta {
+  font: 12px/1.3 "Segoe UI", sans-serif;
+}
+.lede {
+  gap: 4px 20px;
+  padding: 10px 0 9px;
+}
+.lede h1 {
+  font-size: clamp(32px, 3.1vw, 44px);
+  line-height: 1.04;
+}
+#universe-summary {
+  position: relative;
+  max-width: 100%;
+  color: var(--muted);
+}
+#universe-summary summary {
+  width: fit-content;
+  color: #294e42;
+  font-size: 13px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+#universe-summary .universe-body {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 6;
+  width: min(25rem, 80vw);
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--ink);
+  background: var(--surface);
+  box-shadow: 0 4px 16px #182e2b29;
+}
+.universe-body ul {
+  margin-block: 5px;
+  padding-left: 19px;
+}
+.universe-body .protocol-link {
+  margin-top: 5px;
+  color: var(--accent);
+}
+.model.compact {
+  padding: 5px 11px;
+  margin-bottom: 2px;
+}
+.controls {
+  gap: 5px 10px;
+}
+.tabs,
+.workspace-nav {
+  gap: 1px;
+}
+.tabs button,
+.workspace-nav button {
+  min-height: 34px;
+  padding: 5px 11px;
+  font-size: 14px;
+  line-height: 1.32;
+}
+.controls .field,
+.compact-access .field {
+  min-width: 0;
+  gap: 1px;
+}
+.controls .field.search {
+  flex: 1 1 16rem;
+}
+.controls input,
+.controls select,
+.controls > .button,
+.compact-access select {
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+.compact-access {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.compact-access label {
+  display: grid;
+  gap: 1px;
+}
+.compact-access label {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.compact-access select {
+  max-width: 100%;
+  color: var(--ink);
+}
+.advanced-filters > summary {
+  padding: 6px 4px;
+  font-size: 13px;
+}
+.count {
+  margin: 6px 0 2px;
+  font: 12px/1.35 "Segoe UI", sans-serif;
+}
+.market-disclosure {
+  margin-bottom: 4px;
+}
+.market-disclosure > summary {
+  min-height: 24px;
+  padding: 3px 0;
+  font-size: 13px;
+}
+.board-options label {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  gap: 4px;
+}
+.board-options input[type="checkbox"] {
+  min-height: 0;
+  margin: 0;
+}
+.ranked-table th {
+  padding: 6px 10px;
+  line-height: 1.35;
+}
+.ranked-table td {
+  padding: 6px 10px;
+  line-height: 1.32;
+}
+.ranked-table td .sub {
+  font-size: 12px;
+  line-height: 1.35;
+}
+.ranked-table .estimate strong {
+  font-size: 17px;
+}
+.estimate-track {
+  margin-top: 2px;
+}
+.ranked-table td .status {
+  line-height: 1.3;
+}
+@media (min-width: 1120px) {
+  .ranked-table td:has(> .status) > .status {
+    display: table;
+  }
+  .ranked-table td:has(> .status) > small {
+    display: inline;
+  }
+  .ranked-table td:has(> .status) > small + small::before {
+    content: " · ";
+    color: var(--muted);
+  }
+}
+dialog.detail {
+  max-height: 94dvh;
+}
+dialog.detail:has(.decision-spread) {
+  width: min(1210px, 96vw);
+  max-width: 96vw;
+}
+.workspace-nav {
+  margin: 6px 0 8px;
+}
+.decision-spread > * {
+  min-width: 0;
+}
+.alloc-heading select,
+.alloc-editor select,
+.advanced-filters select {
+  min-width: 0;
+  max-width: 100%;
+}
+.detail .allocation-sources a,
+.detail .source-addresses,
+.detail .alloc-foot {
+  overflow-wrap: anywhere;
+}
+
+/* Scope the light-on-dark tokens to dark panels. Nested body-copy selectors
+   otherwise pick up the muted color from the light dialog around them. */
+:is(.model, .thesis, .alloc-stop, .allocation-verdict) {
+  --ink: #fffdf4;
+  --muted: #d6e9df;
+  --accent: #acebd5;
+  --blue: #b4e5ff;
+  color: var(--ink);
+}
+.detail :is(.alloc-stop, .allocation-verdict, .thesis) :is(p, small, .sub, .alloc-key span),
+.model :is(p, small, .sub, .formula, .scores span) {
+  color: #d6e9df;
+}
+.detail :is(.alloc-stop, .allocation-verdict, .thesis) :is(h4, strong, b),
+.model .scores strong,
+.model .method-copy strong {
+  color: #fffdf4;
+}
+:is(.alloc-stop, .allocation-verdict, .thesis, .model) a {
+  color: #b4e5ff;
+}
+:is(.alloc-stop, .allocation-verdict, .thesis, .model) :focus-visible {
+  outline-color: #acebd5;
+}
+@media (max-width: 1000px) {
+  .lede {
+    position: relative;
+  }
+  #universe-summary {
+    position: static;
+  }
+  #universe-summary .universe-body {
+    left: 0;
+    right: auto;
+    width: min(25rem, 100%);
+  }
+}
+@media (max-width: 760px) {
+  .top {
+    min-height: 37px;
+  }
+  .lede {
+    align-items: center;
+    padding-block: 8px;
+  }
+  .controls {
+    gap: 5px 8px;
+  }
+  .tabs {
+    flex-wrap: wrap;
+  }
+  .tabs button,
+  .workspace-nav button {
+    padding-inline: 7px;
+  }
+  .compact-access {
+    flex: 1 1 100%;
+    align-items: stretch;
+  }
+  .compact-access > * {
+    min-width: 0;
+    flex: 1 1 9rem;
+  }
+  .compact-access select {
+    width: 100%;
+  }
+  .detail .gate-head,
+  .detail .alloc-heading {
+    flex-wrap: wrap;
+    gap: 3px 9px;
+  }
+  .alloc-editor select {
+    width: 100%;
+  }
+}
+@media (max-width: 620px) {
+  .shell {
+    padding-inline: 12px;
+  }
+  .top-meta,
+  .lede > * {
+    min-width: 0;
+  }
+  .controls .field.search {
+    flex-basis: 100%;
+  }
+  .advanced-filters > div {
+    left: 0;
+    right: auto;
+    max-width: calc(100vw - 24px);
+  }
+  .ranked-table tbody tr {
+    padding: 7px;
+  }
+  .ranked-table tbody td {
+    min-width: 0;
+    padding: 3px 5px;
+    overflow-wrap: anywhere;
+  }
+  .ranked-table :is(.range, .estimate, .official-number) {
+    white-space: normal;
+  }
+  dialog.detail,
+  dialog.detail:has(.decision-spread) {
+    width: calc(100vw - 12px);
+    max-width: calc(100vw - 12px);
+    padding: 12px;
+  }
+}

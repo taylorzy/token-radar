@@ -45,7 +45,7 @@ function decisionWorkspace(el, grid, openDetail, ledger, insights, refresh) {
   function detail(row) {
     const intel=insights.get(row.slug), farm=farms[row.slug], initial=ranked.get(row.slug);
     const output=el('div',{'aria-live':'polite'}), edit=el('details'), controls={};
-    const applyButton=button('Apply assumptions to all opportunities',()=>{apply(read());update();});
+    const applyButton=button('Apply to all advanced scenarios',()=>{apply(read());update();});
     const rankLine=text('p','','sub'), assumptionsLine=text('p','','sub');
     const profiles=farm.profiles ?? [];
     const profileSelect=el('select',{'aria-label':'Participation route'},profiles.map(p=>el('option',{value:p.id,text:p.id.endsWith('/v6') ? bySlug.get(row.slug).name+' · documented route' : p.id.split('/')[1].replaceAll('-',' ')})));
@@ -67,7 +67,7 @@ function decisionWorkspace(el, grid, openDetail, ledger, insights, refresh) {
     function update() {
       const inputs=read(), d=calculate(row,inputs), b=d.base;
       rankLine.textContent='Global opportunity #'+ranked.get(row.slug).opportunityRank+' · official value #'+row.rank+' · '+(farm.route?'Documented participation':'Participation unverified')+' · '+(intel.uncertainty.weak?'Weak valuation support':'Supported by traded peers');
-      assumptionsLine.textContent='Board assumptions · '+describe(assumptions);
+      assumptionsLine.textContent='Advanced scenario assumptions · '+describe(assumptions);
       applyButton.disabled=!b;
       if(!b){
         const {capital,days,annual,fees,hours,wage}=inputs;
@@ -78,7 +78,7 @@ function decisionWorkspace(el, grid, openDetail, ledger, insights, refresh) {
       const stat=(label,v)=>el('div',null,text('small',label),text('strong',v));
       output.replaceChildren(el('div',{class:'decision-heading'},text('h3',d.verdict),text('span','Eligibility unknown','status')),
         el('div',{class:'decision-stats'},stat('Weighted gross',money(b.gross)),stat('Economic net',money(b.net)),stat('Pre-labor hourly',b.hourly==null?'No active hours':money(b.hourly)+'/h'),stat('Cost hurdle',money(b.hurdle))),
-        text('p','V6 default #'+review.comparison[row.slug].rank+' · '+money(review.comparison[row.slug].net)+' · '+review.comparison[row.slug].verdict+' → applied board #'+ranked.get(row.slug).opportunityRank,'decision-totals'),
+        review.comparison[row.slug] ? text('p','V6 default #'+review.comparison[row.slug].rank+' · '+money(review.comparison[row.slug].net)+' · '+review.comparison[row.slug].verdict+' → applied board #'+ranked.get(row.slug).opportunityRank,'decision-totals') : null,
         text('p',d.terms.timing+' · '+inputs.days+' assumed holding days + '+d.terms.exitDays+' exit days · '+d.terms.days+' modeled days. Variable fees use the scenario budget.','sub'),
         ...profiles.filter(p=>p.id===d.profileId).map(p=>el('details',{open:true},text('summary','Route evidence · '+p.reviewed_at),
           text('p',p.entry+' '+p.exit),p.settlement?text('p',p.settlement):null,text('p',(p.fees ?? 'Transaction quote unavailable.')+' '+(p.incentive ?? 'Separate incentive terms unverified.')+' Wallet reward unknown.'),

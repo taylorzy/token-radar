@@ -15,6 +15,7 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { boardIssue, buildRadar, dataScript, parseSnapshot } from './lib/model.ts';
 import { farmEconomics, farmingSummaries } from './lib/economics.ts';
@@ -27,6 +28,7 @@ import { VERSIONED } from './lib/classification.ts';
 import { buildLedger } from './lib/ledger.ts';
 import frozenModelReview from './lib/frozen-model-review.json' with { type: 'json' };
 import m71Loo from './lib/m71-loo-predictions.json' with { type: 'json' };
+import peerFoldEvidence from './lib/peer-fold-evidence.json' with { type: 'json' };
 import { isComparable } from './lib/valuation.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
 
@@ -53,7 +55,8 @@ if (!existsSync(inputFile)) {
 }
 const out = arg('output', process.env.MAKEFUN_OUTPUT_DIR ?? '/output');
 
-const snapshot = parseSnapshot(readFileSync(inputFile, 'utf8'));
+const inputBytes = readFileSync(inputFile);
+const snapshot = parseSnapshot(inputBytes.toString('utf8'));
 const { board, radar } = buildRadar(snapshot);
 const issue = boardIssue(board, snapshot);
 if (issue !== null) {
@@ -94,11 +97,16 @@ const research = {
 const accounting = ledger.rows.map(row => ({
   slug: row.slug, name: row.name, category: row.category, status: row.status, rank: row.rank,
   watchlist: row.watchlist, disposition: row.disposition, evidence: row.evidence,
+  identity:row.external_evidence?.unit, subsequent:row.external_evidence?.subsequent,
 }));
-writeFileSync(join(out, 'data.js'), dataScript(radar) +
+const radarWithEvidence = {...radar, validationEvidence:
+  createHash('sha256').update(inputBytes).digest('hex')===peerFoldEvidence.snapshotDigest ? peerFoldEvidence : null};
+writeFileSync(join(out, 'data.js'), dataScript(radarWithEvidence) +
   `window.RADAR_DECISIONS = ${JSON.stringify(decisionReview)};\n` +
   `window.RADAR_FARM_ECONOMICS = ${farmEconomics.toString().replace(/\r\n/g, '\n')};\n` +
   `window.RADAR_FARM_SUMMARIES = ${JSON.stringify(dashboardFarming)};\n` +
+  `window.RADAR_VALUATION_INPUTS = ${JSON.stringify(snapshot.protocols.map(p=>[p.slug,p.tvl_usd,p.change_7d,p.listed_at]))};\n` +
+  `window.RADAR_REQUIRED_SLUGS = ${JSON.stringify(snapshot.watchlist)};\n` +
   `window.RADAR_ACCOUNTING = ${JSON.stringify(accounting)};\n` +
   `window.RADAR_RESEARCH = ${JSON.stringify(research)};\n` +
   `window.RADAR_INTELLIGENCE = ${JSON.stringify(intelligence)};\n`);
@@ -125,9 +133,24 @@ const dashboardFiles = copyFiles(join(here, 'dashboard'), join(out, 'dashboard')
 // An offline audit extract accompanies the interactive views inside the dossier.
 writeFileSync(join(out,'dashboard','00-farm-plan.txt'),readFileSync(join(here,'lib','farming.ts'),'utf8'));
 const audit = [
-  'Token Radar V8 | Snapshot '+snapshot.as_of+' | '+board.length+' ranked | '+snapshot.watchlist.length+' mandatory',
-  'Default board ranks by descending implied value using the fixed TVL, growth and age valuation. Opportunity order uses assess() and rankDecisions().',
+  'The visible valuation bridge uses the primary Huber/ridge fit. For each input t = ln(TVL in USD), asinh(weekly growth in percentage points / 100), or ln(1 + tracking days). Replace a missing t with its training median m. The stored coefficient b already includes division by the training scale. Each log effect is (t - m) * b. The builder rounds exp(intercept + size effect) * exp(growth effect) * exp(age effect) once to whole dollars with a $1 floor. The brief shows the equivalent exp(sum) and the exact model-dollar result. Adjacent controls follow rows in the currently displayed table, including the allocation shortlist.',
+  'Protocol decision briefs join a snapshot market-cap estimate to the selected entry and exit path. The published estimate uses all eligible priced peers. Named comparables display observed snapshot caps alongside separate predictions from refits excluding their inferred family. Family holdouts are cross-sectional. The displayed peer-error envelope comes from the separate leave-one-peer-out residual study. The brief shows the largest absolute log valuation change across the five saved input stresses and its focal-only rank, holding all other protocols fixed. No actual launch price or wallet payout was observed in these tests.',
+  'Token Radar | Snapshot '+snapshot.as_of+' | '+board.length+' ranked | '+snapshot.watchlist.length+' mandatory',
+  'The valuation board filters by reviewed entry and exit on the same selected instrument. A named deposit path can be verified while its wallet reward, capacity and execution quote remain unknown. The Allocation view starts at zero assumed token reward and zero operating yield. It treats the fee budget as additional to quantified instrument fees, prices alternative simple interest for holding plus settlement, and deducts labor once. Its cross-route comparison lends capital at the common benchmark after earlier settlement through the longer modeled horizon.',
+  'Identity audit: the ledger ranks Exponent Yield Exchange once, with Risk Tranching and Strategy Vaults in the same product family. Figure Markets Prime appears in the ledger under the Figure family. Recompute each selected value from unchanged snapshot TVL, growth and tracking date; sort and check the complete ordered result against the displayed board.',
+  ...['exponent-yield-exchange','ultrayield-curator','figure-markets-prime','bitfi-basis'].map(slug => {
+    const row = ledgerBySlug.get(slug);
+    const evidence = row?.external_evidence;
+    if (!row || !evidence) return '';
+    return [row.name, row.rank ? 'snapshot rank #'+row.rank : 'ledger only', evidence.finding,
+      evidence.sources.join(' '), evidence.subsequent?.finding, evidence.subsequent?.sources.join(' ')].filter(Boolean).join(' | ');
+  }),
+  'Default board ranks by descending implied value using the fixed TVL, growth and age valuation. The allocation shortlist defaults to verified new entry and orders by incremental return per active hour before labor. Official ranks remain visible. The separate advanced scenario diagnostic uses assess() and rankDecisions().',
   Object.values(catalog).flat().length+' participation routes across '+Object.keys(catalog).length+' protocols. Wallet eligibility unknown.',
+  ...['sentora-curator','tydro','bend','yuzu-money','clearstar','axis','bitfi-basis','bucket-cdp'].map(slug=>{
+    const finding=intelligenceBySlug.get(slug)?.participation;
+    return finding ? [slug, finding.date, finding.finding, finding.sources.join(' ')].join(' | ') : '';
+  }),
   ...['shift-defi','lofty','axis','polymarket-international','firelight','extended-perps'].map(slug=>{
     const profiles=catalog[slug], profile=profiles.at(-1);
     const d=decisions.find(r=>r.slug===slug), old=comparison[slug];
@@ -138,7 +161,7 @@ const audit = [
       (profile.terms?.newEntry==='closed' ? 'Existing holder: '+profile.terms.queueDays+' days or approximately '+profile.terms.approxInstantExitBps+' bps for instant redemption. ' : '')+profile.reviewed_at+' | '+profile.sources.join(' ')].join('\n');
   }),
   'Validation labels: V5 · TVL + growth + age identifies the specification used by the V5 entry in the category/family holdouts. M7.1 primary is its model identifier: Huber regression on TVL, seven-day growth and tracking age with ridge 1 on the non-TVL terms. Each validation fold refits its coefficients. The lower charts report leave-one-out and age-cohort tests; the board fits all eligible traded peers.',
-  'The ranked default uses the first listed profile. Alternate paths and program terms are selectable in Decision. Fixed capital, zero realized trading profit, equal exit notional. Quote-dependent costs retain a user budget.'
+  'Allocation exposes other selected routes and exit variants. The advanced Scenario lab retains the optional wallet-share sensitivity model. Its initial joint success weight is zero.'
 ];
 writeFileSync(join(out,'dashboard','00-audit.txt'), audit.join('\n')+'\n');
 dashboardFiles.push('00-audit.txt','00-farm-plan.txt');

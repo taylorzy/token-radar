@@ -45,6 +45,7 @@ function categoryRoute(category: string) {
 export function farmPlan(p: SnapshotProtocol): string[] {
   const documented = documentedRoute(p.slug);
   const finding = participationReview(p.slug);
+  if (finding && "researchSteps" in finding) return finding.researchSteps;
   if (!documented && finding) return [
     'Research only. ' + finding.finding + ' Source: ' + finding.sources[0] + '.',
     'Check the named product, access terms, transaction quote and exit mechanism with the issuer. Allow 20 minutes for review as a planning assumption.',

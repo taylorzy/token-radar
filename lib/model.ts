@@ -79,7 +79,7 @@ export interface BoardRow {
   listed_at: string | null;
   gecko_id: string | null;
   symbol: string | null;
-  token_status: 'pre-token';
+  token_status: 'pre-token' | 'mandatory-exception';
   age_days: number | null;
   implied_value_usd: number;
   model: {
@@ -257,7 +257,7 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL, re
     listed_at: s.p.listed_at,
     gecko_id: s.p.gecko_id,
     symbol: s.p.symbol,
-    token_status: 'pre-token',
+    token_status: classification.get(s.p.slug)?.status === 'Pre-token candidate' ? 'pre-token' : 'mandatory-exception',
     age_days: s.age,
     implied_value_usd: s.implied,
     model: {

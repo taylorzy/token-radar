@@ -37,10 +37,12 @@
   "axis": {
     "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Existing ogUSDx holder only. Origin subscriptions closed August 5.",
+    "finding": "Origin subscriptions closed August 5. A holder can queue an ogUSDx redemption into USDx or request instant liquidity. Separately named ecosystem positions need a fresh product-specific review.",
     "sources": [
       "https://www.axis.to/insights/Whats-Next-for-USDx-and-Coordinates"
-    ]
+    ],
+    "entryLabel": "Origin holders only",
+    "decisionSummary": "7-day queue or ~30 bp instant"
   },
   "b14g": {
     "status": "Further verification",
@@ -52,11 +54,14 @@
   },
   "bitfi-basis": {
     "status": "Further verification",
-    "date": "2026-11-26",
-    "finding": "Current issuer page advertises a BFI claim and bfUSD strategies. The sealed snapshot label predates this evidence. No new-token opportunity is inferred.",
+    "date": "2026-11-27",
+    "finding": "Kraken listed BFI on November 20 after the sealed snapshot. Verify claim eligibility at the issuer; depositing into a basis strategy does not establish a fresh BFI distribution.",
     "sources": [
-      "https://www.bitfi.one"
-    ]
+      "https://www.bitfi.one/claim",
+      "https://blog.kraken.com/product/asset-listings/bfi-is-available-for-trading"
+    ],
+    "entryLabel": "BFI already listed",
+    "decisionSummary": "Post-snapshot · verify holder claim"
   },
   "bittensor-dtao": {
     "status": "Further verification",
@@ -69,10 +74,13 @@
   "bucket-cdp": {
     "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Deposit accepted collateral and borrow BUCK against Bottle",
+    "finding": "Current Sui CDPs borrow USDB. The issuer documents a separate migration from legacy BUCK debt, with no one-time origination fee on the new CDP. Interest and gas apply.",
     "sources": [
-      "https://docs.bucketprotocol.io/introduction"
-    ]
+      "https://docs.bucketprotocol.io/user-guides/bucket-upgrade-and-migration",
+      "https://docs.bucketprotocol.io/mechanism/how-cdp-work"
+    ],
+    "entryLabel": "New USDB market",
+    "decisionSummary": "Sui CDP · legacy BUCK migration separate"
   },
   "byreal": {
     "status": "Further verification",
@@ -93,12 +101,14 @@
   },
   "clearstar": {
     "status": "Documented route",
-    "date": "2026-11-26",
-    "finding": "Match the Arc USDC vault. A similarly named vault accepts vbUSDC. Check interface eligibility and available withdrawal liquidity.",
+    "date": "2026-11-27",
+    "finding": "The Arc Clearstar Core USDC listing identifies the vault and the fee on earnings; neither the performance fee nor a reserve balance is an upfront charge on principal.",
     "sources": [
       "https://app.morpho.org/arc/vault/0xd45C268Ef9850a00D51d7c05C0aF17fdAd309060/clearstar-core-usdc",
       "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ]
+    ],
+    "entryLabel": "USDC vault identified",
+    "decisionSummary": "Arc · 5% fee on earnings"
   },
   "curvance": {
     "status": "Documented route",
@@ -427,13 +437,15 @@
     ]
   },
   "sentora-curator": {
-    "status": "Documented route",
-    "date": "2026-11-26",
-    "finding": "For the Sentora Tempo Morpho route, verify the exact vault, pathUSD supply asset, gas asset, cap and access before funding.",
+    "status": "Further verification",
+    "date": "2026-11-27",
+    "finding": "The named Tempo pathUSD vault is marked deprecated in the curator directory. Inspect liquidity and fees for holder exits. The current OUSD vault is a separate instrument. ",
     "sources": [
-      "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo",
-      "https://docs.morpho.org/get-started/resources/apps/vault/"
-    ]
+      "https://app.morpho.org/curator/sentora",
+      "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo"
+    ],
+    "entryLabel": "Deprecated vault",
+    "decisionSummary": "Tempo pathUSD · holder exit only"
   },
   "shift-defi": {
     "status": "Documented route",
@@ -502,12 +514,15 @@
     ]
   },
   "tydro": {
-    "status": "Further verification",
+    "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Supported Ink market suppliers earn interest. Verify redemption and market liquidity before promotion.",
+    "finding": "Ink lists GHO and the issuer documents an unlevered supply-to-withdraw flow. The withdrawal requires sufficient reserve liquidity.",
     "sources": [
-      "https://docs.tydro.com/"
-    ]
+      "https://tydro.com/faq",
+      "https://app.tydro.com/markets/"
+    ],
+    "entryLabel": "Supply route verified",
+    "decisionSummary": "Ink GHO · liquidity-gated exit"
   },
   "upshift": {
     "status": "Documented route",
@@ -560,9 +575,27 @@
   "yuzu-money": {
     "status": "Documented route",
     "date": "2026-11-27",
-    "finding": "Stake yzUSD for syzUSD",
+    "finding": "The wrapper returns yzUSD. Primary redemption has investor screening. For the Plasma yzPP route, a 30-day first-loss exit request requires at least 5,000 yzPP.",
     "sources": [
       "https://app.yuzu.money/docs"
+    ],
+    "entryLabel": "Three distinct positions",
+    "decisionSummary": "yzPP · 30-day first-loss exit"
+  },
+  "bend": {
+    "status": "Conditional route",
+    "date": "2026-11-27",
+    "finding": "Berachain lists a Re7 BUSD lending vault. Identify the exact vault and BUSD on Berachain; check current caps, terms and locally eligible access.",
+    "sources": [
+      "https://bend.berachain.com/lend",
+      "https://forum.berachain.com/t/protocol-update-new-emissions-routing/1587"
+    ],
+    "entryLabel": "Market identified",
+    "decisionSummary": "Re7 BUSD · verify redemption",
+    "researchSteps": [
+      "Conditional route. BEND. The lending interface lists Re7 BUSD on Berachain. Match the BUSD asset and curator. Cost: $0 for review. Time: allow 20 minutes as an estimate.",
+      "Before any deposit obtain the current share redemption terms, liquidity, entry and exit quotes, and local access conditions. The lending page alone does not establish these details.",
+      "Borrower interest and chain-level emissions are separate from a prospective BEND token. No distribution to this wallet is verified. Leave capital uncommitted until withdrawal terms are known."
     ]
   }
 }

@@ -1,6 +1,6 @@
 /* Shared by the Node build and the offline scenario editor. Monetary amounts are USD. */
 (function () {
-  const defaults = Object.freeze({capital:1000, days:30, annual:5, fees:8, hours:1, wage:20, ppm:2, success:25});
+  const defaults = Object.freeze({capital:1000, days:30, annual:5, fees:8, hours:1, wage:20, ppm:2, success:0});
   const fields = Object.keys(defaults);
   // ppm is a hypothetical wallet share of the modeled circulating market cap.
   // success is the user's joint launch, distribution and qualification weight for the horizon.
@@ -86,12 +86,16 @@
     let verdict, tier, next;
     if (ledger.status !== 'Pre-token candidate' || row.slug === 'bitfi-basis') {
       tier=5; verdict='Resolve token identity'; next=checks[row.slug] || ledger.evidence.at(-1);
+    } else if (profile?.terms?.newEntry==='deprecated') {
+      tier=4; verdict='Hold new deposits'; next=profile.entry;
+    } else if (profile?.terms?.minimumRedemptionUnits) {
+      tier=4; verdict='Verify redemption size'; next=profile.exit;
     } else if (profile?.terms?.newEntry==='closed' || profile?.id==='yuzu-money/primary' || (profile?.minimum?.asset==='USDC' && inputs.capital<profile.minimum.amount)) {
       tier=4; verdict='Verify access or risk'; next=profile.terms?.newEntry==='closed' ? 'Closed to new Origin entries. Exit scenarios apply to existing holders.' : profile.entry;
     } else if (checks[row.slug]) {
       tier=4; verdict='Verify access or risk'; next=checks[row.slug];
     } else if (!farm.route) {
-      tier=3; verdict='Verify participation'; next=intel.participation?.finding || 'Find primary evidence for entry, custody and withdrawal.';
+      tier=3; verdict=intel.participation?.status==='Conditional route' ? 'Verify exit terms' : 'Verify participation'; next=intel.participation?.finding || 'Find primary evidence for entry, custody and withdrawal.';
     } else {
       tier=base && base.net >= 0 ? 1 : 2;
       verdict=!base ? 'Complete scenario' : base.net < 0 ? 'Below break-even' :
@@ -109,7 +113,7 @@
       (b.presence ?? -1)-(a.presence ?? -1) || a.officialRank-b.officialRank)
       .map((r,i)=>({...r,opportunityRank:i+1}));
   }
-  const api = {defaults,economics,assess,rankDecisions};
+  const api = {defaults,economics,resolveRoute,assess,rankDecisions};
   if (typeof module === 'object') module.exports=api;
   else window.RadarDecision=api;
 })();

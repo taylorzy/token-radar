@@ -1,0 +1,420 @@
+{
+  "exponent-yield-exchange": {
+    "reviewed_at": "2026-11-27",
+    "status": "Pre-token candidate",
+    "unit": "Family representative",
+    "finding": "Exponent describes the rate exchange as the core from which its platform expanded. Screen the family once through this original operating market, using only this snapshot row’s TVL. PT and YT are positions; an independent platform token or distribution is unconfirmed.",
+    "sources": [
+      "https://www.exponent.finance/blog/exponent-v2-is-live",
+      "https://app.exponent.finance/en/security"
+    ]
+  },
+  "exponent-strategy-vaults": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Sibling product",
+    "finding": "Exponent documents strategy vaults within its shared platform. Represent the family under Exponent Yield Exchange; keep this product in the ledger without aggregating its TVL.",
+    "sources": [
+      "https://www.exponent.finance/blog/exponent-v2-is-live",
+      "https://app.exponent.finance/en/security"
+    ]
+  },
+  "exponent-risk-tranching": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Sibling product",
+    "finding": "Exponent documents risk tranching within its shared platform. Represent the family under Exponent Yield Exchange; keep this product in the ledger without aggregating its TVL.",
+    "sources": [
+      "https://www.exponent.finance/blog/exponent-v2-is-live",
+      "https://app.exponent.finance/en/security"
+    ]
+  },
+  "felix-cdp": {
+    "reviewed_at": "2026-11-27",
+    "status": "Likely existing-token product",
+    "unit": "Issued stablecoin",
+    "finding": "The Felix CDP exists to mint its issued stablecoin feUSD. Its financing activity does not independently identify a prospective CDP token. The Felix organisation’s possible future governance issuance remains unresolved.",
+    "sources": [
+      "https://usefelix.gitbook.io/docs/lending-products/quickstart/how-it-works",
+      "https://usefelix.gitbook.io/docs/terms/terms-and-conditions"
+    ]
+  },
+  "felix-vaults": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Sibling product",
+    "finding": "Felix operates multiple lending products. There is insufficient evidence that a vault row represents Felix as a whole or a separately tokenizing venture. Keep the underlying Felix family as a research lead.",
+    "sources": [
+      "https://usefelix.gitbook.io/docs"
+    ]
+  },
+  "gmx-solana": {
+    "reviewed_at": "2026-11-27",
+    "status": "Likely existing-token product",
+    "unit": "Existing ecosystem",
+    "finding": "GMX publishes the Solana address of its platform token. The Solana product also documents GT incentives and its treasury arrangement with GMX contributors. A name match alone does not establish that a GT reward is a second governance launch.",
+    "sources": [
+      "https://docs.gmx.io/docs/tokenomics/gmx-token/",
+      "https://docs.gmxsol.io/about/gt_overview/",
+      "https://docs.gmxsol.io/about/fee_distribution/"
+    ]
+  },
+  "hylo-protocol": {
+    "reviewed_at": "2026-11-27",
+    "status": "Likely existing-token product",
+    "unit": "Issued product tokens",
+    "finding": "Hylo identifies its dual-token system as hyUSD and xSOL. Treat this particular dual-token product as existing asset exposure; a separate platform governance issuance remains unconfirmed.",
+    "sources": [
+      "https://docs.hylo.so/protocol-overview/hyUSD-%26-xSOL"
+    ]
+  },
+  "hyperbeat-earn": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Vault product",
+    "finding": "Earn distributes vault products while Hyperbeat separately distributes a liquid staking product. Neither a vault receipt nor beHYPE establishes an independent Earn issuance. No organisation-level representative identified.",
+    "sources": [
+      "https://docs.hyperbeat.org/hyperbeat-earn",
+      "https://docs.hyperbeat.org/hyperbeat-staking/behype"
+    ]
+  },
+  "kava-mint": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Network module",
+    "finding": "Mint is the Kava CDP module for collateralized issuance of USDX; KAVA is used in the Kava economy. HARD on the lending peer is not the Mint asset.",
+    "sources": [
+      "https://docs.kava.io/docs/faq/basics/",
+      "https://docs.kava.io/docs/cosmos/modules/cdp/"
+    ]
+  },
+  "manta-cedefi": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Network product",
+    "finding": "Manta Network publishes CeDeFi as its yield product combining CeFi and DeFi. This establishes issuer affiliation, not an additional CeDeFi governance launch.",
+    "sources": [
+      "https://mantanetwork.medium.com/manta-cedefi-boosting-yield-and-security-4728b723be69",
+      "https://manta.network/"
+    ]
+  },
+  "marginfi-lending": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Successor program",
+    "finding": "Project 0 identifies mrgnLend v2 as the underlying program. A lending-program row is not independent evidence of another issuer. The snapshot does not contain an unambiguous parent row.",
+    "sources": [
+      "https://docs.marginfi.com/protocol-overview/architecture",
+      "https://docs.marginfi.com/protocol-overview/program-addresses"
+    ]
+  },
+  "metalx-swap": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Exchange feature",
+    "finding": "Metal X describes Swap as a service within its XPR Network app. A swap pair containing LOAN does not establish that LOAN is a Metal X Swap governance token.",
+    "sources": [
+      "https://docs.metalx.com/swap-pools-and-farms/what-is-metal-x-swap/metal-x-swap-faq",
+      "https://app.metalx.com/lending/XPR"
+    ]
+  },
+  "plasma-one": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Network product",
+    "finding": "Plasma launched XPL as its native token and describes the Plasma One app and its earn interface. A card or savings feature has no established separate launch in the cited materials.",
+    "sources": [
+      "https://www.plasma.to/insights/plasma-mainnet-beta-and-xpl",
+      "https://www.plasma.to/insights/introducing-plasma-one-the-one-app-for-your-money",
+      "https://www.plasma.to/one/ja"
+    ]
+  },
+  "plasma-saving-vaults": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Network product",
+    "finding": "Plasma launched XPL as its native token and describes the Plasma One app and its earn interface. A card or savings feature has no established separate launch in the cited materials.",
+    "sources": [
+      "https://www.plasma.to/insights/plasma-mainnet-beta-and-xpl",
+      "https://www.plasma.to/insights/introducing-plasma-one-the-one-app-for-your-money",
+      "https://www.plasma.to/one/ja"
+    ]
+  },
+  "ultrayield-curator": {
+    "reviewed_at": "2026-11-27",
+    "status": "Pre-token candidate",
+    "unit": "Family representative",
+    "finding": "UltraYield describes itself as a vault curator and infrastructure provider, distinct from the individual investment instruments that it provides. Keep the operating curator as a conditional family representative; use only its recorded TVL. A future platform token is unverified.",
+    "sources": [
+      "https://ultrayield.app/",
+      "https://preview.ultrayield.app/vaults/edgeusdx"
+    ]
+  },
+  "ultrayield-vaults": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Sibling product",
+    "finding": "UltraYield vaults deliver investment strategies and the Edge vault lends to an Edge fund. Screen the operating curator once; no independent vault-level governance claim established.",
+    "sources": [
+      "https://ultrayield.app/",
+      "https://preview.ultrayield.app/vaults/edgeusdx"
+    ]
+  },
+  "lightning-network": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Mandatory exception",
+    "finding": "The Lightning Network is a Bitcoin payment-channel network. Its channel balance is denominated in BTC; this review found no separate Lightning token in the cited specification.",
+    "sources": [
+      "https://lightning.network/",
+      "https://docs.lightning.engineering/the-lightning-network/payment-channels/lifecycle-of-a-payment-channel"
+    ]
+  },
+  "mezo-earn": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Mandatory exception",
+    "finding": "Mezo confirms Earn is its incentive framework, using locked BTC and MEZO for governance. MUSD is a separate BTC-backed stablecoin. The snapshot bridge peer is not the identification basis for Earn.",
+    "sources": [
+      "https://mezo.org/docs/users/mezo-earn/overview/",
+      "https://mezo.org/docs/MEZO_Disclosure.pdf"
+    ]
+  },
+  "bittensor-dtao": {
+    "reviewed_at": "2026-11-27",
+    "status": "Likely existing-token product",
+    "unit": "Mandatory exception",
+    "finding": "Dynamic TAO is a Bittensor network mechanism. Subnet staking exchanges TAO for subnet-specific alpha assets; the aggregate row does not identify one new valuation target.",
+    "sources": [
+      "https://www.bittensor.com/docs/concepts/staking-pools"
+    ]
+  },
+  "plume-vaults": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Mandatory exception",
+    "finding": "Plume identifies these vaults as its former Nest product. Vault tokens represent investment positions; the Plume product relationship does not establish a distinct vault governance token.",
+    "sources": [
+      "https://www.plume.org/vaults",
+      "https://docs.nest.credit/about/liquidity-and-redemptions"
+    ]
+  },
+  "usdd": {
+    "reviewed_at": "2026-11-27",
+    "status": "Likely existing-token product",
+    "unit": "Mandatory exception",
+    "finding": "USDD issuer documentation identifies a deployed USDD stablecoin and its contract addresses; the null token fields in this snapshot row do not reflect that asset.",
+    "sources": [
+      "https://docs.usdd.io/developers/deployment-addresses"
+    ]
+  },
+  "sentora-curator": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating platform",
+    "finding": "Sentora confirms it curates named Morpho vaults, including a Tempo pathUSD vault and an Ethereum PRIME market vault. These relationships identify a curator and its deployments, not a DefiLlama parent field or independent token status.",
+    "sources": [
+      "https://sentora.com/research/articles/sentora-launches-morpho-vault-to-support-institutional-defi-on-tempo",
+      "https://sentora.com/research/articles/sentora-launches-prime-vault-on-morpho"
+    ]
+  },
+  "polymarket-international": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating platform",
+    "finding": "Polymarket identifies pUSD as venue collateral. That does not establish a governance token for this row. The help article is a dated statement; current campaign status was not independently established.",
+    "sources": [
+      "https://help.polymarket.com/en/articles/13364250-does-polymarket-have-a-token"
+    ]
+  },
+  "cian-yield-layer": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating platform",
+    "finding": "CIAN identifies Yield Layer as its vault product and issued vault shares as receipts. The sources do not establish a distinct governance token for this snapshot row.",
+    "sources": [
+      "https://docs.cian.app/yieldlayer/for-users-quick-start/core-concepts-and-yield-layer-page-overview"
+    ]
+  },
+  "steakhouse-financial": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating curator",
+    "finding": "Steakhouse distinguishes its advisory and curation business from its vaulted products. Each share belongs to a strategy. A separate Steakhouse launch is unconfirmed.",
+    "sources": [
+      "https://www.steakhouse.financial/about",
+      "https://www.steakhouse.financial/docs/risk-management"
+    ]
+  },
+  "gauntlet": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating curator",
+    "finding": "Morpho identifies Gauntlet as a risk curator. Vault collateral and share balances establish deployed products, not a transferable Gauntlet governance asset.",
+    "sources": [
+      "https://morpho.org/stories/gauntlet"
+    ]
+  },
+  "veda": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Infrastructure provider",
+    "finding": "Veda describes BoringVault as infrastructure for other issuers. Product shares on that infrastructure do not by themselves establish a Veda-issued ecosystem token.",
+    "sources": [
+      "https://docs.veda.tech/",
+      "https://docs.veda.tech/architecture-and-flow-of-funds/core-components"
+    ]
+  },
+  "nonce-capital": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating curator",
+    "finding": "Veda identifies Nonce Capital as an EtherFi vault curator. Name-only matches to other Nonce-branded pools do not identify the same operator. A native token and any distribution remain unconfirmed.",
+    "sources": [
+      "https://veda.tech/ecosystem/nonce-capital",
+      "https://nonce-capital.xyz/"
+    ]
+  },
+  "shift-defi": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating platform",
+    "finding": "Shift documents an automated strategy platform with product-specific tokens and exit rules. Its vault shares do not establish a separate launch at platform level.",
+    "sources": [
+      "https://shiftprotocol.gitbook.io/shift/resources/faq"
+    ]
+  },
+  "upshift": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Infrastructure provider",
+    "finding": "Upshift documents yield infrastructure and tokenized positions for asset managers. Keep the operator separate from the instruments it issues for clients.",
+    "sources": [
+      "https://www.upshift.finance/about",
+      "https://docs.upshift.finance/introduction/how-it-works"
+    ]
+  },
+  "onre": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating issuer",
+    "finding": "ONyc is an issued proportional interest in a reinsurance account. This identifies the investment instrument. A separate issuer-level token and launch are unverified.",
+    "sources": [
+      "https://docs.onre.finance/introduction/onre-tokenized-reinsurance-onyc"
+    ]
+  },
+  "rockawayx": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating curator",
+    "finding": "RockawayX identifies its vault curation activity across multiple venues. Model the curator only; individual vault receipts do not prove its own governance issuance.",
+    "sources": [
+      "https://rockawayx.com/vaults",
+      "https://app.morpho.org/vaults?curators=rockawayx"
+    ]
+  },
+  "defi-saver-asset-management": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Application",
+    "finding": "DeFi Saver describes itself as a management application for external DeFi positions. Its users can own third-party assets without holding a DeFi Saver token. No other DeFi Saver family row passed the broad screen.",
+    "sources": [
+      "https://help.defisaver.com/general/what-is-defi-saver"
+    ]
+  },
+  "mellow-core": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Core infrastructure",
+    "finding": "Mellow distinguishes its vault infrastructure from individual deployed strategies. Retain Core as the operating infrastructure record; the snapshot already sets the restaking row aside.",
+    "sources": [
+      "https://mellow.finance/vault",
+      "https://docs.mellow.finance/mellow-permissionless-vaults/architecture"
+    ]
+  },
+  "opentrade": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Infrastructure provider",
+    "finding": "OpenTrade provides vault infrastructure for third parties. Vault positions represent investment or creditor rights under their own terms, not a confirmed platform token.",
+    "sources": [
+      "https://www.opentrade.io/infrastructure",
+      "https://docs.opentrade.io/terms-and-conditions/platform-terms-of-service"
+    ]
+  },
+  "symbiotic": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Network infrastructure",
+    "finding": "Symbiotic vaults accept collateral for opt-in security networks and issue collateral shares. Independent protocol governance issuance or entitlement is unconfirmed.",
+    "sources": [
+      "https://docs.symbiotic.fi/learn/core-concepts/vault",
+      "https://resources.symbiotic.fi/symbiotic-core-v2-technical-overview"
+    ]
+  },
+  "r25": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Infrastructure provider",
+    "finding": "R25 identifies its core business as onchain vault infrastructure. Product-level yield instruments and an independent R25 token have distinct claims. Specific platform-token evidence is unresolved.",
+    "sources": [
+      "https://www.r25.xyz/"
+    ]
+  },
+  "hyperithm": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Operating curator",
+    "finding": "Morpho identifies Hyperithm as curator of named vaults. No separate native-token status follows from the associated asset names or vault receipts.",
+    "sources": [
+      "https://app.morpho.org/curator/hyperithm"
+    ]
+  },
+  "figure-markets-prime": {
+    "reviewed_at": "2026-11-27",
+    "status": "Related product",
+    "unit": "Subsidiary product",
+    "finding": "The dated Prime terms identify a lending marketplace operated by a Figure Markets subsidiary. The same snapshot already ranks Figure Markets Exchange. Use the venue row as the family representative and separately retain Prime in the ledger; avoid counting both as independent launches.",
+    "sources": [
+      "https://www.figuremarkets.com/democratized-prime-general-terms-and-conditions-2025-10-22-v2.pdf",
+      "https://www.figuremarkets.com/disclosures/terms-of-service/"
+    ]
+  },
+  "figure-markets-exchange": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Family representative",
+    "finding": "Figure Markets operates the exchange and its subsidiary operates Prime. Use the exchange venue as the family representative. Its trading services, listed assets and a possible platform launch are separate claims.",
+    "sources": [
+      "https://www.figuremarkets.com/disclosures/terms-of-service/",
+      "https://www.figuremarkets.com/democratized-prime-general-terms-and-conditions-2025-10-22-v2.pdf"
+    ]
+  },
+  "bitfi-basis": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Dated token exception",
+    "finding": "The issuer advertised a BFI sale starting June 11. A sale alone does not establish trading on the November 14 snapshot. Preserve the dated estimate; the later listing is reported separately.",
+    "sources": [
+      "https://www.bitfi.one/sale"
+    ],
+    "subsequent": {
+      "date": "2026-11-20",
+      "label": "BFI trading since Nov 20",
+      "finding": "Kraken opened BFI trading after this snapshot. BitFi identifies BFI as its native token. Exclude this historical row when screening current pre-launch leads.",
+      "sources": [
+        "https://blog.kraken.com/product/asset-listings/bfi-is-available-for-trading",
+        "https://www.bitfi.one/claim"
+      ]
+    }
+  },
+  "k3-capital": {
+    "reviewed_at": "2026-11-27",
+    "status": null,
+    "unit": "Limited verification",
+    "finding": "The K3 identity is consistent with the named operator, but its US landing page has limited disclosure. The cited page does not establish either a native token or an accessible vault. Preserve the snapshot candidate with limited confidence.",
+    "sources": [
+      "https://www.k3.capital/us"
+    ]
+  }
+}
